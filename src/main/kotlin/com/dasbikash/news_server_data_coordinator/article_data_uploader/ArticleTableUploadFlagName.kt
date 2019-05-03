@@ -13,26 +13,8 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-
-internal class ArticleDataUploaderToRealTimeDbTest {
-
-    @BeforeEach
-    fun setUp() {
-    }
-
-    @AfterEach
-    fun tearDown() {
-    }
-
-    @Test
-    fun testWrite(){
-        val writeThread = ArticleDataUploaderToRealTimeDb()
-        writeThread.start()
-        writeThread.join()
-    }
+enum class ArticleTableUploadFlagName(val flagName:String){
+    REAL_TIME_DB("upOnFirebaseDb"),
+    FIRE_STORE_DB("upOnFireStore"),
+    MONGO_REST_SERVICE("upOnMongoRest")
 }

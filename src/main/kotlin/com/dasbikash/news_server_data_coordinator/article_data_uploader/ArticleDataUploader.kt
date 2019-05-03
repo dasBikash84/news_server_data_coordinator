@@ -22,11 +22,6 @@ import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class ArticleTableUploadFlagName(val flagName:String){
-    REAL_TIME_DB("upOnFirebaseDb"),
-    FIRE_STORE_DB("upOnFireStore"),
-    MONGO_REST_SERVICE("upOnMongoRest")
-}
 
 abstract class ArticleDataUploader:Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
@@ -119,26 +114,3 @@ abstract class ArticleDataUploader:Thread() {
         }while (true)
     }
 }
-
-class TestArticleUploader():ArticleDataUploader(){
-    override fun getArticleTableUploadFlagName(): ArticleTableUploadFlagName {
-        return ArticleTableUploadFlagName.MONGO_REST_SERVICE
-    }
-
-    override fun getMaxArticleAgeInDays(): Int {
-        return 30
-    }
-
-    override fun maxArticleCountForUpload(): Int {
-        return 100
-    }
-
-    override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
-        for (article in articlesForUpload) {
-            println("Uploading article with id: ${article.id} and title: ${article.title}")
-            sleep(100L)
-        }
-        return true
-    }
-}
-

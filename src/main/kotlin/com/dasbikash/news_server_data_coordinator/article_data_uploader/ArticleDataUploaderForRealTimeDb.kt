@@ -16,7 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.Article
 
-class ArticleDataUploaderToRealTimeDb:ArticleDataUploader() {
+class ArticleDataUploaderForRealTimeDb:ArticleDataUploader() {
 
     override fun getArticleTableUploadFlagName(): ArticleTableUploadFlagName {
         return ArticleTableUploadFlagName.REAL_TIME_DB
