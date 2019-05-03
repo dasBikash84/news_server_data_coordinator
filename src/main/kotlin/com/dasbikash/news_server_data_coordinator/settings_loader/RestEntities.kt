@@ -11,18 +11,12 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.settings_loader
 
-import javax.persistence.*
+import com.dasbikash.news_server_data_coordinator.model.*
 
-@Entity
-@Table(name = DatabaseTableNames.COUNTRY_TABLE_NAME)
-data class Country (
-        @Id var name: String="",
-        var countryCode: String?=null,
-        var timeZone: String?=null
-){
-
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
-        var newsPapers:List<Newspaper>? = null
-}
+class Languages(){var languages:List<Language>?=null}
+class Countries(){var countries:List<Country>?=null}
+class Newspapers(){var newspapers:List<Newspaper>?=null}
+class Pages(){var pages:List<Page>?=null}
+class Articles(){var articles:List<Article>?=null}

@@ -13,30 +13,54 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import java.lang.IllegalArgumentException
 import javax.persistence.*
 
 @Entity
 @Table(name = DatabaseTableNames.NEWSPAPER_TABLE_NAME)
 data class Newspaper(
         @Id var id: String="",
-        var name: String?=null,
-
+        var name: String?=null
+) {
         @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
         @JoinColumn(name="countryName")
-        var country: Country?=null,
+        var country: Country?=null
 
         @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
         @JoinColumn(name="languageId")
-        var language: Language?=null,
+        var language: Language?=null
 
-        var active: Boolean=true,
+        var active: Boolean=true
 
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class)
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class
+                ,cascade = arrayOf(CascadeType.ALL))
         var pageList: List<Page>?=null
+        @Transient
+        var countryName:String?=null
+        @Transient
+        var languageId:String?=null
 
 
-) {
-        override fun toString(): String {
-                return "Newspaper(id='$id', name=$name, country=$country, language=$language, active=$active)"
+        fun setCountryData(countries:List<Country>){
+                for (country in countries){
+                        if (country.name.equals(this.countryName)){
+                                this.country = country
+                                break
+                        }
+                }
+                if (this.country == null){
+                        throw IllegalArgumentException()
+                }
+        }
+        fun setLanguageData(languages:List<Language>){
+                for (language in languages){
+                        if (language.id.equals(this.languageId)){
+                                this.language = language
+                                break
+                        }
+                }
+                if (this.language == null){
+                        throw IllegalArgumentException()
+                }
         }
 }

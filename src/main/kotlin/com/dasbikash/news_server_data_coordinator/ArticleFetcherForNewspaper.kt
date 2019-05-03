@@ -11,18 +11,21 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator
 
-import javax.persistence.*
+import com.dasbikash.news_server_data_coordinator.model.Newspaper
+import com.dasbikash.news_server_data_coordinator.model.Page
 
-@Entity
-@Table(name = DatabaseTableNames.COUNTRY_TABLE_NAME)
-data class Country (
-        @Id var name: String="",
-        var countryCode: String?=null,
-        var timeZone: String?=null
-){
+class ArticleFetcherForNewspaper(val newspaper: Newspaper, val pages:List<Page>)
+    : Thread() {
+    override fun run() {
+        super.run()
+        do {
+            pages.asSequence().forEach {
 
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
-        var newsPapers:List<Newspaper>? = null
+            }
+        }while (true)
+    }
+
+
 }

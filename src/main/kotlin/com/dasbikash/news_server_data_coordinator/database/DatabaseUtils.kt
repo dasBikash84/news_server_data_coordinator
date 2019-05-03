@@ -13,9 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.database
 
-import com.dasbikash.news_server_data_coordinator.model.Article
-import com.dasbikash.news_server_data_coordinator.model.EntityClassNames
-import com.dasbikash.news_server_data_coordinator.model.Newspaper
+import com.dasbikash.news_server_data_coordinator.model.*
 import org.hibernate.Session
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 
@@ -58,13 +56,25 @@ object DatabaseUtils {
         return false
     }
 
+    fun getAllLanguages(session: Session): List<Language>{
+        val hql = "FROM ${EntityClassNames.LANGUAGE}"
+        val query = session.createQuery(hql, Language::class.java)
+        return query.list() as List<Language>
+    }
+
+    fun getAllCountries(session: Session): List<Country>{
+        val hql = "FROM ${EntityClassNames.COUNTRY}"
+        val query = session.createQuery(hql, Country::class.java)
+        return query.list() as List<Country>
+    }
+
     fun getAllActiveNewspapers(session: Session): List<Newspaper>{
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val query = session.createQuery(hql, Newspaper::class.java)
         return query.list() as List<Newspaper>
     }
 
-    fun findArticleById(session: Session,id:String): Article?{
+    /*fun findArticleById(session: Session,id:String): Article?{
         val hql = "FROM ${EntityClassNames.ARTICLE} where id='${id}'"
         val query = session.createQuery(hql, Article::class.java)
         val resultList = query.list() as List<Article>
@@ -72,5 +82,5 @@ object DatabaseUtils {
             return resultList.get(0)
         }
         return null
-    }
+    }*/
 }

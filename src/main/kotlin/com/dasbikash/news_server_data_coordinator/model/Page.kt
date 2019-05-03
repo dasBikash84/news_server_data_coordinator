@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import java.lang.IllegalArgumentException
 import javax.persistence.*
 
 @Entity
@@ -21,19 +22,35 @@ data class Page(
         @Id
         var id: String="",
         var name: String?=null,
-
-        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="newsPaperId")
-        var newspaper: Newspaper?=null,
-
         var parentPageId: String?=null,
         var hasData: Boolean?=null,
         var hasChild: Boolean?=null,
-        var topLevelPage: Boolean?=null,
+        var topLevelPage: Boolean?=null
+){
 
-        var active: Boolean = true,
+        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
+        @JoinColumn(name="newsPaperId")
+        var newspaper: Newspaper?=null
+        var active: Boolean = true
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
         var articleList: List<Article>?=null
+        @Transient
+        var newsPaperId:String?=null
 
-)
+        fun setNewsPaperData(newspapers: List<Newspaper>){
+                for (newspaper in newspapers){
+                        if (newspaper.id.equals(newsPaperId)){
+                                this.newspaper = newspaper
+                                break
+                        }
+                }
+                if(newspaper == null){
+                        throw IllegalArgumentException()
+                }
+        }
+
+        override fun toString(): String {
+                return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
+        }
+}

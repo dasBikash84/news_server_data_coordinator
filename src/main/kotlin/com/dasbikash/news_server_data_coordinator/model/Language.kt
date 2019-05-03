@@ -21,12 +21,9 @@ import javax.persistence.*
 @Table(name = DatabaseTableNames.LANGUAGE_TABLE_NAME)
 data class Language (
         @Id var id:String="",
-        var name: String?=null,
+        var name: String?=null
+){
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
         @Exclude
         var newsPapers:List<Newspaper>? = null
-){
-        override fun toString(): String {
-                return "Language(id='$id', name=$name)"
-        }
 }

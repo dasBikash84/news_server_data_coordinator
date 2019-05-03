@@ -22,25 +22,29 @@ import kotlin.collections.ArrayList
 data class Article(
         @Id
         var id: String="",
-
-        @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
-        @JoinColumn(name = "pageId")
-        var page: Page? = null,
-
         var title: String? = null,
-
         @Column(name = "articleText", columnDefinition = "text")
         var articleText: String? = null,
 
         @Column(columnDefinition = "text")
         var previewImageLink: String? = null,
-        var publicationTime:Date? = null,
-        var upOnFirebaseDb:Boolean = false,
-        var upOnFireStore:Boolean = false,
-        var upOnMongoRest:Boolean = false,
+        var publicationTime:Date? = null
+){
+
+        @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
+        @JoinColumn(name = "pageId")
+        var page: Page? = null
+        var upOnFirebaseDb:Boolean = false
+        var upOnFireStore:Boolean = false
+        var upOnMongoRest:Boolean = false
 
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
         @Column(name = "imageLink", columnDefinition = "text")
         var imageLinkList: List<ArticleImage> = ArrayList()
-)
+
+
+        override fun toString(): String {
+                return "Article(id='$id', title=$title,page=${page?.name})"
+        }
+}
