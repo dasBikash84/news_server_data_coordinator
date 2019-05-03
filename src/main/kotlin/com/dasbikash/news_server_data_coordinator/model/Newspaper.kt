@@ -34,7 +34,7 @@ data class Newspaper(
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class
                 ,cascade = arrayOf(CascadeType.ALL))
-        var pageList: List<Page>?=null
+        var pageList: MutableList<Page> = mutableListOf()
         @Transient
         var countryName:String?=null
         @Transient

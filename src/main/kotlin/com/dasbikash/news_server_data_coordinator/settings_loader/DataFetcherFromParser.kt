@@ -42,22 +42,36 @@ object DataFetcherFromParser {
 
     val pagesForNpTarget = pagesTarget.path("newspaper_id/{newsPaperId}")
 
-    fun getLanguages():List<Language>{
+    fun getLanguageMap():Map<String,Language>{
         val response = languagesTarget.request(MediaType.APPLICATION_JSON).get()
-        val languages = response.readEntity(Languages::class.java)
-        return languages.languages!!
+        val languagesFromParser = response.readEntity(Languages::class.java)
+        val languageMap = mutableMapOf<String,Language>()
+        languagesFromParser.languages!!.asSequence().forEach {
+            languageMap.put(it.id,it)
+        }
+        return languageMap
     }
 
-    fun getCountries():List<Country>{
+    fun getCountryMap():Map<String,Country>{
         val response = countriesTarget.request(MediaType.APPLICATION_JSON).get()
-        val countries = response.readEntity(Countries::class.java)
-        return countries.countries!!
+        val countriesFromParser = response.readEntity(Countries::class.java)
+        val countryMap = mutableMapOf<String,Country>()
+        countriesFromParser.countries!!.asSequence()
+                .forEach {
+                    countryMap.put(it.name,it)
+                }
+        return countryMap
     }
 
-    fun getNewspapers():List<Newspaper>{
+    fun getNewspaperMap():Map<String,Newspaper>{
         val response = newsPapersTarget.request(MediaType.APPLICATION_JSON).get()
-        val newspapers = response.readEntity(Newspapers::class.java)
-        return newspapers.newspapers!!
+        val newspapersFromParser = response.readEntity(Newspapers::class.java)
+        val newspaperMap = mutableMapOf<String,Newspaper>()
+        newspapersFromParser.newspapers!!.asSequence()
+                .forEach {
+                    newspaperMap.put(it.id,it)
+                }
+        return newspaperMap
     }
 
     fun getPages():List<Page>{

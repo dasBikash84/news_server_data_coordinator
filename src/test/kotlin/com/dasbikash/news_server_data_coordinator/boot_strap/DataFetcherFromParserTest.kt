@@ -16,11 +16,9 @@ package com.dasbikash.news_server_data_coordinator.boot_strap
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
-import com.dasbikash.news_server_data_coordinator.settings_loader.RestEndPointsForSettingsData
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class DataFetcherFromParserTest {
@@ -34,17 +32,17 @@ internal class DataFetcherFromParserTest {
     }
     @Test
     fun readAndShowLanguages(){
-        /*DataFetcherFromParser.getLanguages().asSequence().forEach { println("Language: ${it.name}") }
-        DataFetcherFromParser.getCountries().asSequence().forEach { println("Country: ${it.name}") }
-        DataFetcherFromParser.getNewspapers().asSequence().forEach { println("Newspaper: ${it.name}") }
+        /*DataFetcherFromParser.getLanguageMap().asSequence().forEach { println("Language: ${it.name}") }
+        DataFetcherFromParser.getCountryMap().asSequence().forEach { println("Country: ${it.name}") }
+        DataFetcherFromParser.getNewspaperMap().asSequence().forEach { println("Newspaper: ${it.name}") }
         DataFetcherFromParser.getPages().asSequence().forEach { println("Page: ${it.name}") }*/
-        val session = DbSessionManager.getNewSession()
-        DatabaseUtils.getAllActiveNewspapers(session)
+        /*val session = DbSessionManager.getNewSession()
+        DatabaseUtils.getNewspaperMap(session)
                 .filter { it.id=="NP_ID_2" }
                 .forEach {
                     it.pageList?.filter { it.id == "PAGE_ID_1" }?.forEach {
                         DataFetcherFromParser.getLatestArticlesForPage(it).forEach { println(it) }
                     }
-                }
+                }*/
     }
 }

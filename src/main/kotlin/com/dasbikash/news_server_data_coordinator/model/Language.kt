@@ -26,4 +26,9 @@ data class Language (
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
         @Exclude
         var newsPapers:List<Newspaper>? = null
+
+        fun updateData(newLanguage: Language) {
+                this.name = newLanguage.name
+        }
+
 }

@@ -22,7 +22,13 @@ data class Country (
         var countryCode: String?=null,
         var timeZone: String?=null
 ){
+        fun updateData(newCountry: Country) {
+                this.countryCode = newCountry.countryCode
+                this.timeZone = newCountry.timeZone
+        }
 
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
         var newsPapers:List<Newspaper>? = null
+
+
 }

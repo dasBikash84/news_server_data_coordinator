@@ -56,22 +56,37 @@ object DatabaseUtils {
         return false
     }
 
-    fun getAllLanguages(session: Session): List<Language>{
+    fun getLanguageMap(session: Session): Map<String,Language>{
         val hql = "FROM ${EntityClassNames.LANGUAGE}"
         val query = session.createQuery(hql, Language::class.java)
-        return query.list() as List<Language>
+        val languageMapFromDb = mutableMapOf<String,Language>()
+
+        (query.list() as List<Language>).asSequence().forEach {
+            languageMapFromDb.put(it.id,it)
+        }
+        return languageMapFromDb
     }
 
-    fun getAllCountries(session: Session): List<Country>{
+    fun getCountriesMap(session: Session): Map<String,Country>{
         val hql = "FROM ${EntityClassNames.COUNTRY}"
         val query = session.createQuery(hql, Country::class.java)
-        return query.list() as List<Country>
+        val countriesMap = mutableMapOf<String,Country>()
+        (query.list() as List<Country>).asSequence()
+                .forEach {
+                    countriesMap.put(it.name,it)
+                }
+        return countriesMap
     }
 
-    fun getAllActiveNewspapers(session: Session): List<Newspaper>{
+    fun getNewspaperMap(session: Session): Map<String,Newspaper>{
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val query = session.createQuery(hql, Newspaper::class.java)
-        return query.list() as List<Newspaper>
+        val newspaperMap = mutableMapOf<String,Newspaper>()
+        (query.list() as List<Newspaper>).asSequence()
+                .forEach {
+                    newspaperMap.put(it.id,it)
+                }
+        return newspaperMap
     }
 
     /*fun findArticleById(session: Session,id:String): Article?{
@@ -83,4 +98,14 @@ object DatabaseUtils {
         }
         return null
     }*/
+
+    fun findNewspaperById(session: Session,id:String): Newspaper?{
+        val hql = "FROM ${EntityClassNames.NEWSPAPER} where id='${id}'"
+        val query = session.createQuery(hql, Newspaper::class.java)
+        val resultList = query.list() as List<Newspaper>
+        if (resultList.size == 1){
+            return resultList.get(0)
+        }
+        return null
+    }
 }
