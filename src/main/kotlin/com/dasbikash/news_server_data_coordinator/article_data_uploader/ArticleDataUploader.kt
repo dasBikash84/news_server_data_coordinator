@@ -22,11 +22,6 @@ import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.*
 
-//Data upload locations
-// 1) Real time DB >> upOnRealTimeDB
-// 2) FireStore DB >> upOnFireStoreDB
-// 3) REST service with mongo DB. >> upOnMongoRestService
-
 enum class ArticleTableUploadFlagName(val flagName:String){
     REAL_TIME_DB("upOnFirebaseDb"),
     FIRE_STORE_DB("upOnFireStore"),
@@ -37,8 +32,8 @@ abstract class ArticleDataUploader:Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
     private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 1*60*60*5000L
-    private val WAITING_TIME_BETWEEN_ITERATION = 1*60*60*5000L
+    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10*60*60*1000L // 10 mins
+    private val WAITING_TIME_BETWEEN_ITERATION = 5*1000L //5 secs
 
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
