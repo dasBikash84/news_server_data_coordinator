@@ -89,15 +89,35 @@ object DatabaseUtils {
         return newspaperMap
     }
 
-    /*fun findArticleById(session: Session,id:String): Article?{
+    fun findArticleById(session: Session,id:String): Article?{
         val hql = "FROM ${EntityClassNames.ARTICLE} where id='${id}'"
         val query = session.createQuery(hql, Article::class.java)
         val resultList = query.list() as List<Article>
-        if (resultList.size> 0){
+        if (resultList.size == 1){
             return resultList.get(0)
         }
         return null
-    }*/
+    }
+
+    fun findLatestArticleForPage(session: Session,page:Page): Article?{
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} where pageId='${page.id}' order by publicationTime DESC LIMIT 1"
+        val query = session.createNativeQuery(sql, Article::class.java)
+        val resultList = query.resultList as List<Article>
+        if (resultList.size == 1){
+            return resultList.get(0)
+        }
+        return null
+    }
+
+    fun findPageById(session: Session,id:String): Page?{
+        val hql = "FROM ${EntityClassNames.PAGE} where id='${id}'"
+        val query = session.createQuery(hql, Page::class.java)
+        val resultList = query.list() as List<Page>
+        if (resultList.size == 1){
+            return resultList.get(0)
+        }
+        return null
+    }
 
     fun findNewspaperById(session: Session,id:String): Newspaper?{
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where id='${id}'"

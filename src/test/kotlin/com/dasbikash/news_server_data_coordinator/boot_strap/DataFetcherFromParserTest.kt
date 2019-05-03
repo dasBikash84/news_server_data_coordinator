@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.boot_strap
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.model.Article
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -36,8 +37,21 @@ internal class DataFetcherFromParserTest {
         DataFetcherFromParser.getCountryMap().asSequence().forEach { println("Country: ${it.name}") }
         DataFetcherFromParser.getNewspaperMap().asSequence().forEach { println("Newspaper: ${it.name}") }
         DataFetcherFromParser.getPages().asSequence().forEach { println("Page: ${it.name}") }*/
-        /*val session = DbSessionManager.getNewSession()
-        DatabaseUtils.getNewspaperMap(session)
+        val session = DbSessionManager.getNewSession()
+        val page = DatabaseUtils.findPageById(session,"PAGE_ID_1080")!!
+        println(DatabaseUtils.findLatestArticleForPage(session,page))
+//        var lastArticle:Article?=null
+        /*DataFetcherFromParser.getLatestArticlesForPage(page).asSequence()
+                .forEach {
+                    println(it)
+                    lastArticle = it
+                }
+        DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(page,lastArticle!!).asSequence()
+                .forEach {
+                    println(it)
+//                    lastArticle = it
+                }*/
+        /*DatabaseUtils.getNewspaperMap(session)
                 .filter { it.id=="NP_ID_2" }
                 .forEach {
                     it.pageList?.filter { it.id == "PAGE_ID_1" }?.forEach {

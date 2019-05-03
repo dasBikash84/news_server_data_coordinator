@@ -14,33 +14,37 @@
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
 import com.dasbikash.news_server_data_coordinator.model.*
+import com.google.gson.Gson
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 object DataFetcherFromParser {
 
-    val BASE_ADDRESS = "http://localhost:8098"
-    val LANGUAGE_SETTINGS_NODE = "languages"
-    val COUNTRY_SETTINGS_NODE = "countries"
-    val NEWS_PAPER_SETTINGS_NODE = "newspapers"
-    val PAGE_SETTINGS_NODE = "pages"
-    val LATEST_ARTICLES_FOR_PAGE_ID_NODE = "articles/page_id/{pageId}/latest"
-    val ARTICLES_AFTER_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE =
-            "articles/page_id/{pageId}/after/article_id/{lastArticleId}"
+    private val DEFAULT_ARTICLE_REQUEST_COUNT = "article_count"
+    private val NEWSPAPER_ID_PATH_PARAM = "newsPaperId"
+    private val PAGE_ID_PATH_PARAM = "pageId"
+    private val LAST_ARTICLE_ID_PATH_PARAM = "pageId"
 
-    val jerseyClient = ClientBuilder.newClient()
-    val baseTarget = jerseyClient.target(BASE_ADDRESS)
-    val languagesTarget = baseTarget.path(LANGUAGE_SETTINGS_NODE)
-    val countriesTarget = baseTarget.path(COUNTRY_SETTINGS_NODE)
-    val newsPapersTarget = baseTarget.path(NEWS_PAPER_SETTINGS_NODE)
-    val pagesTarget = baseTarget.path(PAGE_SETTINGS_NODE)
-    val latestArticlesForPageTarget = baseTarget.path(LATEST_ARTICLES_FOR_PAGE_ID_NODE)
-    val articlesAfterGivenArticleForPageTarget = baseTarget.path(ARTICLES_AFTER_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE)
+    private val BASE_ADDRESS = "http://localhost:8098"
+    private val LANGUAGE_SETTINGS_NODE = "languages"
+    private val COUNTRY_SETTINGS_NODE = "countries"
+    private val NEWS_PAPER_SETTINGS_NODE = "newspapers"
+    private val PAGE_SETTINGS_NODE = "pages"
+    private val LATEST_ARTICLES_FOR_PAGE_ID_NODE = "articles/page_id/{${PAGE_ID_PATH_PARAM}}/latest"
+    private val ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE =
+            "articles/page_id/{${PAGE_ID_PATH_PARAM}}/before/article_id/{${LAST_ARTICLE_ID_PATH_PARAM}}"
 
+    private val jerseyClient = ClientBuilder.newClient()
+    private val baseTarget = jerseyClient.target(BASE_ADDRESS)
+    private val languagesTarget = baseTarget.path(LANGUAGE_SETTINGS_NODE)
+    private val countriesTarget = baseTarget.path(COUNTRY_SETTINGS_NODE)
+    private val newsPapersTarget = baseTarget.path(NEWS_PAPER_SETTINGS_NODE)
+    private val pagesTarget = baseTarget.path(PAGE_SETTINGS_NODE)
+    private val latestArticlesForPageTarget = baseTarget.path(LATEST_ARTICLES_FOR_PAGE_ID_NODE)
+    private val articlesBeforeGivenArticleForPageTarget = baseTarget.path(ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE)
 
-
-    val pagesForNpTarget = pagesTarget.path("newspaper_id/{newsPaperId}")
+    private val pagesForNpTarget = pagesTarget.path("newspaper_id/{${NEWSPAPER_ID_PATH_PARAM}}")
 
     fun getLanguageMap():Map<String,Language>{
         val response = languagesTarget.request(MediaType.APPLICATION_JSON).get()
@@ -81,7 +85,7 @@ object DataFetcherFromParser {
     }
 
     fun getPagesForNewspaper(newspaper: Newspaper):List<Page>{
-        val response = pagesForNpTarget.resolveTemplate("newsPaperId",newspaper.id)
+        val response = pagesForNpTarget.resolveTemplate(NEWSPAPER_ID_PATH_PARAM,newspaper.id)
                                             .request(MediaType.APPLICATION_JSON).get()
         if (response.status == Response.Status.OK.statusCode){
             val pages = response.readEntity(Pages::class.java).pages!!
@@ -91,13 +95,33 @@ object DataFetcherFromParser {
             return emptyList()
         }
     }
-    fun getLatestArticlesForPage(page: Page):List<Article>{
-        println("page: ${page.name}")
-        val response = latestArticlesForPageTarget.resolveTemplate("pageId",page.id)
+
+    fun getLatestArticlesForPage(page: Page, articleCount:Int=10):List<Article>{
+//        println("page: ${page.name}")
+        val response = latestArticlesForPageTarget
+                                        .resolveTemplate(PAGE_ID_PATH_PARAM,page.id)
+                                        .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT,articleCount)
                                         .request(MediaType.APPLICATION_JSON).get()
 
         if (response.status == Response.Status.OK.statusCode){
-            val articles = response.readEntity(Articles::class.java).articles!!
+            val data = response.readEntity(String::class.java)!!
+            val articles = Gson().fromJson(data,Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
+            articles.forEach { it.page = page }
+            return articles
+        }else{
+            return emptyList()
+        }
+    }
+    fun getArticlesBeforeGivenArticleForPage(page: Page,article: Article):List<Article>{
+//        println("page: ${page.name}")
+        val response = articlesBeforeGivenArticleForPageTarget
+                                        .resolveTemplate(PAGE_ID_PATH_PARAM,page.id)
+                                        .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM,article.id)
+                                        .request(MediaType.APPLICATION_JSON).get()
+
+        if (response.status == Response.Status.OK.statusCode){
+            val data = response.readEntity(String::class.java)!!
+            val articles = Gson().fromJson(data,Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
             articles.forEach { it.page = page }
             return articles
         }else{

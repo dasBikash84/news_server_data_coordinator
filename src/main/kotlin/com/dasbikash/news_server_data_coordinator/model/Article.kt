@@ -21,15 +21,15 @@ import kotlin.collections.ArrayList
 @Table(name = DatabaseTableNames.ARTICLE_TABLE_NAME)
 data class Article(
         @Id
-        var id: String="",
-        var title: String? = null,
+        var id: String=""
+){
+        var title: String? = null
         @Column(name = "articleText", columnDefinition = "text")
-        var articleText: String? = null,
+        var articleText: String? = null
 
         @Column(columnDefinition = "text")
-        var previewImageLink: String? = null,
+        var previewImageLink: String? = null
         var publicationTime:Date? = null
-){
 
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
@@ -45,6 +45,6 @@ data class Article(
 
 
         override fun toString(): String {
-                return "Article(id='$id', title=$title,page=${page?.name})"
+                return "Article(id='$id', title=$title,page=${page?.name}, publicationTime=${publicationTime})"
         }
 }

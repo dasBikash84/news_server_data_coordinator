@@ -164,8 +164,10 @@ object ArticleFetcherCoordinator {
                 val pagesFromParser = DataFetcherFromParser.getPagesForNewspaper(unChangedNewspaper)
                 val unChangedNewspaperFromDb = newsPaperMapFromDb.get(it)!!
                 if (pagesFromParser.size > unChangedNewspaperFromDb.pageList.size) {
-                    articleFetcherMap.get(it)!!.interrupt()
-                    articleFetcherMap.remove(it)
+                    articleFetcherMap.get(it)?.let {
+                        it.interrupt()
+                        articleFetcherMap.remove(unChangedNewspaperFromDb.id)
+                    }
                     pagesFromParser.asSequence().forEach {
                         if (!unChangedNewspaperFromDb.pageList.contains(it)) {
                             DatabaseUtils.runDbTransection(session) {
@@ -178,11 +180,11 @@ object ArticleFetcherCoordinator {
                     articleFetcherMap.put(unChangedNewspaperFromDb.id, articleFetcher)
                     articleFetcher.start()
                 } else {
-                    if (!articleFetcherMap.get(it)!!.isAlive) {
+                    if (articleFetcherMap.get(it)==null || !articleFetcherMap.get(it)!!.isAlive) {
                         articleFetcherMap.remove(it)
                         val unChangedNewspaperFromDb = newsPaperMapFromDb.get(it)!!
                         val articleFetcher = ArticleFetcherForNewspaper(unChangedNewspaperFromDb, unChangedNewspaperFromDb.pageList)
-                        articleFetcherMap.put(unChangedNewspaperFromDb.id, articleFetcher)
+                        articleFetcherMap.put(it, articleFetcher)
                         articleFetcher.start()
                     }
                 }
