@@ -2,8 +2,11 @@
 
 package com.dasbikash.news_server_data_coordinator
 
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleTableUploadFlagName
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.model.Article
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 
 /*
@@ -199,4 +202,3 @@ object ArticleFetcherCoordinator {
         } while (true)
     }
 }
-

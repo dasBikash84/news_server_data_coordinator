@@ -47,4 +47,8 @@ data class Article(
         override fun toString(): String {
                 return "Article(id='$id', title=$title,page=${page?.name}, publicationTime=${publicationTime})"
         }
+        companion object{
+                const val PUBLICATION_TIME_COLUMN_NAME = "publicationTime"
+                const val COLUMN_NAME_FOR_ORDER_BY = "created"
+        }
 }
