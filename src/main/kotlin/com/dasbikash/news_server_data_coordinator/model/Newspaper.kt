@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import com.google.cloud.firestore.annotation.Exclude
 import java.lang.IllegalArgumentException
 import javax.persistence.*
 
@@ -24,16 +25,22 @@ data class Newspaper(
 ) {
         @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
         @JoinColumn(name="countryName")
+        @Exclude
+        @com.google.firebase.database.Exclude
         var country: Country?=null
 
         @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
         @JoinColumn(name="languageId")
+        @Exclude
+        @com.google.firebase.database.Exclude
         var language: Language?=null
 
         var active: Boolean=true
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class
                 ,cascade = arrayOf(CascadeType.ALL))
+        @Exclude
+        @com.google.firebase.database.Exclude
         var pageList: MutableList<Page> = mutableListOf()
         @Transient
         var countryName:String?=null

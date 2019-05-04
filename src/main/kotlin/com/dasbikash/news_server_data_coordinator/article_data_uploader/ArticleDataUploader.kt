@@ -16,6 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.Article
+import com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
@@ -39,7 +40,8 @@ abstract class ArticleDataUploader:Thread() {
     abstract protected fun getMaxArticleAgeInDays():Int //Must be >=0
     abstract protected fun uploadArticles(articlesForUpload: List<Article>):Boolean
     abstract protected fun maxArticleCountForUpload():Int // Must be >=0
-
+    abstract protected fun uploadSettings(session:Session)
+    abstract protected fun insertLog(session: Session)
     private fun getSqlForArticleFetch():String{
         if (maxArticleCountForUpload()<0){
             throw IllegalArgumentException(MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE)
@@ -88,9 +90,28 @@ abstract class ArticleDataUploader:Thread() {
                 }
     }
 
+    private fun checkIfSettingsModified(session:Session):Boolean{
+        val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
+        val settingsUploadLog = DatabaseUtils
+                                                    .getLastSettingsUploadLogByTarget(session, getUploadDestinationInfo().articleUploadTarget)
+        println(settingsUpdateLog)
+        println(settingsUploadLog)
+        if (settingsUploadLog !=null){
+            if (settingsUploadLog.uploadTime > settingsUpdateLog.updateTime){
+                return false
+            }
+        }
+        return true
+    }
+
     override fun run() {
         do {
             val session = DbSessionManager.getNewSession()
+
+            if (checkIfSettingsModified(session)) {
+                uploadSettings(session)
+                insertLog(session)
+            }
 
             val articlesForUpload = getArticlesForUpload(session)
             println("articlesForUpload.size: ${articlesForUpload.size}")

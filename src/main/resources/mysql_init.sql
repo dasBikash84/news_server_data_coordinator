@@ -143,3 +143,12 @@ CREATE TABLE `news_server_data_coordinator`.`settings_update_log`
     PRIMARY KEY (`id`)
 ) Engine = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`settings_upload_log`
+(
+    `id`         INT(11)  NOT NULL AUTO_INCREMENT,
+    `uploadTime` datetime NOT NULL,
+    `uploadTarget` varchar(255) NOT NULL,
+    PRIMARY KEY (`id`)
+) Engine = InnoDB
+  DEFAULT CHARSET = utf8mb4;

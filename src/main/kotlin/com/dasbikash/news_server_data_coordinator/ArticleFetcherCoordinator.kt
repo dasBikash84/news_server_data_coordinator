@@ -2,6 +2,8 @@
 
 package com.dasbikash.news_server_data_coordinator
 
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.SettingsUpdateLog
@@ -25,13 +27,14 @@ object ArticleFetcherCoordinator {
 
     private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
     private val SETTINGS_UPDATE_ITERATION_PERIOD = 10 * 60 * 60 * 1000L
+    private lateinit var articleDataUploader: ArticleDataUploader
 
     @JvmStatic
     fun main(args: Array<String>) {
         do {
             val session = DbSessionManager.getNewSession()
             var settingsUpdated = false
-            val settingsUpdateLog = StringBuilder("Details: ")
+            val settingsUpdateLog = StringBuilder()
 
             fun setSettingsUpdated() { settingsUpdated=true}
 
@@ -50,7 +53,7 @@ object ArticleFetcherCoordinator {
             }
 
             newLanguageIds.asSequence().forEach {
-                settingsUpdateLog.append(" | Language added id: ${it}")
+                settingsUpdateLog.append("Language added id: ${it} | ")
                 DatabaseUtils.runDbTransection(session) {
                     session.save(languageMapFromParser.get(it))
                 }
@@ -60,7 +63,7 @@ object ArticleFetcherCoordinator {
                         if (languageMapFromParser.containsKey(it) &&
                                 !languageMapFromParser.get(it)!!.equals(languageMapFromDb.get(it))) {
                             setSettingsUpdated()
-                            settingsUpdateLog.append(" | Language modified id: ${it}")
+                            settingsUpdateLog.append("Language modified id: ${it} | ")
                             val oldLanguage = languageMapFromDb.get(it)
                             val newLanguage = languageMapFromParser.get(it)
                             oldLanguage!!.updateData(newLanguage!!)
@@ -82,7 +85,7 @@ object ArticleFetcherCoordinator {
             }
 
             newCountryIds.asSequence().forEach {
-                settingsUpdateLog.append(" | Country added id: ${it}")
+                settingsUpdateLog.append("Country added id: ${it} | ")
                 DatabaseUtils.runDbTransection(session) {
                     session.save(countriesMapFromParser.get(it))
                 }
@@ -93,7 +96,7 @@ object ArticleFetcherCoordinator {
                         if (countriesMapFromParser.containsKey(it) &&
                                 !countriesMapFromParser.get(it)!!.equals(countriesMapFromDb.get(it))) {
                             setSettingsUpdated()
-                            settingsUpdateLog.append(" | Country modified id: ${it}")
+                            settingsUpdateLog.append("Country modified id: ${it} | ")
                             val oldCountry = countriesMapFromDb.get(it)
                             val newCountry = countriesMapFromParser.get(it)
                             oldCountry!!.updateData(newCountry!!)
@@ -128,7 +131,7 @@ object ArticleFetcherCoordinator {
                 val newspaperFromDb = DatabaseUtils.findNewspaperById(session, it)
 
                 if (newspaperFromDb == null) {
-                    settingsUpdateLog.append(" | Newspaper added id: ${it}")
+                    settingsUpdateLog.append("Newspaper added id: ${it} | ")
                     val newNewspaper = newsPaperMapFromParser.get(it)!!
                     println("new Newspapers found : ${newNewspaper}")
                     val pages = DataFetcherFromParser.getPagesForNewspaper(newNewspaper)
@@ -136,21 +139,23 @@ object ArticleFetcherCoordinator {
                     DatabaseUtils.runDbTransection(session) {
                         session.save(newNewspaper)
                         newNewspaper.pageList.forEach {
-                            settingsUpdateLog.append(" | Page added id: ${it.id}")
+                            settingsUpdateLog.append("Page added id: ${it.id} | ")
                             session.save(it)
                         }
                     }
                 } else {
-                    settingsUpdateLog.append(" | Newspaper activated id: ${it}")
+                    settingsUpdateLog.append("Newspaper activated id: ${it} | ")
                     newspaperFromDb.active = true
                     newspaperFromDb.pageList.asSequence().forEach { it.active = false }
                     val pagesFromParser = DataFetcherFromParser.getPagesForNewspaper(newspaperFromDb)
                     pagesFromParser.asSequence().forEach {
                         if (newspaperFromDb.pageList.contains(it)) {
-                            newspaperFromDb.pageList.get(newspaperFromDb.pageList.indexOf(it)).active = true
+                            val pageFromDb = newspaperFromDb.pageList.get(newspaperFromDb.pageList.indexOf(it))
+                            pageFromDb.getContentFromOther(it)
+//                            pageFromDb.hasChild = it.hasChild
                         } else {
                             DatabaseUtils.runDbTransection(session) {
-                                settingsUpdateLog.append(" | Page added id: ${it.id}")
+                                settingsUpdateLog.append("Page added id: ${it.id} | ")
                                 session.save(it)
                             }
                             newspaperFromDb.pageList.add(it)
@@ -171,7 +176,7 @@ object ArticleFetcherCoordinator {
             deactivatedIds.asSequence()
                     .forEach {
                         setSettingsUpdated()
-                        settingsUpdateLog.append(" | Newspaper deactivated id: ${it}")
+                        settingsUpdateLog.append("Newspaper deactivated id: ${it} | ")
                         val deactivatedNewspaper = newsPaperMapFromDb.get(it)!!
                         deactivatedNewspaper.active = false
                         DatabaseUtils.runDbTransection(session) {
@@ -199,7 +204,7 @@ object ArticleFetcherCoordinator {
                     pagesFromParser.asSequence().forEach {
                         if (!unChangedNewspaperFromDb.pageList.contains(it)) {
                             DatabaseUtils.runDbTransection(session) {
-                                settingsUpdateLog.append(" | Page added id: ${it.id}")
+                                settingsUpdateLog.append("Page added id: ${it.id} | ")
                                 session.save(it)
                             }
                             unChangedNewspaperFromDb.pageList.add(it)
@@ -224,6 +229,16 @@ object ArticleFetcherCoordinator {
                 }
             }
             session.close()
+
+            if(!::articleDataUploader.isInitialized){
+                articleDataUploader = ArticleDataUploaderForRealTimeDb()
+                articleDataUploader.start()
+            }else{
+                if (!articleDataUploader.isAlive){
+                    articleDataUploader = ArticleDataUploaderForRealTimeDb()
+                    articleDataUploader.start()
+                }
+            }
 
             try {
                 Thread.sleep(SETTINGS_UPDATE_ITERATION_PERIOD)

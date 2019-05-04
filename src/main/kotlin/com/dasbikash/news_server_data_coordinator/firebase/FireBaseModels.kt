@@ -16,7 +16,7 @@ package com.dasbikash.news_server_data_coordinator.firebase
 import com.dasbikash.news_server_data_coordinator.model.*
 import java.util.*
 
-/*class LanguageForFB(
+class LanguageForFB(
         val id:String,
         var name: String){
     companion object{
@@ -38,12 +38,11 @@ class NewspaperForFB(
         val id: String,
         val name: String,
         val countryName: String,
-        val languageId: String,
-        val active: Boolean){
+        val languageId: String){
     companion object{
         fun getFromNewspaper(newspaper: Newspaper) =
                 NewspaperForFB(newspaper.id,newspaper.name!!,newspaper.country!!.name,
-                        newspaper.language!!.id,newspaper.active)
+                        newspaper.language!!.id)
     }
 }
 
@@ -52,21 +51,17 @@ class PageForFB(
         val newspaperId: String,
         val parentPageId: String,
         val name: String,
-        val linkFormat:String?,
-        val linkVariablePartFormat:String?,
-        val firstEditionDateString:String?,
-        val weekly:Boolean?,
-        val weeklyPublicationDay:Int?,
-        var active: Boolean
+        var hasData: Boolean?=null,
+        var hasChild: Boolean?=null,
+        var topLevelPage: Boolean?=null
 ){
     companion object{
         fun getFromPage(page: Page) =
                 PageForFB(page.id,page.newspaper!!.id,page.parentPageId!!,page.name!!,
-                            page.linkFormat,page.linkVariablePartFormat,page.firstEditionDateString,
-                            page.weekly,page.weeklyPublicationDay,page.active)
+                            page.hasData,page.hasChild,page.topLevelPage)
     }
 
-}*/
+}
 class ArticleForFB(
         val id: String,
         val pageId: String,

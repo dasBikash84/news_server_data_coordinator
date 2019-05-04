@@ -22,7 +22,11 @@ class SettingsUpdateLog (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id:Int?=null,
-        val updateTime:Date = Date(),
+        var updateTime:Date = Date(),
         @Column(columnDefinition = "text")
-        val logMessage:String?=null
-)
+        var logMessage:String?=null
+){
+        override fun toString(): String {
+                return "SettingsUpdateLog(updateTime=$updateTime, logMessage=$logMessage)"
+        }
+}

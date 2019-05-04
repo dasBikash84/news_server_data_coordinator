@@ -25,6 +25,7 @@ data class Language (
 ){
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
         @Exclude
+        @com.google.firebase.database.Exclude
         var newsPapers:List<Newspaper>? = null
 
         fun updateData(newLanguage: Language) {

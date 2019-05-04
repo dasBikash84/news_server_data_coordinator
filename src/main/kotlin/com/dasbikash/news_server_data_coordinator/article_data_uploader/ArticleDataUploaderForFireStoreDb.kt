@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.Article
+import org.hibernate.Session
 
 class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
 
@@ -41,6 +42,14 @@ class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
 
     override fun maxArticleCountForUpload(): Int {
         return MAX_ARTICLE_COUNT_FOR_UPLOAD
+    }
+
+    override fun uploadSettings(session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun insertLog(session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     companion object{

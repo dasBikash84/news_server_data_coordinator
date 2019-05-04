@@ -11,16 +11,17 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.article_data_uploader
+package com.dasbikash.news_server_data_coordinator.model
 
-import com.dasbikash.news_server_data_coordinator.firebase.FirebaseDbRefUtils
-import com.google.firebase.database.ServerValue
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class ArticleDataUploaderForRealTimeDbTest {
+internal class SettingsUpdateLogTest {
 
     @BeforeEach
     fun setUp() {
@@ -31,11 +32,14 @@ internal class ArticleDataUploaderForRealTimeDbTest {
     }
 
     @Test
-    fun testWrite(){
-        val writeThread = ArticleDataUploaderForRealTimeDb()
-        writeThread.start()
-        writeThread.join()
-        /*val task = FirebaseDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
-        while (!task.isDone){}*/
+    fun getLastLog(){
+
+        val session = DbSessionManager.getNewSession()
+
+        DatabaseUtils.getLastSettingsUpdateLog(session)
+                ?.let {
+                    println(it)
+                }
+        session.close()
     }
 }

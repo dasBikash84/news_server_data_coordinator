@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import com.google.cloud.firestore.annotation.Exclude
 import java.lang.IllegalArgumentException
 import javax.persistence.*
 
@@ -20,21 +21,28 @@ import javax.persistence.*
 @Table(name = DatabaseTableNames.PAGE_TABLE_NAME)
 data class Page(
         @Id
-        var id: String="",
-        var name: String?=null,
-        var parentPageId: String?=null,
-        var hasData: Boolean?=null,
-        var hasChild: Boolean?=null,
-        var topLevelPage: Boolean?=null
+        var id: String=""
 ){
 
         @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
         @JoinColumn(name="newsPaperId")
+        @Exclude
+        @com.google.firebase.database.Exclude
         var newspaper: Newspaper?=null
+
         var active: Boolean = true
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
+        @Exclude
+        @com.google.firebase.database.Exclude
         var articleList: List<Article>?=null
+
+        var parentPageId: String?=null
+        var hasData: Boolean?=null
+        var hasChild: Boolean?=null
+        var topLevelPage: Boolean?=null
+        var name: String?=null
+
         @Transient
         var newsPaperId:String?=null
 
@@ -52,5 +60,13 @@ data class Page(
 
         override fun toString(): String {
                 return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
+        }
+        fun getContentFromOther(other:Page){
+                this.name=other.name
+                this.active=other.active
+                this.parentPageId=other.parentPageId
+                this.hasData=other.hasData
+                this.hasChild=other.hasChild
+                this.topLevelPage=other.topLevelPage
         }
 }

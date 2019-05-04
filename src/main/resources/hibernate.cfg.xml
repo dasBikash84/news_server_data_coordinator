@@ -32,8 +32,9 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleImage"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.ErrorLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.GeneralLog"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadHistory"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.SettingsUpdateLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.SettingsUploadLog"/>
  </session-factory>
 </hibernate-configuration>

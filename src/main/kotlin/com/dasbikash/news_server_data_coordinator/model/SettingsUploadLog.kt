@@ -13,12 +13,20 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
-object EntityClassNames {
-    const val COUNTRY = "Country"
-    const val LANGUAGE = "Language"
-    const val NEWSPAPER = "Newspaper"
-    const val PAGE = "Page"
-    const val ARTICLE = "Article"
-    const val SETTINGS_UPLOAD_LOG = "SettingsUploadLog"
-    const val SETTINGS_UPDATE_LOG = "SettingsUpdateLog"
+import java.util.*
+import javax.persistence.*
+
+@Entity
+@Table(name = DatabaseTableNames.SETTINGS_UPLOAD_LOG_TABLE_NAME)
+class SettingsUploadLog (
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id:Int?=null,
+        var uploadTime:Date = Date(),
+        @Enumerated(EnumType.STRING)
+        var uploadTarget: ArticleUploadTarget?=null
+){
+        override fun toString(): String {
+                return "SettingsUploadLog(uploadTime=$uploadTime, uploadTarget=$uploadTarget)"
+        }
 }

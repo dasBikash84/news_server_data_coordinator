@@ -19,11 +19,12 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.database.FirebaseDatabase
+import java.io.File
 import java.io.FileInputStream
 
 object FireBaseConUtils {
 
-    private const val SERVICE_ACCOUNT_CONFIG_FILE_PATH = "dontTrack/newsserver-bdb31-firebase-adminsdk-x4lq3-7ab25285b7.json"
+    private const val SERVICE_ACCOUNT_CONFIG_FILE_PATH = "src/main/resources/newsserver-bdb31-firebase-adminsdk-x4lq3-7ab25285b7.json"
     val mFirebaseDatabaseCon: FirebaseDatabase
     val mFireStoreCon:Firestore
 

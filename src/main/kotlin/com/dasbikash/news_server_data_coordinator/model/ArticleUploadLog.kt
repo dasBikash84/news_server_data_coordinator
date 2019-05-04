@@ -16,8 +16,8 @@ package com.dasbikash.news_server_data_coordinator.model
 import javax.persistence.*
 
 @Entity
-@Table(name = "article_upload_history")
-class ArticleUploadHistory(
+@Table(name = "article_upload_log")
+class ArticleUploadLog(
         @Enumerated(EnumType.STRING)
         val uploadTarget: ArticleUploadTarget,
         uploadedArticles: List<Article>

@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import com.google.cloud.firestore.annotation.Exclude
 import javax.persistence.*
 
 @Entity
@@ -28,6 +29,8 @@ data class Country (
         }
 
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
+        @Exclude
+        @com.google.firebase.database.Exclude
         var newsPapers:List<Newspaper>? = null
 
 
