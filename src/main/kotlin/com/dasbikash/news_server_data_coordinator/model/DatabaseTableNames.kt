@@ -19,4 +19,5 @@ object DatabaseTableNames {
     const val NEWSPAPER_TABLE_NAME = "newspapers";
     const val PAGE_TABLE_NAME = "pages";
     const val ARTICLE_TABLE_NAME = "articles";
+    const val SETTINGS_UPDATE_LOG_TABLE_NAME = "settings_update_log";
 }

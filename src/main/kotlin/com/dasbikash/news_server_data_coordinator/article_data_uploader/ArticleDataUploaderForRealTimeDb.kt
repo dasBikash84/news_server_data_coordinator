@@ -18,8 +18,8 @@ import com.dasbikash.news_server_data_coordinator.model.Article
 
 class ArticleDataUploaderForRealTimeDb:ArticleDataUploader() {
 
-    override fun getArticleTableUploadFlagName(): ArticleTableUploadFlagName {
-        return ArticleTableUploadFlagName.REAL_TIME_DB
+    override fun getUploadDestinationInfo(): UploadDestinationInfo {
+        return UploadDestinationInfo.REAL_TIME_DB
     }
 
     override fun getMaxArticleAgeInDays(): Int {
@@ -45,6 +45,6 @@ class ArticleDataUploaderForRealTimeDb:ArticleDataUploader() {
 
     companion object{
         private const val MAX_ARTICLE_AGE_DAYS = 30
-        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
+        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 5
     }
 }

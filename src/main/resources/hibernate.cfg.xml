@@ -34,5 +34,6 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.GeneralLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadHistory"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.SettingsUpdateLog"/>
  </session-factory>
 </hibernate-configuration>

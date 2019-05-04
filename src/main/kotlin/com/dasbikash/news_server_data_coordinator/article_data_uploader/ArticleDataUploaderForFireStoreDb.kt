@@ -18,8 +18,8 @@ import com.dasbikash.news_server_data_coordinator.model.Article
 
 class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
 
-    override fun getArticleTableUploadFlagName(): ArticleTableUploadFlagName {
-        return ArticleTableUploadFlagName.FIRE_STORE_DB
+    override fun getUploadDestinationInfo(): UploadDestinationInfo {
+        return UploadDestinationInfo.FIRE_STORE_DB
     }
 
     override fun getMaxArticleAgeInDays(): Int {

@@ -21,7 +21,7 @@ import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFro
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import kotlin.random.Random
 
-class ArticleFetcherForNewspaper(val newspaper: Newspaper, val pages:List<Page>)
+class ArticleFetcher(val newspaper: Newspaper, val pages:List<Page>)
     : Thread() {
     val WAITING_TIME_BETWEEN_PAGES=1000L
     override fun run() {

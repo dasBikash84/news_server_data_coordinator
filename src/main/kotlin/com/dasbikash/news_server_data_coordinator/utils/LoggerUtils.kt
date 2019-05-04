@@ -13,7 +13,10 @@
 
 package com.dasbikash.news_server_data_coordinator.utils
 
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.UploadDestinationInfo
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.model.Article
+import com.dasbikash.news_server_data_coordinator.model.ArticleUploadHistory
 import com.dasbikash.news_server_data_coordinator.model.ErrorLog
 import com.dasbikash.news_server_data_coordinator.model.GeneralLog
 import org.hibernate.Session
@@ -29,6 +32,15 @@ object LoggerUtils {
     fun logError( exception: Throwable,session: Session){
         DatabaseUtils.runDbTransection(session) {
             session.save(ErrorLog(exception))
+        }
+    }
+
+    fun logArticleUploadHistory(session: Session, articleList:List<Article>,
+                                uploadDestinationInfo: UploadDestinationInfo){
+        val uploadHistory = ArticleUploadHistory(uploadDestinationInfo.articleUploadTarget,articleList)
+
+        DatabaseUtils.runDbTransection(session) {
+            session.save(uploadHistory)
         }
     }
 }

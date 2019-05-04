@@ -13,8 +13,8 @@ CREATE TABLE `countries`
     `name`        varchar(255) NOT NULL,
     `countryCode` varchar(255) NOT NULL,
     `timeZone`    varchar(255) NOT NULL,
-    `created`     DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    `modified`    DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `modified`    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -24,8 +24,8 @@ CREATE TABLE `languages`
     `id`       varchar(255) NOT NULL,
     `name`     varchar(255) NOT NULL,
     UNIQUE KEY `language_name_unique_key` (`name`),
-    `created`  DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    `modified` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `modified` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -33,11 +33,11 @@ CREATE TABLE `languages`
 # Table, Create Table
 CREATE TABLE `newspapers`
 (
-    `id`          varchar(255)          NOT NULL,
-    `active`      bit(1)                NOT NULL default true,
-    `name`        varchar(255)          NOT NULL,
-    `countryName` varchar(255)          NOT NULL,
-    `languageId`  varchar(255)          NOT NULL,
+    `id`          varchar(255) NOT NULL,
+    `active`      bit(1)       NOT NULL default true,
+    `name`        varchar(255) NOT NULL,
+    `countryName` varchar(255) NOT NULL,
+    `languageId`  varchar(255) NOT NULL,
     `created`     DATETIME              DEFAULT CURRENT_TIMESTAMP,
     `modified`    DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -52,14 +52,14 @@ CREATE TABLE `newspapers`
 # Table, Create Table
 CREATE TABLE `pages`
 (
-    `id`           varchar(255)         NOT NULL,
-    `parentPageId` varchar(255)          NOT NULL,
-    `name`         varchar(255)          NOT NULL,
-    `newsPaperId`  varchar(255)          NOT NULL,
-    `hasChild`     bit(1)               NOT NULL,
-    `hasData`      bit(1)               NOT NULL,
-    `topLevelPage` bit(1)               NOT NULL,
-    `active`       bit(1)               NOT NULL default true,
+    `id`           varchar(255) NOT NULL,
+    `parentPageId` varchar(255) NOT NULL,
+    `name`         varchar(255) NOT NULL,
+    `newsPaperId`  varchar(255) NOT NULL,
+    `hasChild`     bit(1)       NOT NULL,
+    `hasData`      bit(1)       NOT NULL,
+    `topLevelPage` bit(1)       NOT NULL,
+    `active`       bit(1)       NOT NULL default true,
     `created`      DATETIME              DEFAULT CURRENT_TIMESTAMP,
     `modified`     DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -72,16 +72,16 @@ CREATE TABLE `pages`
 CREATE TABLE `articles`
 (
     `id`               varchar(255) NOT NULL,
-    `publicationTime`   datetime     NOT NULL,
+    `publicationTime`  datetime     NOT NULL,
     `title`            varchar(255) NOT NULL,
     `articleText`      text         NOT NULL,
-    `previewImageLink` text         DEFAULT NULL,
+    `previewImageLink` text                  DEFAULT NULL,
     `pageId`           varchar(255) NOT NULL,
-    `upOnFirebaseDb`    bit(1)      NOT NULL default false,
-    `upOnFireStore`     bit(1)      NOT NULL default false,
-    `upOnMongoRest`     bit(1)      NOT NULL default false,
-    `created`          DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    `modified`         DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `upOnFirebaseDb`   bit(1)       NOT NULL default false,
+    `upOnFireStore`    bit(1)       NOT NULL default false,
+    `upOnMongoRest`    bit(1)       NOT NULL default false,
+    `created`          DATETIME              DEFAULT CURRENT_TIMESTAMP,
+    `modified`         DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
@@ -91,7 +91,7 @@ CREATE TABLE `articles`
 CREATE TABLE `image_links`
 (
     `articleId` varchar(255) NOT NULL,
-    `link`      text     NOT NULL,
+    `link`      text         NOT NULL,
     `caption`   text     DEFAULT NULL,
     `created`   DATETIME DEFAULT CURRENT_TIMESTAMP,
     KEY `FKtarkqvk2kgymilolrr4g2x3ae` (`articleId`),
@@ -111,11 +111,10 @@ create table `general_log`
 
 create table article_upload_history
 (
-    `id`            int(11)         NOT NULL auto_increment,
-    `articleId`     varchar(255)    NOT NULL,
-    `uploadTarget`  varchar(255)    NOT NULL,
-    `logMessage`    text            DEFAULT NULL,
-    `created`       DATETIME        DEFAULT CURRENT_TIMESTAMP,
+    `id`           int(11)      NOT NULL auto_increment,
+    `uploadTarget` varchar(255) NOT NULL,
+    `logMessage`   text     DEFAULT NULL,
+    `created`      DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY `article_upload_history_articleId_uploadTarget_unique_key` (`articleId`, `uploadTarget`),
     KEY `article_upload_history_articleId_key` (`articleId`),
     CONSTRAINT `article_upload_history_articleId_fk` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`),
@@ -134,4 +133,13 @@ CREATE TABLE `exception_log`
     `created`                  datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`settings_update_log`
+(
+    `id`         INT(11)  NOT NULL AUTO_INCREMENT,
+    `updateTime` datetime NOT NULL,
+    `logMessage` text     NULL,
+    PRIMARY KEY (`id`)
+) Engine = InnoDB
   DEFAULT CHARSET = utf8mb4;

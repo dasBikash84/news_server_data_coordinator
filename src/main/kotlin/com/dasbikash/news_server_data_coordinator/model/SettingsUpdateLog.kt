@@ -13,27 +13,16 @@
 
 package com.dasbikash.news_server_data_coordinator.model
 
+import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "article_upload_history")
-class ArticleUploadHistory(
-        @Enumerated(EnumType.STRING)
-        val uploadTarget: ArticleUploadTarget,
-        uploadedArticles: List<Article>
-) {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null
-    @Column(columnDefinition = "text")
-    val logMessage: String
-
-    init {
-        val logBuilder = StringBuilder("Uploaded article Ids: ")
-        uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
-            logBuilder.append("${it.id} | ")
-        }
-        logBuilder.append(uploadedArticles.last().id)
-        logMessage = logBuilder.toString()
-    }
-}
+@Table(name = DatabaseTableNames.SETTINGS_UPDATE_LOG_TABLE_NAME)
+class SettingsUpdateLog (
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id:Int?=null,
+        val updateTime:Date = Date(),
+        @Column(columnDefinition = "text")
+        val logMessage:String?=null
+)

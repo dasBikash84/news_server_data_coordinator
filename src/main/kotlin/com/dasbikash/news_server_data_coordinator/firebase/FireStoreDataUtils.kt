@@ -14,21 +14,19 @@
 package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.dasbikash.news_server_data_coordinator.model.Article
-import com.google.api.core.ApiFuture
-import com.google.firebase.database.DatabaseReference
 import java.lang.IllegalArgumentException
 
 
 object FireStoreDataUtils {
 
     private val ARTICLE_COLLECTION_LABEL = "articles"
-    private val MAX_BATCH_DOCUMENT_WRITE_COUNT = 400
+    private val MAX_DOCUMENT_COUNT_FOR_BATCH_WRITE = 400
 
     private val mArticleCollectionReference = FireBaseConUtils.mFireStoreCon.collection(ARTICLE_COLLECTION_LABEL)
 
     fun writeArticleData(articles:List<Article>){
 
-        if (articles.size> MAX_BATCH_DOCUMENT_WRITE_COUNT){
+        if (articles.size> MAX_DOCUMENT_COUNT_FOR_BATCH_WRITE){
             throw IllegalArgumentException()
         }
 

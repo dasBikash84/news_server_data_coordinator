@@ -13,8 +13,10 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
-enum class ArticleTableUploadFlagName(val flagName:String){
-    REAL_TIME_DB("upOnFirebaseDb"),
-    FIRE_STORE_DB("upOnFireStore"),
-    MONGO_REST_SERVICE("upOnMongoRest")
+import com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget
+
+enum class UploadDestinationInfo(val flagName:String, val articleUploadTarget: ArticleUploadTarget){
+    REAL_TIME_DB("upOnFirebaseDb", ArticleUploadTarget.REAL_TIME_DB),
+    FIRE_STORE_DB("upOnFireStore", ArticleUploadTarget.FIRE_STORE_DB),
+    MONGO_REST_SERVICE("upOnMongoRest", ArticleUploadTarget.MONGO_REST_SERVICE)
 }

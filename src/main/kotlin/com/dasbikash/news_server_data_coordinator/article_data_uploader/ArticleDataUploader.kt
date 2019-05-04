@@ -17,6 +17,7 @@ import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.Article
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
@@ -34,7 +35,7 @@ abstract class ArticleDataUploader:Thread() {
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
 
 
-    abstract protected fun getArticleTableUploadFlagName():ArticleTableUploadFlagName
+    abstract protected fun getUploadDestinationInfo():UploadDestinationInfo
     abstract protected fun getMaxArticleAgeInDays():Int //Must be >=0
     abstract protected fun uploadArticles(articlesForUpload: List<Article>):Boolean
     abstract protected fun maxArticleCountForUpload():Int // Must be >=0
@@ -47,7 +48,7 @@ abstract class ArticleDataUploader:Thread() {
                                         .append(" WHERE ${Article.PUBLICATION_TIME_COLUMN_NAME} > '")
         sqlBuilder
                 .append(getMinArticleDateString())
-                .append("' AND ${getArticleTableUploadFlagName().flagName}=0")
+                .append("' AND ${getUploadDestinationInfo().flagName}=0")
                 .append(" ORDER BY ${Article.COLUMN_NAME_FOR_ORDER_BY} DESC")
                 .append(" LIMIT ${maxArticleCountForUpload()}")
         return sqlBuilder.toString()
@@ -69,7 +70,7 @@ abstract class ArticleDataUploader:Thread() {
     }
 
     private fun getSqlToMarkUploadedArticle(article: Article):String{
-        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getArticleTableUploadFlagName().flagName}=1 WHERE id='${article.id}'"
+        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().flagName}=1 WHERE id='${article.id}'"
     }
 
     private fun markArticlesAsUploaded(articlesForUpload: List<Article>,session: Session) {
@@ -96,6 +97,7 @@ abstract class ArticleDataUploader:Thread() {
             if (articlesForUpload.size>0){
                 if (uploadArticles(articlesForUpload)){
                     markArticlesAsUploaded(articlesForUpload,session)
+                    LoggerUtils.logArticleUploadHistory(session,articlesForUpload,getUploadDestinationInfo())
                 }
                 try {
                     session.close()
