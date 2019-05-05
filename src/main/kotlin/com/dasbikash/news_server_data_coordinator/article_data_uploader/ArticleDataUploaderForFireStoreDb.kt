@@ -14,7 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
-import com.dasbikash.news_server_data_coordinator.model.Article
+import com.dasbikash.news_server_data_coordinator.model.*
 import org.hibernate.Session
 
 class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
@@ -44,16 +44,21 @@ class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
         return MAX_ARTICLE_COUNT_FOR_UPLOAD
     }
 
-    override fun uploadSettings(session: Session) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
+                                   newspapers: Collection<Newspaper>, pages: Collection<Page>) {
+        FireStoreDataUtils.uploadNewSettings(languages, countries, newspapers, pages)
     }
 
-    override fun insertLog(session: Session) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun addToServerUploadTimeLog() {
+        FireStoreDataUtils.addToServerUploadTimeLog()
+    }
+
+    override fun nukeOldSettings() {
+        FireStoreDataUtils.nukeAppSettings()
     }
 
     companion object{
         private const val MAX_ARTICLE_AGE_DAYS = 30
-        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
+        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 5
     }
 }

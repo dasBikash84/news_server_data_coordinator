@@ -15,7 +15,7 @@ package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.google.firebase.database.DatabaseReference
 
-object FirebaseDbRefUtils {
+object RealTimeDbRefUtils {
 
     private const val APP_SETTINGS_NODE = "app_settings"
 //    private const val USER_SETTINGS_ROOT_NODE = "user_settings"

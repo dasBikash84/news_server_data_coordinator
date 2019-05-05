@@ -13,8 +13,6 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
-import com.dasbikash.news_server_data_coordinator.firebase.FirebaseDbRefUtils
-import com.google.firebase.database.ServerValue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -35,7 +33,7 @@ internal class ArticleDataUploaderForRealTimeDbTest {
         val writeThread = ArticleDataUploaderForRealTimeDb()
         writeThread.start()
         writeThread.join()
-        /*val task = FirebaseDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
+        /*val task = RealTimeDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
         while (!task.isDone){}*/
     }
 }

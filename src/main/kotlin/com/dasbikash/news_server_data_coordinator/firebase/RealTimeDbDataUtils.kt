@@ -13,20 +13,23 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
-import com.dasbikash.news_server_data_coordinator.model.Article
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.model.*
 import com.google.api.core.ApiFuture
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ServerValue
+import org.hibernate.Session
 
 
 object RealTimeDbDataUtils {
 
-    private val mArticleDataRootReference:DatabaseReference = FirebaseDbRefUtils.getArticleDataRootReference()
+    private val mArticleDataRootReference:DatabaseReference = RealTimeDbRefUtils.getArticleDataRootReference()
 
     fun writeArticleData(articleList:List<Article>){
         val futureList = mutableListOf<ApiFuture<Void>>()
 
         articleList.asSequence().forEach {
-            futureList.add(mArticleDataRootReference.child(it.page!!.id).push().setValueAsync(ArticleForFB.fromArticle(it)))
+            futureList.add(mArticleDataRootReference.child(it.page!!.id).child(it.id).setValueAsync(ArticleForFB.fromArticle(it)))
         }
         futureList.asSequence().forEach {
             while (!it.isDone){}
@@ -39,6 +42,44 @@ object RealTimeDbDataUtils {
 //            println("Waiting for data deletion.")
 //            Thread.sleep(1000L)
 //        }
+    }
+
+    fun nukeAppSettings(){
+        val listOfFuture = mutableListOf<ApiFuture<Void>>()
+        listOfFuture.add(RealTimeDbRefUtils.getPagesRef().setValueAsync(null))
+        listOfFuture.add(RealTimeDbRefUtils.getNewspapersRef().setValueAsync(null))
+        listOfFuture.add(RealTimeDbRefUtils.getCountriesRef().setValueAsync(null))
+        listOfFuture.add(RealTimeDbRefUtils.getLanguagesRef().setValueAsync(null))
+        listOfFuture.asSequence().forEach {
+            while (!it.isDone) {
+            }
+        }
+    }
+
+    fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
+                           newspapers: Collection<Newspaper>, pages: Collection<Page>) {
+        val listOfFuture = mutableListOf<ApiFuture<Void>>()
+        languages.asSequence().forEach {
+            listOfFuture.add(RealTimeDbRefUtils.getLanguagesRef().child(it.id).setValueAsync(LanguageForFB.getFromLanguage(it)))
+        }
+        countries.asSequence().forEach {
+            listOfFuture.add(RealTimeDbRefUtils.getCountriesRef().child(it.name).setValueAsync(CountryForFB.getFromCountry(it)))
+        }
+        newspapers.asSequence().forEach {
+            listOfFuture.add(RealTimeDbRefUtils.getNewspapersRef().child(it.id).setValueAsync(NewspaperForFB.getFromNewspaper(it)))
+        }
+        pages.asSequence().forEach {
+            listOfFuture.add(RealTimeDbRefUtils.getPagesRef().child(it.id).setValueAsync(PageForFB.getFromPage(it)))
+        }
+
+        listOfFuture.asSequence().forEach {
+            while (!it.isDone) {}
+        }
+    }
+
+    fun addToServerUploadTimeLog() {
+        val task = RealTimeDbRefUtils.getSettingsUpdateTimeRef().push().setValueAsync(ServerValue.TIMESTAMP)
+        while (!task.isDone) {}
     }
 
 

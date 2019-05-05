@@ -3,6 +3,7 @@
 package com.dasbikash.news_server_data_coordinator
 
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForFireStoreDb
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
@@ -231,11 +232,11 @@ object ArticleFetcherCoordinator {
             session.close()
 
             if(!::articleDataUploader.isInitialized){
-                articleDataUploader = ArticleDataUploaderForRealTimeDb()
+                articleDataUploader = ArticleDataUploaderForFireStoreDb()
                 articleDataUploader.start()
             }else{
                 if (!articleDataUploader.isAlive){
-                    articleDataUploader = ArticleDataUploaderForRealTimeDb()
+                    articleDataUploader = ArticleDataUploaderForFireStoreDb()
                     articleDataUploader.start()
                 }
             }
