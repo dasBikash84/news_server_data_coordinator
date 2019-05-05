@@ -13,7 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import java.util.*
 
 class LanguageForFB(
@@ -80,7 +80,7 @@ class ArticleForFB(
     }
 
     fun getPublicationTimeRTDB():Long{
-        return publicationTime.time ?: 0L
+        return publicationTime.time
     }
 
     override fun toString(): String {

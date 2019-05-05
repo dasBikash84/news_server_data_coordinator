@@ -26,7 +26,7 @@ object EmailUtils {
         val prop = Properties()
 
         emailAuth.properties!!.keys.asSequence().forEach {
-            prop.put(it, emailAuth.properties!!.get(it))
+            prop.put(it, emailAuth.properties!!.get(it)!!)
         }
 
         val session = Session.getInstance(prop,

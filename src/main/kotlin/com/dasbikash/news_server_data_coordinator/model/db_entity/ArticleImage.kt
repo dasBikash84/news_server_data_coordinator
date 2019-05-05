@@ -11,22 +11,15 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import java.util.*
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Embeddable
 
-@Entity
-@Table(name = DatabaseTableNames.SETTINGS_UPLOAD_LOG_TABLE_NAME)
-class SettingsUploadLog (
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id:Int?=null,
-        var uploadTime:Date = Date(),
-        @Enumerated(EnumType.STRING)
-        var uploadTarget: ArticleUploadTarget?=null
-){
-        override fun toString(): String {
-                return "SettingsUploadLog(uploadTime=$uploadTime, uploadTarget=$uploadTarget)"
-        }
-}
+@Embeddable
+data class ArticleImage(
+        @Column(columnDefinition = "text")
+        var link:String? = null,
+        @Column(columnDefinition = "text")
+        var caption:String? = null
+)

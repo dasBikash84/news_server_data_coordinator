@@ -16,6 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import java.lang.IllegalArgumentException
@@ -67,6 +68,7 @@ abstract class ArticleDataUploader:Thread() {
         return sqlDateFormatter.format(today.time)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getArticlesForUpload(session:Session): List<Article> {
         val nativeSql = getSqlForArticleFetch()
         println("SqlForArticleFetch: ${nativeSql}")
@@ -77,7 +79,7 @@ abstract class ArticleDataUploader:Thread() {
         return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().flagName}=1 WHERE id='${article.id}'"
     }
 
-    private fun markArticlesAsUploaded(articlesForUpload: List<Article>,session: Session) {
+    private fun markArticlesAsUploaded(articlesForUpload: List<Article>, session: Session) {
         var flag = false
         articlesForUpload.asSequence()
                 .forEach {

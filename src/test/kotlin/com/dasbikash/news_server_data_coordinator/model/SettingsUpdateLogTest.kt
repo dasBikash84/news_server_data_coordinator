@@ -37,7 +37,7 @@ internal class SettingsUpdateLogTest {
         val session = DbSessionManager.getNewSession()
 
         DatabaseUtils.getLastSettingsUpdateLog(session)
-                ?.let {
+                let {
                     println(it)
                 }
         session.close()

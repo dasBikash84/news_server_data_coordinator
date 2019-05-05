@@ -11,8 +11,9 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.google.cloud.firestore.annotation.Exclude
 import java.lang.IllegalArgumentException
 import javax.persistence.*
@@ -61,7 +62,7 @@ data class Page(
         override fun toString(): String {
                 return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
         }
-        fun getContentFromOther(other:Page){
+        fun getContentFromOther(other: Page){
                 this.name=other.name
                 this.active=other.active
                 this.parentPageId=other.parentPageId

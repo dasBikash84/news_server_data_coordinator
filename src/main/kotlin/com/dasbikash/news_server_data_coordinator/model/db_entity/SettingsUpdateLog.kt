@@ -11,27 +11,23 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import com.google.cloud.firestore.annotation.Exclude
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = DatabaseTableNames.COUNTRY_TABLE_NAME)
-data class Country (
-        @Id var name: String="",
-        var countryCode: String?=null,
-        var timeZone: String?=null
+@Table(name = DatabaseTableNames.SETTINGS_UPDATE_LOG_TABLE_NAME)
+class SettingsUpdateLog (
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id:Int?=null,
+        var updateTime:Date = Date(),
+        @Column(columnDefinition = "text")
+        var logMessage:String?=null
 ){
-        fun updateData(newCountry: Country) {
-                this.countryCode = newCountry.countryCode
-                this.timeZone = newCountry.timeZone
+        override fun toString(): String {
+                return "SettingsUpdateLog(updateTime=$updateTime, logMessage=$logMessage)"
         }
-
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var newsPapers:List<Newspaper>? = null
-
-
 }

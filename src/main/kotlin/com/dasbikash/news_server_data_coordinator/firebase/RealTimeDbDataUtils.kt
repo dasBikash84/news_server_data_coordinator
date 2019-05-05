@@ -13,12 +13,10 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
-import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.google.api.core.ApiFuture
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ServerValue
-import org.hibernate.Session
 
 
 object RealTimeDbDataUtils {
@@ -57,7 +55,7 @@ object RealTimeDbDataUtils {
     }
 
     fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                           newspapers: Collection<Newspaper>, pages: Collection<Page>) {
+                          newspapers: Collection<Newspaper>, pages: Collection<Page>) {
         val listOfFuture = mutableListOf<ApiFuture<Void>>()
         languages.asSequence().forEach {
             listOfFuture.add(RealTimeDbRefUtils.getLanguagesRef().child(it.id).setValueAsync(LanguageForFB.getFromLanguage(it)))

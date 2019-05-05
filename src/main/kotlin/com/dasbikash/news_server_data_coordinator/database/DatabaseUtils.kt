@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.database
 
 import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import org.hibernate.Session
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 
@@ -113,6 +114,7 @@ object DatabaseUtils {
         return null
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun findLatestArticleForPage(session: Session, page: Page): Article? {
         val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} where pageId='${page.id}' order by publicationTime DESC LIMIT 1"
         val query = session.createNativeQuery(sql, Article::class.java)

@@ -15,11 +15,11 @@ package com.dasbikash.news_server_data_coordinator.model
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
 import org.junit.jupiter.api.Test
-import java.util.*
 
 internal class SettingsUploadLogTest {
 
@@ -44,7 +44,7 @@ internal class SettingsUploadLogTest {
         }*/
 
         val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
-        val settingsUploadLog = DatabaseUtils.getLastSettingsUploadLogByTarget(session,ArticleUploadTarget.REAL_TIME_DB)
+        val settingsUploadLog = DatabaseUtils.getLastSettingsUploadLogByTarget(session, ArticleUploadTarget.REAL_TIME_DB)
         if (settingsUploadLog !=null){
             if (settingsUploadLog.uploadTime < settingsUpdateLog.updateTime){
                 println("Have to update settings")

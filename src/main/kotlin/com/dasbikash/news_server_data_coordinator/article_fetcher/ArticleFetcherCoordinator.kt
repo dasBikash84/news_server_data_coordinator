@@ -1,13 +1,12 @@
-@file:JvmName("com.dasbikash.news_server_data_coordinator.ArticleFetcherCoordinator")
+@file:JvmName("com.dasbikash.news_server_data_coordinator.article_fetcher.ArticleFetcherCoordinator")
 
-package com.dasbikash.news_server_data_coordinator
+package com.dasbikash.news_server_data_coordinator.article_fetcher
 
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForFireStoreDb
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
-import com.dasbikash.news_server_data_coordinator.model.SettingsUpdateLog
+import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 
 /*
@@ -217,7 +216,7 @@ object ArticleFetcherCoordinator {
                 } else {
                     if (ARTICLE_FETCHER_MAP.get(it)==null || !ARTICLE_FETCHER_MAP.get(it)!!.isAlive) {
                         ARTICLE_FETCHER_MAP.remove(it)
-                        val unChangedNewspaperFromDb = newsPaperMapFromDb.get(it)!!
+//                        val unChangedNewspaperFromDb = newsPaperMapFromDb.get(it)!!
                         val articleFetcher = ArticleFetcher(unChangedNewspaperFromDb, unChangedNewspaperFromDb.pageList)
                         ARTICLE_FETCHER_MAP.put(it, articleFetcher)
                         articleFetcher.start()
@@ -231,7 +230,7 @@ object ArticleFetcherCoordinator {
             }
             session.close()
 
-            if(!::articleDataUploader.isInitialized){
+            if(!ArticleFetcherCoordinator::articleDataUploader.isInitialized){
                 articleDataUploader = ArticleDataUploaderForFireStoreDb()
                 articleDataUploader.start()
             }else{

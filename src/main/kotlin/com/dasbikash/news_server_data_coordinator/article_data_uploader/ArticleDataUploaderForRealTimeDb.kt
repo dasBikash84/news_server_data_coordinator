@@ -14,8 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.*
-import com.dasbikash.news_server_data_coordinator.model.*
-import org.hibernate.Session
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 
 class ArticleDataUploaderForRealTimeDb : ArticleDataUploader() {
 
@@ -45,7 +44,7 @@ class ArticleDataUploaderForRealTimeDb : ArticleDataUploader() {
     }
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                                  newspapers: Collection<Newspaper>, pages: Collection<Page>) {
+                                   newspapers: Collection<Newspaper>, pages: Collection<Page>) {
         RealTimeDbDataUtils.uploadNewSettings(languages, countries, newspapers, pages)
     }
 

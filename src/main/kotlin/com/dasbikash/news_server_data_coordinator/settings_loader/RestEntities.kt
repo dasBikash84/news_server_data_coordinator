@@ -13,7 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 
 class Languages(){var languages:List<Language>?=null}
 class Countries(){var countries:List<Country>?=null}

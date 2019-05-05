@@ -11,22 +11,26 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import java.util.*
+
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import com.google.cloud.firestore.annotation.Exclude
 import javax.persistence.*
 
 @Entity
-@Table(name = DatabaseTableNames.SETTINGS_UPDATE_LOG_TABLE_NAME)
-class SettingsUpdateLog (
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id:Int?=null,
-        var updateTime:Date = Date(),
-        @Column(columnDefinition = "text")
-        var logMessage:String?=null
+@Table(name = DatabaseTableNames.LANGUAGE_TABLE_NAME)
+data class Language (
+        @Id var id:String="",
+        var name: String?=null
 ){
-        override fun toString(): String {
-                return "SettingsUpdateLog(updateTime=$updateTime, logMessage=$logMessage)"
+        @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
+        @Exclude
+        @com.google.firebase.database.Exclude
+        var newsPapers:List<Newspaper>? = null
+
+        fun updateData(newLanguage: Language) {
+                this.name = newLanguage.name
         }
+
 }

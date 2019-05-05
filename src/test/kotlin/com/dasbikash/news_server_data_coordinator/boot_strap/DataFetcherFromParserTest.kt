@@ -15,8 +15,6 @@ package com.dasbikash.news_server_data_coordinator.boot_strap
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
-import com.dasbikash.news_server_data_coordinator.model.Article
-import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 

@@ -13,7 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
-import com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget
+import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 
 enum class UploadDestinationInfo(val flagName:String, val articleUploadTarget: ArticleUploadTarget){
     REAL_TIME_DB("upOnFirebaseDb", ArticleUploadTarget.REAL_TIME_DB),

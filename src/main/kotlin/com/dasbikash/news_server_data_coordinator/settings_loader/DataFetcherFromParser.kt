@@ -13,7 +13,7 @@
 
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.google.gson.Gson
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
@@ -46,20 +46,20 @@ object DataFetcherFromParser {
 
     private val pagesForNpTarget = pagesTarget.path("newspaper_id/{${NEWSPAPER_ID_PATH_PARAM}}")
 
-    fun getLanguageMap():Map<String,Language>{
+    fun getLanguageMap():Map<String, Language>{
         val response = languagesTarget.request(MediaType.APPLICATION_JSON).get()
         val languagesFromParser = response.readEntity(Languages::class.java)
-        val languageMap = mutableMapOf<String,Language>()
+        val languageMap = mutableMapOf<String, Language>()
         languagesFromParser.languages!!.asSequence().forEach {
             languageMap.put(it.id,it)
         }
         return languageMap
     }
 
-    fun getCountryMap():Map<String,Country>{
+    fun getCountryMap():Map<String, Country>{
         val response = countriesTarget.request(MediaType.APPLICATION_JSON).get()
         val countriesFromParser = response.readEntity(Countries::class.java)
-        val countryMap = mutableMapOf<String,Country>()
+        val countryMap = mutableMapOf<String, Country>()
         countriesFromParser.countries!!.asSequence()
                 .forEach {
                     countryMap.put(it.name,it)
@@ -67,10 +67,10 @@ object DataFetcherFromParser {
         return countryMap
     }
 
-    fun getNewspaperMap():Map<String,Newspaper>{
+    fun getNewspaperMap():Map<String, Newspaper>{
         val response = newsPapersTarget.request(MediaType.APPLICATION_JSON).get()
         val newspapersFromParser = response.readEntity(Newspapers::class.java)
-        val newspaperMap = mutableMapOf<String,Newspaper>()
+        val newspaperMap = mutableMapOf<String, Newspaper>()
         newspapersFromParser.newspapers!!.asSequence()
                 .forEach {
                     newspaperMap.put(it.id,it)
@@ -112,7 +112,7 @@ object DataFetcherFromParser {
             return emptyList()
         }
     }
-    fun getArticlesBeforeGivenArticleForPage(page: Page,article: Article):List<Article>{
+    fun getArticlesBeforeGivenArticleForPage(page: Page, article: Article):List<Article>{
 //        println("page: ${page.name}")
         val response = articlesBeforeGivenArticleForPageTarget
                                         .resolveTemplate(PAGE_ID_PATH_PARAM,page.id)

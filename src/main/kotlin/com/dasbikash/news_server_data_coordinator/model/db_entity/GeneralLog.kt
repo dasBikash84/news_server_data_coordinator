@@ -11,15 +11,17 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import javax.persistence.Column
-import javax.persistence.Embeddable
+import javax.persistence.*
 
-@Embeddable
-data class ArticleImage(
+@Entity
+@Table(name = "general_log")
+class GeneralLog(
         @Column(columnDefinition = "text")
-        var link:String? = null,
-        @Column(columnDefinition = "text")
-        var caption:String? = null
-)
+        val logMessage: String
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Int = 0
+}

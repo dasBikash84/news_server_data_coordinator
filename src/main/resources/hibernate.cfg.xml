@@ -24,17 +24,17 @@
   <property name="hbm2ddl.auto">validate</property>
   <property name="hibernate.show_sql">false</property>
   <property name="hibernate.format_sql">true</property>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.Language"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.Country"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.Newspaper"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.Page"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.Article"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleImage"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.ErrorLog"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.GeneralLog"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadLog"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.ArticleUploadTarget"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.SettingsUpdateLog"/>
-  <mapping class="com.dasbikash.news_server_data_coordinator.model.SettingsUploadLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.Language"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.Country"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.Page"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.Article"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleImage"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ErrorLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.GeneralLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUploadLog"/>
  </session-factory>
 </hibernate-configuration>

@@ -11,17 +11,29 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
 import javax.persistence.*
 
 @Entity
-@Table(name = "general_log")
-class GeneralLog(
-        @Column(columnDefinition = "text")
-        val logMessage: String
+@Table(name = "article_upload_log")
+class ArticleUploadLog(
+        @Enumerated(EnumType.STRING)
+        val uploadTarget: ArticleUploadTarget,
+        uploadedArticles: List<Article>
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0
+    var id: Int? = null
+    @Column(columnDefinition = "text")
+    val logMessage: String
+
+    init {
+        val logBuilder = StringBuilder("Uploaded article Ids: ")
+        uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
+            logBuilder.append("${it.id} | ")
+        }
+        logBuilder.append(uploadedArticles.last().id)
+        logMessage = logBuilder.toString()
+    }
 }

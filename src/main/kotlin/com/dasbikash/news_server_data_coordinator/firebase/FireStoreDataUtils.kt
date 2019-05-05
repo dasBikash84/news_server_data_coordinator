@@ -13,13 +13,11 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import java.lang.IllegalArgumentException
 import com.google.cloud.firestore.CollectionReference
 import com.google.cloud.firestore.FieldValue
 import com.google.cloud.firestore.WriteBatch
-import com.google.firebase.database.ServerValue
-import com.google.firebase.internal.FirebaseAppStore
 
 
 object FireStoreDataUtils {

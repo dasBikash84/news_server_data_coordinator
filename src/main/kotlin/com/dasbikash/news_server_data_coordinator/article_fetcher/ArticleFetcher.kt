@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator
+package com.dasbikash.news_server_data_coordinator.article_fetcher
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
-import com.dasbikash.news_server_data_coordinator.model.Newspaper
-import com.dasbikash.news_server_data_coordinator.model.Page
+import com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper
+import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import kotlin.random.Random
@@ -33,7 +33,6 @@ class ArticleFetcher(val newspaper: Newspaper, val pages:List<Page>)
                 val session = DbSessionManager.getNewSession()
                 try {
                     val currentPage = it
-                    val latestArticle = DatabaseUtils.findLatestArticleForPage(session, currentPage)
                     var fetchedArticles = DataFetcherFromParser.getLatestArticlesForPage(currentPage)
 //                    println("Fetched ${fetchedArticles.size} latest articles for page: ${currentPage.name} Np: ${newspaper.name}")
 //                sleep(1000L)

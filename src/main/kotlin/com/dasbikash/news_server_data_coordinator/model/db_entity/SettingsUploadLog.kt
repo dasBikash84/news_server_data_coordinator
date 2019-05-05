@@ -11,29 +11,23 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "article_upload_log")
-class ArticleUploadLog(
+@Table(name = DatabaseTableNames.SETTINGS_UPLOAD_LOG_TABLE_NAME)
+class SettingsUploadLog (
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id:Int?=null,
+        var uploadTime:Date = Date(),
         @Enumerated(EnumType.STRING)
-        val uploadTarget: ArticleUploadTarget,
-        uploadedArticles: List<Article>
-) {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null
-    @Column(columnDefinition = "text")
-    val logMessage: String
-
-    init {
-        val logBuilder = StringBuilder("Uploaded article Ids: ")
-        uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
-            logBuilder.append("${it.id} | ")
+        var uploadTarget: ArticleUploadTarget?=null
+){
+        override fun toString(): String {
+                return "SettingsUploadLog(uploadTime=$uploadTime, uploadTarget=$uploadTarget)"
         }
-        logBuilder.append(uploadedArticles.last().id)
-        logMessage = logBuilder.toString()
-    }
 }

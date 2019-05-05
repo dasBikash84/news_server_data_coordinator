@@ -11,25 +11,9 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.model
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
 
-import com.google.cloud.firestore.annotation.Exclude
-import javax.persistence.*
-
-@Entity
-@Table(name = DatabaseTableNames.LANGUAGE_TABLE_NAME)
-data class Language (
-        @Id var id:String="",
-        var name: String?=null
-){
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var newsPapers:List<Newspaper>? = null
-
-        fun updateData(newLanguage: Language) {
-                this.name = newLanguage.name
-        }
-
+enum class ArticleUploadTarget {
+    REAL_TIME_DB,FIRE_STORE_DB,MONGO_REST_SERVICE
 }
