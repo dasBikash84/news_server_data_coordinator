@@ -1,6 +1,7 @@
 package com.dasbikash.news_server_data_coordinator.utils
 
 import com.dasbikash.news_server_data_coordinator.model.EmailAuth
+import com.dasbikash.news_server_data_coordinator.model.EmailTargets
 import com.google.gson.Gson
 import java.io.FileReader
 import java.util.*
@@ -10,10 +11,14 @@ import javax.mail.internet.MimeMessage
 
 object EmailUtils {
     val emailAuth:EmailAuth
+    val emailTargets:EmailTargets
 
     init {
-        val reader = FileReader("src/main/resources/email_details.json")
-        emailAuth = Gson().fromJson(reader,EmailAuth::class.java)
+        val authReader = FileReader("src/main/resources/email_details_auth.json")
+        emailAuth = Gson().fromJson(authReader,EmailAuth::class.java)
+
+        val targetReader = FileReader("src/main/resources/email_details_targets.json")
+        emailTargets = Gson().fromJson(targetReader,EmailTargets::class.java)
     }
 
     fun sendEmail(subject:String,body:String):Boolean{
@@ -32,24 +37,52 @@ object EmailUtils {
                 })
 
         try {
-
             val message = MimeMessage(session)
+
             message.setFrom(InternetAddress(emailAuth.userName))
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse(emailAuth.toAddresses)
-            )
+            setEmailRecipients(message)
             message.subject = subject
             message.setText(body)
 
             Transport.send(message)
-
             return true
-
         } catch (e: MessagingException) {
             e.printStackTrace()
             return false
         }
+    }
+
+    private fun setEmailRecipients(message: MimeMessage) {
+        message.setRecipients(
+                Message.RecipientType.TO,
+                InternetAddress.parse(getToAddressString())
+        )
+
+        getCcAddressString()?.let {
+            message.setRecipients(
+                    Message.RecipientType.CC,
+                    InternetAddress.parse(it)
+            )
+        }
+
+        getBccAddressString()?.let {
+            message.setRecipients(
+                    Message.RecipientType.BCC,
+                    InternetAddress.parse(it)
+            )
+        }
+    }
+
+    private fun getToAddressString():String{
+        return emailTargets.toAddresses!!
+    }
+
+    private fun getCcAddressString():String?{
+        return emailTargets.ccAddresses
+    }
+
+    private fun getBccAddressString():String?{
+        return emailTargets.bccAddresses
     }
 }
 

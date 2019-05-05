@@ -1,7 +1,7 @@
 #List of folders containing temporary files for development assistance
 /dontTrack
 *firebase-adminsdk*.json
-*email_details.json
+*email_details*.json
 
 ### Java template
 *.class
