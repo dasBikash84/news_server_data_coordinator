@@ -16,68 +16,64 @@ package com.dasbikash.news_server_data_coordinator.article_fetcher
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper
-import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import kotlin.random.Random
 
-class ArticleFetcher(val newspaper: Newspaper, val pages:List<Page>)
+class ArticleFetcher(val newspaper: Newspaper)
     : Thread() {
-    val WAITING_TIME_BETWEEN_PAGES=1000L
+
+    val WAITING_TIME_BETWEEN_PAGES = 1000L
+
     override fun run() {
         super.run()
+
+        println("ArticleFetcher for ${newspaper.name} started")
+
         do {
-            pages.asSequence().forEach {
-//                println("Starting article fetch for page: ${it.name} Np: ${newspaper.name}")
-//                sleep(1000L)
-                val session = DbSessionManager.getNewSession()
+            val session = DbSessionManager.getNewSession()
+            val newspaperForTask = DatabaseUtils.findNewspaperById(session, newspaper.id)!!
+            newspaperForTask.pageList.asSequence().forEach {
                 try {
                     val currentPage = it
                     var fetchedArticles = DataFetcherFromParser.getLatestArticlesForPage(currentPage)
-//                    println("Fetched ${fetchedArticles.size} latest articles for page: ${currentPage.name} Np: ${newspaper.name}")
-//                sleep(1000L)
                     while (fetchedArticles.size > 0) {
                         var savedArticleCount = 0
                         fetchedArticles.asSequence().forEach {
                             if (DatabaseUtils.findArticleById(session, it.id) == null) {
-//                                println("New article with id: ${it.id} saved for page: ${currentPage.name} Np: ${newspaper.name}")
-//                            sleep(1000L)
                                 DatabaseUtils.runDbTransection(session) {
                                     session.save(it)
                                     savedArticleCount++
                                 }
                             }
                         }
-                        if (savedArticleCount>0) {
+                        if (savedArticleCount > 0) {
                             println("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                         }
                         sleep(100L)
                         if (savedArticleCount < fetchedArticles.size) {
-//                            println("no new articles for page: ${currentPage.name} Np: ${newspaper.name}")
                             sleep(100L)
                             break
                         }
                         fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())
                     }
-//                    println("Articles synced for page: ${currentPage.name} Np: ${newspaper.name}")
                     sleep(100L)
 
-                    val lastArticle = DatabaseUtils.findLatestArticleForPage(session,currentPage)
-                    lastArticle?.let {
+                    val oldestArticle = DatabaseUtils.findOldestArticleForPage(session, currentPage)
+                    oldestArticle?.let {
                         fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, it)
+//                        println("Found ${fetchedArticles.size} articles after oldest ${it} for : Page: ${currentPage.name} Np: ${newspaper.name}")
                         while (fetchedArticles.size > 0) {
                             var savedArticleCount = 0
                             fetchedArticles.asSequence().forEach {
                                 if (DatabaseUtils.findArticleById(session, it.id) == null) {
-//                                    println("New article with id: ${it.id} saved for page: ${currentPage.name} Np: ${newspaper.name}")
-//                            sleep(1000L)
                                     DatabaseUtils.runDbTransection(session) {
                                         session.save(it)
                                         savedArticleCount++
                                     }
                                 }
                             }
-                            if (savedArticleCount>0) {
+                            if (savedArticleCount > 0) {
                                 println("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                             }
                             sleep(100L)
@@ -85,19 +81,20 @@ class ArticleFetcher(val newspaper: Newspaper, val pages:List<Page>)
                         }
 
                     }
-
-                    if (isInterrupted) {
-                        return
-                    }
-                    sleep(WAITING_TIME_BETWEEN_PAGES+ Random(System.currentTimeMillis()).nextLong(WAITING_TIME_BETWEEN_PAGES))
-                }catch (ex:Exception){
-                    //ex.printStackTrace()
-                    LoggerUtils.logError(ex,session)
-                }finally {
-                    session.close()
+                    sleep(WAITING_TIME_BETWEEN_PAGES + Random(System.currentTimeMillis()).nextLong(WAITING_TIME_BETWEEN_PAGES))
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                    LoggerUtils.logError(ex, session)
+                    println("ArticleFetcher for ${newspaperForTask.name} Interrupted")
+                    return
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    LoggerUtils.logError(ex, session)
+                    println("Error for: Page: ${it.name} Np: ${newspaper.name}")
                 }
             }
-        }while (true)
+            session.close()
+        } while (true)
     }
 
 

@@ -125,6 +125,17 @@ object DatabaseUtils {
         return null
     }
 
+    @Suppress("UNCHECKED_CAST")
+    fun findOldestArticleForPage(session: Session, page: Page): Article? {
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} where pageId='${page.id}' order by publicationTime ASC LIMIT 1"
+        val query = session.createNativeQuery(sql, Article::class.java)
+        val resultList = query.resultList as List<Article>
+        if (resultList.size == 1) {
+            return resultList.get(0)
+        }
+        return null
+    }
+
     fun findPageById(session: Session, id: String): Page? {
         val hql = "FROM ${EntityClassNames.PAGE} where id='${id}'"
         val query = session.createQuery(hql, Page::class.java)
