@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.exceptions.ArticleUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.SettingsUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
@@ -38,6 +39,7 @@ abstract class ArticleDataUploader:Thread() {
     private val INIT_DELAY_FOR_ERROR = 60 * 1000L
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
+    private var settingsUploadResumeAfterError = false
 
 
     abstract protected fun getUploadDestinationInfo():UploadDestinationInfo
@@ -141,37 +143,59 @@ abstract class ArticleDataUploader:Thread() {
         do {
             val session = DbSessionManager.getNewSession()
             try {
-                if (checkIfSettingsModified(session)) {
+                if (checkIfSettingsModified(session) || settingsUploadResumeAfterError) {
                     uploadSettingsToServer(session)
                 }
                 errorDelayPeriod = 0L
                 errorIteration = 0L
+                settingsUploadResumeAfterError = false
             }catch (ex:Exception){
                 ex.printStackTrace()
                 DataCoordinatorExceptionHandler.handleException(
                         SettingsUploadException(getUploadDestinationInfo().articleUploadTarget,ex)
                 )
                 try {
+                    settingsUploadResumeAfterError = true
                     sleep(getErrorDelayPeriod())
                     continue
                 } catch (ex: InterruptedException) {
                     ex.printStackTrace()
+                    return //Exit due to iterruption by Master
                 }
             }
 
             val articlesForUpload = getArticlesForUpload(session)
             println("articlesForUpload.size: ${articlesForUpload.size}")
             if (articlesForUpload.size>0){
-                if (uploadArticles(articlesForUpload)){
-                    markArticlesAsUploaded(articlesForUpload,session)
-                    LoggerUtils.logArticleUploadHistory(session,articlesForUpload,getUploadDestinationInfo())
-                }
+                do{
+                    try {
+//                        throw java.lang.IllegalStateException()
+                        if (uploadArticles(articlesForUpload)){
+                            markArticlesAsUploaded(articlesForUpload,session)
+                            LoggerUtils.logArticleUploadHistory(session,articlesForUpload,getUploadDestinationInfo())
+                            errorDelayPeriod = 0L
+                            errorIteration = 0L
+                        }
+                    }catch(ex:Exception){
+                        ex.printStackTrace()
+                        DataCoordinatorExceptionHandler.handleException(
+                                ArticleUploadException(getUploadDestinationInfo().articleUploadTarget,ex))
+                        try {
+                            sleep(getErrorDelayPeriod())
+                            continue
+                        } catch (ex: InterruptedException) {
+                            ex.printStackTrace()
+                            return
+                        }
+                    }
+                    break
+                }while (true)
                 try {
                     session.close()
                     sleep(WAITING_TIME_BETWEEN_ITERATION)
                 }catch (ex:InterruptedException){
                     ex.printStackTrace()
-                    return
+                    return //Exit due to iterruption by Master
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }
@@ -181,7 +205,7 @@ abstract class ArticleDataUploader:Thread() {
                     sleep(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS)
                 }catch (ex:InterruptedException){
                     ex.printStackTrace()
-                    return
+                    return //Exit due to iterruption by Master
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }

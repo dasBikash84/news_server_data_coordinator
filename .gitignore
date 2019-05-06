@@ -2,7 +2,7 @@
 /dontTrack
 *firebase-adminsdk*.json
 *email_details*.json
-
+*SourceLineCounter*
 ### Java template
 *.class
 

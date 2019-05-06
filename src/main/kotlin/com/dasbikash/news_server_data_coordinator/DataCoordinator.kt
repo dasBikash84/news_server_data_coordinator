@@ -15,6 +15,7 @@ import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordi
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 
 /*
@@ -66,10 +67,16 @@ object DataCoordinator {
 
             } catch (ex: Exception) {
                 ex.printStackTrace()
+                val session = DbSessionManager.getNewSession()
                 try {
+                    LoggerUtils.logError(ex,session)
                     Thread.sleep(getErrorDelayPeriod())
-                } catch (ex: InterruptedException) {
-                    ex.printStackTrace()
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }finally {
+                    if (session.isOpen){
+                        session.close()
+                    }
                 }
             }
 

@@ -15,10 +15,7 @@ package com.dasbikash.news_server_data_coordinator.utils
 
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.UploadDestinationInfo
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
-import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
-import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadLog
-import com.dasbikash.news_server_data_coordinator.model.db_entity.ErrorLog
-import com.dasbikash.news_server_data_coordinator.model.db_entity.GeneralLog
+import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import org.hibernate.Session
 
 object LoggerUtils {
@@ -41,6 +38,14 @@ object LoggerUtils {
 
         DatabaseUtils.runDbTransection(session) {
             session.save(uploadHistory)
+        }
+    }
+
+    fun logArticleDownloadHistory(session: Session, articleList:List<Article>,page: Page){
+        val downLoadLog = ArticleDownloadLog(page, articleList)
+
+        DatabaseUtils.runDbTransection(session) {
+            session.save(downLoadLog)
         }
     }
 }

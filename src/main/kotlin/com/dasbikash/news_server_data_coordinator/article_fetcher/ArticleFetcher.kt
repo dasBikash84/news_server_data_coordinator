@@ -17,9 +17,15 @@ import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.ArticleFetcherInterruptedException
 import com.dasbikash.news_server_data_coordinator.exceptions.DataCoordinatorException
+import com.dasbikash.news_server_data_coordinator.exceptions.HighestLevelException
+import com.dasbikash.news_server_data_coordinator.exceptions.ParserUnavailableException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
+import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import java.net.ConnectException
+import javax.ws.rs.ProcessingException
 import kotlin.random.Random
 
 class ArticleFetcher(val newspaper: Newspaper)
@@ -39,7 +45,9 @@ class ArticleFetcher(val newspaper: Newspaper)
         do {
             val session = DbSessionManager.getNewSession()
             val newspaperForTask = DatabaseUtils.findNewspaperById(session, newspaper.id)!!
-            newspaperForTask.pageList.asSequence().forEach {
+            newspaperForTask.pageList.asSequence().filter { it.active }.forEach {
+                val savedArticles = mutableListOf<Article>()
+
                 try {
                     val currentPage = it
                     var fetchedArticles = DataFetcherFromParser.getLatestArticlesForPage(currentPage)
@@ -50,6 +58,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                                 DatabaseUtils.runDbTransection(session) {
                                     session.save(it)
                                     savedArticleCount++
+                                    savedArticles.add(it)
                                 }
                             }
                         }
@@ -76,6 +85,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                                     DatabaseUtils.runDbTransection(session) {
                                         session.save(it)
                                         savedArticleCount++
+                                        savedArticles.add(it)
                                     }
                                 }
                             }
@@ -100,15 +110,22 @@ class ArticleFetcher(val newspaper: Newspaper)
                     return
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    DataCoordinatorExceptionHandler
-                            .handleException(
-                                    DataCoordinatorException(ex)
-                            )
+                    println("${ex::class.java.simpleName} error for page: ${it.name} Np: ${newspaper.name}")
+                    val exceptionForLogging:DataCoordinatorException
+                    if(ex is ProcessingException || ex.cause is ConnectException){
+                        exceptionForLogging =ParserUnavailableException(ex)
+                    }else{
+                        exceptionForLogging = DataCoordinatorException(ex)
+                    }
+                    DataCoordinatorExceptionHandler.handleException(exceptionForLogging)
                     try {
                         sleep(getErrorDelayPeriod())
                     } catch (ex: InterruptedException) {
                         ex.printStackTrace()
                     }
+                }
+                if (savedArticles.isNotEmpty()){
+                    LoggerUtils.logArticleDownloadHistory(session,savedArticles,it)
                 }
             }
             session.close()

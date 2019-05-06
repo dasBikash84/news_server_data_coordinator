@@ -22,4 +22,5 @@ object EntityClassNames {
     const val SETTINGS_UPLOAD_LOG = "SettingsUploadLog"
     const val SETTINGS_UPDATE_LOG = "SettingsUpdateLog"
     const val ARTICLE_UPLOADER_STATUS_CHANGE_LOG = "ArticleUploaderStatusChangeLog"
+    const val ARTICLE_DOWNLOAD_LOG = "ArticleDownloadLog"
 }

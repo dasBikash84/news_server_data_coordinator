@@ -13,29 +13,35 @@
 
 package com.dasbikash.news_server_data_coordinator.model.db_entity
 
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import org.hibernate.annotations.UpdateTimestamp
+import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "article_upload_log")
-class ArticleUploadLog(
-        @Enumerated(EnumType.STRING)
-        var uploadTarget: ArticleUploadTarget?=null,
-        uploadedArticles: List<Article>?=null
+@Table(name = DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME)
+class ArticleDownloadLog(
+        page: Page?=null,
+        downloadedArticles: List<Article>?=null
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int? = null
     @Column(columnDefinition = "text")
     var logMessage: String?=null
+    var parents: String?=null
+    @UpdateTimestamp
+    var created: Date?=null
 
     init {
-        uploadedArticles?.let {
+        downloadedArticles?.let {
             val logBuilder = StringBuilder()
-            it.asSequence().take(it.size - 1).forEach {
+            it.asSequence().take(it.size - 1)?.forEach {
                 logBuilder.append("${it.id} | ")
             }
             logBuilder.append(it.last().id)
             logMessage = logBuilder.toString()
+            parents = "${page?.name} | ${page?.newspaper?.name}"
         }
     }
 }
