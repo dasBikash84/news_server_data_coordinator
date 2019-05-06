@@ -38,8 +38,20 @@ class ErrorLog(exception: Throwable){
                 this.exceptionClassFullName = exception::class.java.canonicalName
                 this.exceptionCause = exception.cause?.message ?: ""
                 this.exceptionMessage = exception.message ?: ""
-                val stackTrace = mutableListOf<StackTraceElement>()
-                exception.stackTrace.toCollection(stackTrace)
-                this.stackTrace = stackTrace.toString()
+//                val stackTrace = mutableListOf<StackTraceElement>()
+                val stackTraceBuilder = StringBuilder("")
+                exception.stackTrace.asSequence().forEach { stackTraceBuilder.append(it.toString()).append("\n") }
+                this.stackTrace = stackTraceBuilder.toString()
         }
+
+        override fun toString(): String {
+                return "ErrorLog(exception=$exception,\n" +
+                        "exceptionClassFullName='$exceptionClassFullName',\n" +
+                        "exceptionClassSimpleName='$exceptionClassSimpleName',\n" +
+                        "exceptionCause='$exceptionCause',\n" +
+                        "exceptionMessage='$exceptionMessage',\n" +
+                        "stackTrace='$stackTrace')"
+        }
+
+
 }

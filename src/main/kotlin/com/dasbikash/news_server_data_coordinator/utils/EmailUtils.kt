@@ -10,8 +10,8 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 object EmailUtils {
-    val emailAuth:EmailAuth
-    val emailTargets:EmailTargets
+    private val emailAuth:EmailAuth
+    private val emailTargets:EmailTargets
 
     init {
         val authReader = FileReader("src/main/resources/email_details_auth.json")

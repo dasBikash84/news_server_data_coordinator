@@ -17,7 +17,7 @@ internal class EmailUtilsTest {
     }
     @Test
     fun readAuth(){
-        println(EmailUtils.emailAuth)
+//        println(EmailUtils.emailAuth)
     }
 
     @Test
