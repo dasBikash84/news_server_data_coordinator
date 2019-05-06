@@ -31,8 +31,8 @@ internal class ArticleDataUploaderForFireStoreDbTest {
 
     @Test
     fun testwrite(){
-        val fireStoreWriter = ArticleDataUploaderForFireStoreDb()
-        fireStoreWriter.start()
-        fireStoreWriter.join()
+//        val fireStoreWriter = ArticleDataUploaderForFireStoreDb()
+//        fireStoreWriter.start()
+//        fireStoreWriter.join()
     }
 }

@@ -20,9 +20,9 @@ internal class ArticleUploaderStatusChangeLogTest {
 
     @Test
     fun testStatusRead(){
-        val session = DbSessionManager.getNewSession()
-        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.REAL_TIME_DB))
-        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.FIRE_STORE_DB))
-        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.MONGO_REST_SERVICE))
+//        val session = DbSessionManager.getNewSession()
+//        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.REAL_TIME_DB))
+//        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.FIRE_STORE_DB))
+//        println(DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.MONGO_REST_SERVICE))
     }
 }

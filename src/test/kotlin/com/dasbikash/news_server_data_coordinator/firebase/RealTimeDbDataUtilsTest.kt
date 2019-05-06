@@ -31,6 +31,6 @@ internal class RealTimeDbDataUtilsTest {
 
     @Test
     fun clearAllArticleData(){
-        RealTimeDbDataUtils.clearAllArticleData()
+//        RealTimeDbDataUtils.clearAllArticleData()
     }
 }

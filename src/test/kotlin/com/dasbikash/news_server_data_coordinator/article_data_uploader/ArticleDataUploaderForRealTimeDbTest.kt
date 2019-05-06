@@ -30,9 +30,9 @@ internal class ArticleDataUploaderForRealTimeDbTest {
 
     @Test
     fun testWrite(){
-        val writeThread = ArticleDataUploaderForRealTimeDb()
-        writeThread.start()
-        writeThread.join()
+//        val writeThread = ArticleDataUploaderForRealTimeDb()
+//        writeThread.start()
+//        writeThread.join()
         /*val task = RealTimeDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
         while (!task.isDone){}*/
     }

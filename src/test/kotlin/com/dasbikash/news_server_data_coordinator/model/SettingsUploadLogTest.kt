@@ -34,7 +34,7 @@ internal class SettingsUploadLogTest {
 
     @Test
     fun testDataIO(){
-        val session = DbSessionManager.getNewSession()
+//        val session = DbSessionManager.getNewSession()
 
         /*for (i in 1..5){
             DatabaseUtils.runDbTransection(session){
@@ -43,15 +43,15 @@ internal class SettingsUploadLogTest {
             Thread.sleep(5000)
         }*/
 
-        val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
-        val settingsUploadLog = DatabaseUtils.getLastSettingsUploadLogByTarget(session, ArticleUploadTarget.REAL_TIME_DB)
-        if (settingsUploadLog !=null){
-            if (settingsUploadLog.uploadTime < settingsUpdateLog.updateTime){
-                println("Have to update settings")
-            }
-        }else{
-            println("Have to update settings")
-        }
-        session.close()
+//        val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
+//        val settingsUploadLog = DatabaseUtils.getLastSettingsUploadLogByTarget(session, ArticleUploadTarget.REAL_TIME_DB)
+//        if (settingsUploadLog !=null){
+//            if (settingsUploadLog.uploadTime < settingsUpdateLog.updateTime){
+//                println("Have to update settings")
+//            }
+//        }else{
+//            println("Have to update settings")
+//        }
+//        session.close()
     }
 }

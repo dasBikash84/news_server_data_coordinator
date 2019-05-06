@@ -22,6 +22,6 @@ internal class EmailUtilsTest {
 
     @Test
     fun testByUtilsClass(){
-        EmailUtils.sendEmail("Test Email2","hello!!")
+//        EmailUtils.sendEmail("Test Email2","hello!!")
     }
 }

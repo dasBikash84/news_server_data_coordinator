@@ -35,9 +35,9 @@ internal class DataFetcherFromParserTest {
         DataFetcherFromParser.getCountryMap().asSequence().forEach { println("Country: ${it.name}") }
         DataFetcherFromParser.getNewspaperMap().asSequence().forEach { println("Newspaper: ${it.name}") }
         DataFetcherFromParser.getPages().asSequence().forEach { println("Page: ${it.name}") }*/
-        val session = DbSessionManager.getNewSession()
-        val page = DatabaseUtils.findPageById(session,"PAGE_ID_1080")!!
-        println(DatabaseUtils.findLatestArticleForPage(session,page))
+//        val session = DbSessionManager.getNewSession()
+//        val page = DatabaseUtils.findPageById(session,"PAGE_ID_1080")!!
+//        println(DatabaseUtils.findLatestArticleForPage(session,page))
 //        var lastArticle:Article?=null
         /*DataFetcherFromParser.getLatestArticlesForPage(page).asSequence()
                 .forEach {

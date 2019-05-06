@@ -18,7 +18,7 @@ internal class DataCoordinatorExceptionHandlerTest {
     }
     @Test
     fun highestLevelErrorTesting(){
-        val nums = listOf<Int>()
+        /*val nums = listOf<Int>()
 
         try {
             println(nums.get(10))
@@ -26,6 +26,6 @@ internal class DataCoordinatorExceptionHandlerTest {
             ex.printStackTrace()
             DataCoordinatorExceptionHandler.handleException(HighestLevelException(ex))
         }
-        Thread.sleep(10000)
+        Thread.sleep(10000)*/
     }
 }

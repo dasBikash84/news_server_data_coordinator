@@ -34,12 +34,12 @@ internal class SettingsUpdateLogTest {
     @Test
     fun getLastLog(){
 
-        val session = DbSessionManager.getNewSession()
-
-        DatabaseUtils.getLastSettingsUpdateLog(session)
-                let {
-                    println(it)
-                }
-        session.close()
+//        val session = DbSessionManager.getNewSession()
+//
+//        DatabaseUtils.getLastSettingsUpdateLog(session)
+//                let {
+//                    println(it)
+//                }
+//        session.close()
     }
 }
