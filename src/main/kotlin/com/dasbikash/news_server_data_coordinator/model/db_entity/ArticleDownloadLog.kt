@@ -21,27 +21,25 @@ import javax.persistence.*
 @Entity
 @Table(name = DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME)
 class ArticleDownloadLog(
-        page: Page?=null,
-        downloadedArticles: List<Article>?=null
+        page: Page? = null,
+        downloadedArticles: List<Article>
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null
+    val id: Int? = null
     @Column(columnDefinition = "text")
-    var logMessage: String?=null
-    var parents: String?=null
+    val logMessage: String
+    val parents: String
     @UpdateTimestamp
-    var created: Date?=null
+    val created: Date? = null
 
     init {
-        downloadedArticles?.let {
-            val logBuilder = StringBuilder()
-            it.asSequence().take(it.size - 1)?.forEach {
-                logBuilder.append("${it.id} | ")
-            }
-            logBuilder.append(it.last().id)
-            logMessage = logBuilder.toString()
-            parents = "${page?.name} | ${page?.newspaper?.name}"
+        val logBuilder = StringBuilder()
+        downloadedArticles.asSequence().take(downloadedArticles.size - 1).forEach {
+            logBuilder.append("${it.id} | ")
         }
+        logBuilder.append(downloadedArticles.last().id)
+        logMessage = logBuilder.toString()
+        parents = "${page?.name} | ${page?.newspaper?.name}"
     }
 }

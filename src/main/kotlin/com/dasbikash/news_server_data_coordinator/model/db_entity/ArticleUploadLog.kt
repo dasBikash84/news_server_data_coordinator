@@ -19,23 +19,21 @@ import javax.persistence.*
 @Table(name = "article_upload_log")
 class ArticleUploadLog(
         @Enumerated(EnumType.STRING)
-        var uploadTarget: ArticleUploadTarget?=null,
-        uploadedArticles: List<Article>?=null
+        val uploadTarget: ArticleUploadTarget,
+        uploadedArticles: List<Article>
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null
+    val id: Int? = null
     @Column(columnDefinition = "text")
-    var logMessage: String?=null
+    val logMessage: String
 
     init {
-        uploadedArticles?.let {
-            val logBuilder = StringBuilder()
-            it.asSequence().take(it.size - 1).forEach {
-                logBuilder.append("${it.id} | ")
-            }
-            logBuilder.append(it.last().id)
-            logMessage = logBuilder.toString()
+        val logBuilder = StringBuilder()
+        uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
+            logBuilder.append("${it.id} | ")
         }
+        logBuilder.append(uploadedArticles.last().id)
+        logMessage = logBuilder.toString()
     }
 }
