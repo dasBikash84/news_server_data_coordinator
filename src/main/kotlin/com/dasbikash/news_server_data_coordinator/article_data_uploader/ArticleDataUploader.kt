@@ -29,7 +29,7 @@ abstract class ArticleDataUploader:Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
     private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10*60*60*1000L // 10 mins
+    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10*60*1000L // 10 mins
     private val WAITING_TIME_BETWEEN_ITERATION = 5*1000L //5 secs
 
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
@@ -54,7 +54,7 @@ abstract class ArticleDataUploader:Thread() {
         sqlBuilder
                 .append(getMinArticleDateString())
                 .append("' AND ${getUploadDestinationInfo().flagName}=0")
-                .append(" ORDER BY ${Article.COLUMN_NAME_FOR_ORDER_BY} DESC")
+                .append(" ORDER BY ${Article.PUBLICATION_TIME_COLUMN_NAME} DESC")
                 .append(" LIMIT ${maxArticleCountForUpload()}")
         return sqlBuilder.toString()
     }
@@ -145,6 +145,9 @@ abstract class ArticleDataUploader:Thread() {
                 try {
                     session.close()
                     sleep(WAITING_TIME_BETWEEN_ITERATION)
+                }catch (ex:InterruptedException){
+                    ex.printStackTrace()
+                    return
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }
@@ -152,6 +155,9 @@ abstract class ArticleDataUploader:Thread() {
                 try {
                     session.close()
                     sleep(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS)
+                }catch (ex:InterruptedException){
+                    ex.printStackTrace()
+                    return
                 }catch (ex:Exception){
                     ex.printStackTrace()
                 }

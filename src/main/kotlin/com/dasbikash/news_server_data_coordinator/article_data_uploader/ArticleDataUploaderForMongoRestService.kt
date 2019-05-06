@@ -13,13 +13,12 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
-import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 
-class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
+class ArticleDataUploaderForMongoRestService:ArticleDataUploader() {
 
     override fun getUploadDestinationInfo(): UploadDestinationInfo {
-        return UploadDestinationInfo.FIRE_STORE_DB
+        return UploadDestinationInfo.MONGO_REST_SERVICE
     }
 
     override fun getMaxArticleAgeInDays(): Int {
@@ -29,7 +28,7 @@ class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
             println("Going to upload data")
-            FireStoreDataUtils.writeArticleData(articlesForUpload)
+            TODO("Data uploader not implemented")
             println("Upload successful")
             return true
         }catch (ex:Exception){
@@ -45,19 +44,19 @@ class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                    newspapers: Collection<Newspaper>, pages: Collection<Page>) {
-        FireStoreDataUtils.uploadNewSettings(languages, countries, newspapers, pages)
+        TODO()
     }
 
     override fun addToServerUploadTimeLog() {
-        FireStoreDataUtils.addToServerUploadTimeLog()
+        TODO()
     }
 
     override fun nukeOldSettings() {
-        FireStoreDataUtils.nukeAppSettings()
+        TODO()
     }
 
     companion object{
-        private const val MAX_ARTICLE_AGE_DAYS = 10
+        private const val MAX_ARTICLE_AGE_DAYS = 90
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
     }
 }

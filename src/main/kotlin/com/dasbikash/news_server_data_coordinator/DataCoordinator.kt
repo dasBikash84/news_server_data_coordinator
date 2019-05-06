@@ -4,6 +4,7 @@ package com.dasbikash.news_server_data_coordinator
 
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForFireStoreDb
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForMongoRestService
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.article_fetcher.ArticleFetcher
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
@@ -11,7 +12,6 @@ import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import org.hibernate.Session
-import java.io.Serializable
 
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
@@ -39,15 +39,15 @@ object DataCoordinator {
     fun main(args: Array<String>) {
         do {
 
-            val (newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
-                    = updateSettingsIfChanged()
-
-            refreshArticleFetchers(newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
-            refreshArticleDataUploaders()
-
             try {
+                val (newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
+                        = updateSettingsIfChanged()
+
+                refreshArticleFetchers(newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
+                refreshArticleDataUploaders()
+
                 Thread.sleep(SETTINGS_UPDATE_ITERATION_PERIOD)
-            } catch (ex: InterruptedException) {
+            } catch (ex: Exception) {
                 ex.printStackTrace()
             }
 
@@ -94,7 +94,7 @@ object DataCoordinator {
                 realTimeDbArticleDataUploader.start()
             } else {
                 if (!realTimeDbArticleDataUploader.isAlive) {
-                    realTimeDbArticleDataUploader = ArticleDataUploaderForFireStoreDb()
+                    realTimeDbArticleDataUploader = ArticleDataUploaderForRealTimeDb()
                     realTimeDbArticleDataUploader.start()
                 }
             }
@@ -106,7 +106,7 @@ object DataCoordinator {
 
         if (isFireStoreDbDataUploadEnabled(session)) {
             if (!::fireStoreDbArticleDataUploader.isInitialized) {
-                fireStoreDbArticleDataUploader = ArticleDataUploaderForRealTimeDb()
+                fireStoreDbArticleDataUploader = ArticleDataUploaderForFireStoreDb()
                 fireStoreDbArticleDataUploader.start()
             } else {
                 if (!fireStoreDbArticleDataUploader.isAlive) {
@@ -122,11 +122,11 @@ object DataCoordinator {
 
         if (isMongoRestDataUploadEnabled(session)) {
             if (!::mongoRestArticleDataUploader.isInitialized) {
-                mongoRestArticleDataUploader = ArticleDataUploaderForRealTimeDb()
+                mongoRestArticleDataUploader = ArticleDataUploaderForMongoRestService()
                 mongoRestArticleDataUploader.start()
             } else {
                 if (!mongoRestArticleDataUploader.isAlive) {
-                    mongoRestArticleDataUploader = ArticleDataUploaderForFireStoreDb()
+                    mongoRestArticleDataUploader = ArticleDataUploaderForMongoRestService()
                     mongoRestArticleDataUploader.start()
                 }
             }
@@ -320,11 +320,11 @@ object DataCoordinator {
     }
 
     private fun isRealTimeDbDataUploadEnabled(session: Session): Boolean {
-        return false
+        return true
     }
 
     private fun isFireStoreDbDataUploadEnabled(session: Session): Boolean {
-        return false
+        return true
     }
 
     private fun isMongoRestDataUploadEnabled(session: Session): Boolean {
