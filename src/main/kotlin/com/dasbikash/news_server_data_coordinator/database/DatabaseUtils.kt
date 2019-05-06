@@ -180,5 +180,15 @@ object DatabaseUtils {
         return (query.list() as List<SettingsUpdateLog>).last()
     }
 
+    fun getArticleUploaderStatus(session: Session,articleUploadTarget: ArticleUploadTarget):Boolean{
+        val hql = "FROM ${EntityClassNames.ARTICLE_UPLOADER_STATUS_CHANGE_LOG} where " +
+                            "articleDataUploaderTarget='${articleUploadTarget}' order by created desc"
+        val query = session.createQuery(hql, ArticleUploaderStatusChangeLog::class.java)
+        val articleUploaderStatusChangeLogList = query.list() as List<ArticleUploaderStatusChangeLog>
+        if (articleUploaderStatusChangeLogList.size>0){
+            return articleUploaderStatusChangeLogList.first().status == TwoStateStatus.ON
+        }
+        return false
+    }
 
 }

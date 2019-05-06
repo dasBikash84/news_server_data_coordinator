@@ -9,6 +9,7 @@ import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleD
 import com.dasbikash.news_server_data_coordinator.article_fetcher.ArticleFetcher
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
 import org.hibernate.Session
@@ -30,7 +31,7 @@ import org.hibernate.Session
 object DataCoordinator {
 
     private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
-    private val SETTINGS_UPDATE_ITERATION_PERIOD = 15* 60 * 60 * 1000L
+    private val SETTINGS_UPDATE_ITERATION_PERIOD = 15 * 60 * 1000L //15 mins
     private lateinit var realTimeDbArticleDataUploader: ArticleDataUploader
     private lateinit var fireStoreDbArticleDataUploader: ArticleDataUploader
     private lateinit var mongoRestArticleDataUploader: ArticleDataUploader
@@ -320,14 +321,14 @@ object DataCoordinator {
     }
 
     private fun isRealTimeDbDataUploadEnabled(session: Session): Boolean {
-        return true
+        return DatabaseUtils.getArticleUploaderStatus(session, ArticleUploadTarget.REAL_TIME_DB)
     }
 
     private fun isFireStoreDbDataUploadEnabled(session: Session): Boolean {
-        return true
+        return DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.FIRE_STORE_DB)
     }
 
     private fun isMongoRestDataUploadEnabled(session: Session): Boolean {
-        return false
+        return DatabaseUtils.getArticleUploaderStatus(session,ArticleUploadTarget.MONGO_REST_SERVICE)
     }
 }

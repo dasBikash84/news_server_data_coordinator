@@ -36,5 +36,7 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUploadLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.TwoStateStatus"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploaderStatusChangeLog"/>
  </session-factory>
 </hibernate-configuration>
