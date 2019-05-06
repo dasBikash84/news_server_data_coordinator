@@ -15,15 +15,21 @@ package com.dasbikash.news_server_data_coordinator.article_fetcher
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.exceptions.ArticleFetcherInterruptedException
+import com.dasbikash.news_server_data_coordinator.exceptions.DataCoordinatorException
+import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
-import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import kotlin.random.Random
 
 class ArticleFetcher(val newspaper: Newspaper)
     : Thread() {
 
-    val WAITING_TIME_BETWEEN_PAGES = 1000L
+    private val WAITING_TIME_BETWEEN_PAGES = 1000L
+
+    private val INIT_DELAY_FOR_ERROR = 60 * 1000L
+    private var errorDelayPeriod = 0L
+    private var errorIteration = 0L
 
     override fun run() {
         super.run()
@@ -82,19 +88,37 @@ class ArticleFetcher(val newspaper: Newspaper)
 
                     }
                     sleep(WAITING_TIME_BETWEEN_PAGES + Random(System.currentTimeMillis()).nextLong(WAITING_TIME_BETWEEN_PAGES))
+                    errorDelayPeriod = 0L
+                    errorIteration = 0L
+
                 } catch (ex: InterruptedException) {
                     ex.printStackTrace()
-                    LoggerUtils.logError(ex, session)
-                    println("ArticleFetcher for ${newspaperForTask.name} Interrupted")
+                    DataCoordinatorExceptionHandler
+                            .handleException(
+                                    ArticleFetcherInterruptedException("ArticleFetcher for ${newspaperForTask.name} Interrupted")
+                            )
                     return
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    LoggerUtils.logError(ex, session)
-                    println("Error for: Page: ${it.name} Np: ${newspaper.name}")
+                    DataCoordinatorExceptionHandler
+                            .handleException(
+                                    DataCoordinatorException(ex)
+                            )
+                    try {
+                        sleep(getErrorDelayPeriod())
+                    } catch (ex: InterruptedException) {
+                        ex.printStackTrace()
+                    }
                 }
             }
             session.close()
         } while (true)
+    }
+
+    private fun getErrorDelayPeriod(): Long {
+        errorIteration++
+        errorDelayPeriod += (INIT_DELAY_FOR_ERROR * errorIteration)
+        return errorDelayPeriod
     }
 
 

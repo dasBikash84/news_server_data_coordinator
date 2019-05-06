@@ -15,12 +15,12 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.exceptions.SettingsUploadException
+import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +35,10 @@ abstract class ArticleDataUploader:Thread() {
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
 
+    private val INIT_DELAY_FOR_ERROR = 60 * 1000L
+    private var errorDelayPeriod = 0L
+    private var errorIteration = 0L
+
 
     abstract protected fun getUploadDestinationInfo():UploadDestinationInfo
     abstract protected fun getMaxArticleAgeInDays():Int //Must be >=0
@@ -44,6 +48,12 @@ abstract class ArticleDataUploader:Thread() {
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>)
     abstract protected fun addToServerUploadTimeLog()
+
+    private fun getErrorDelayPeriod(): Long {
+        errorIteration++
+        errorDelayPeriod += (INIT_DELAY_FOR_ERROR * errorIteration)
+        return errorDelayPeriod
+    }
 
     private fun getSqlForArticleFetch():String{
         if (maxArticleCountForUpload()<0){
@@ -130,9 +140,23 @@ abstract class ArticleDataUploader:Thread() {
     override fun run() {
         do {
             val session = DbSessionManager.getNewSession()
-
-            if (checkIfSettingsModified(session)) {
-                uploadSettingsToServer(session)
+            try {
+                if (checkIfSettingsModified(session)) {
+                    uploadSettingsToServer(session)
+                }
+                errorDelayPeriod = 0L
+                errorIteration = 0L
+            }catch (ex:Exception){
+                ex.printStackTrace()
+                DataCoordinatorExceptionHandler.handleException(
+                        SettingsUploadException(getUploadDestinationInfo().articleUploadTarget,ex)
+                )
+                try {
+                    sleep(getErrorDelayPeriod())
+                    continue
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                }
             }
 
             val articlesForUpload = getArticlesForUpload(session)

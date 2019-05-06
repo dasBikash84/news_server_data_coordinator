@@ -26,7 +26,7 @@ object DatabaseUtils {
 
         var retryLimit = DB_WRITE_MAX_RETRY;
 
-        var exception: java.lang.Exception
+        var exception: Exception
 
         do {
             try {

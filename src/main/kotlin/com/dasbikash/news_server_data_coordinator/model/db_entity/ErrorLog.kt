@@ -45,12 +45,11 @@ class ErrorLog(exception: Throwable){
         }
 
         override fun toString(): String {
-                return "ErrorLog(exception=$exception,\n" +
-                        "exceptionClassFullName='$exceptionClassFullName',\n" +
+                return "exceptionClassFullName='$exceptionClassFullName',\n" +
                         "exceptionClassSimpleName='$exceptionClassSimpleName',\n" +
                         "exceptionCause='$exceptionCause',\n" +
                         "exceptionMessage='$exceptionMessage',\n" +
-                        "stackTrace='$stackTrace')"
+                        "stackTrace='$stackTrace"
         }
 
 
