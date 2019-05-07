@@ -83,7 +83,7 @@ abstract class ArticleDataUploader:Thread() {
     @Suppress("UNCHECKED_CAST")
     private fun getArticlesForUpload(session:Session): List<Article> {
         val nativeSql = getSqlForArticleFetch()
-        println("SqlForArticleFetch: ${nativeSql}")
+//        println("SqlForArticleFetch: ${nativeSql}")
         return session.createNativeQuery(nativeSql, Article::class.java).resultList as List<Article>
     }
 
@@ -97,7 +97,7 @@ abstract class ArticleDataUploader:Thread() {
                 .forEach {
                     val sql = getSqlToMarkUploadedArticle(it)
                     if (!flag) {
-                        println("sql to ArticlesAsUploaded: ${sql}")
+//                        println("sql to ArticlesAsUploaded: ${sql}")
                         flag=true
                     }
                     DatabaseUtils.runDbTransection(session) {
@@ -110,8 +110,8 @@ abstract class ArticleDataUploader:Thread() {
         val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
         val settingsUploadLog = DatabaseUtils
                                                     .getLastSettingsUploadLogByTarget(session, getUploadDestinationInfo().articleUploadTarget)
-        println(settingsUpdateLog)
-        println(settingsUploadLog)
+//        println(settingsUpdateLog)
+//        println(settingsUploadLog)
         if (settingsUploadLog !=null){
             if (settingsUploadLog.uploadTime > settingsUpdateLog.updateTime){
                 return false
@@ -142,6 +142,13 @@ abstract class ArticleDataUploader:Thread() {
     override fun run() {
         do {
             val session = DbSessionManager.getNewSession()
+
+            if (!DatabaseUtils.getArticleUploaderStatus(session,getUploadDestinationInfo().articleUploadTarget)){
+                LoggerUtils.logMessage("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} " +
+                                                "article uploader.",session)
+                return
+            }
+
             try {
                 if (checkIfSettingsModified(session) || settingsUploadResumeAfterError) {
                     uploadSettingsToServer(session)
@@ -165,7 +172,7 @@ abstract class ArticleDataUploader:Thread() {
             }
 
             val articlesForUpload = getArticlesForUpload(session)
-            println("articlesForUpload.size: ${articlesForUpload.size}")
+            println("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
             if (articlesForUpload.size>0){
                 do{
                     try {

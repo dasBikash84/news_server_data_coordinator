@@ -3,6 +3,7 @@
 *firebase-adminsdk*.json
 *email_details*.json
 *SourceLineCounter*
+*FirebaseCredentials*
 ### Java template
 *.class
 

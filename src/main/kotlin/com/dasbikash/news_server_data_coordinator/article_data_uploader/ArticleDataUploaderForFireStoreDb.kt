@@ -28,12 +28,12 @@ class ArticleDataUploaderForFireStoreDb:ArticleDataUploader() {
 
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
-            println("Going to upload data")
+//            println("Going to upload data")
             FireStoreDataUtils.writeArticleData(articlesForUpload)
-            println("Upload successful")
+            println("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
             return true
         }catch (ex:Exception){
-            println("Upload failure")
+            println("Article upload failure to ${getUploadDestinationInfo().articleUploadTarget.name}")
             ex.printStackTrace()
             return false
         }

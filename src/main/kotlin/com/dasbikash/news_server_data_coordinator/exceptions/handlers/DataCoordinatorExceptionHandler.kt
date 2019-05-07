@@ -33,6 +33,7 @@ object DataCoordinatorExceptionHandler {
     private fun dataCoordinatorExceptionHandler(ex: DataCoordinatorException) {
         val session = DbSessionManager.getNewSession()
         LoggerUtils.logError(ex,session)
+        session.close()
     }
 
     private fun lowLevelExceptionHandler(ex: DataCoordinatorException) {

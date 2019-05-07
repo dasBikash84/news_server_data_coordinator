@@ -111,8 +111,9 @@ create table `general_log`
 
 create table article_upload_history
 (
-    `id`           int(11)      NOT NULL auto_increment,
-    `uploadTarget` varchar(255) NOT NULL,
+    `id`           int(11)                                                    NOT NULL auto_increment,
+    `uploadTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
+#     `uploadTarget` varchar(255) NOT NULL,
     `logMessage`   text     DEFAULT NULL,
     `created`      DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY `article_upload_history_articleId_uploadTarget_unique_key` (`articleId`, `uploadTarget`),
@@ -146,29 +147,41 @@ CREATE TABLE `news_server_data_coordinator`.`settings_update_log`
 
 CREATE TABLE `news_server_data_coordinator`.`settings_upload_log`
 (
-    `id`         INT(11)  NOT NULL AUTO_INCREMENT,
-    `uploadTime` datetime NOT NULL,
-    `uploadTarget` varchar(255) NOT NULL,
+    `id`           INT(11)                                                    NOT NULL AUTO_INCREMENT,
+    `uploadTime`   datetime                                                   NOT NULL,
+    `uploadTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
+#     `uploadTarget` varchar(255) NOT NULL,
     PRIMARY KEY (`id`)
 ) Engine = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `news_server_data_coordinator`.`article_uploader_status_change_log`
 (
-    `id`         INT(11)  NOT NULL AUTO_INCREMENT,
-    `status` varchar(255) NOT NULL,
-    `articleDataUploaderTarget` varchar(255) NOT NULL,
-    `created`                  datetime     DEFAULT CURRENT_TIMESTAMP,
+    `id`                        INT(11)                                                    NOT NULL AUTO_INCREMENT,
+    `status`                    enum ('ON','OFF')                                          NOT NULL,
+#     `status` varchar(255) NOT NULL,
+    `articleDataUploaderTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
+#     `articleDataUploaderTarget` varchar(255) NOT NULL,
+    `created`                   datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) Engine = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `news_server_data_coordinator`.`article_download_log`
 (
-    `id`         INT(11)  NOT NULL AUTO_INCREMENT,
-    `parents`   varchar(255) DEFAULT NULL,
-    `logMessage` text     NULL,
-    `created`                  datetime     DEFAULT CURRENT_TIMESTAMP,
+    `id`         INT(11) NOT NULL AUTO_INCREMENT,
+    `parents`    varchar(255) DEFAULT NULL,
+    `logMessage` text    NULL,
+    `created`    datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) Engine = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`tokens`
+(
+    `token`     varchar(255) NOT NULL,
+    `expiresOn` datetime     NOT NULL,
+    `created`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`token`)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

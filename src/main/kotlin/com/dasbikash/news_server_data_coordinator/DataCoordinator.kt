@@ -35,7 +35,7 @@ import org.hibernate.Session
 object DataCoordinator {
 
     private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
-    private val SETTINGS_UPDATE_ITERATION_PERIOD = 15 * 60 * 1000L //15 mins
+    private val SETTINGS_UPDATE_ITERATION_PERIOD = 60 * 60 * 1000L //60 mins
     private lateinit var realTimeDbArticleDataUploader: ArticleDataUploader
     private lateinit var fireStoreDbArticleDataUploader: ArticleDataUploader
     private lateinit var mongoRestArticleDataUploader: ArticleDataUploader
@@ -109,7 +109,7 @@ object DataCoordinator {
                         }
                     }
             unChangedNewspaperIds.asSequence().forEach {
-                println("unChangedNewspaperId: ${it}")
+//                println("unChangedNewspaperId: ${it}")
                 if (ARTICLE_FETCHER_MAP.get(it) == null || !ARTICLE_FETCHER_MAP.get(it)!!.isAlive) {
                     ARTICLE_FETCHER_MAP.remove(it)
                     val unChangedNewspaperFromDb = DatabaseUtils.findNewspaperById(session, it)!!
@@ -267,7 +267,7 @@ object DataCoordinator {
                 it.setCountryData(ArrayList(DatabaseUtils.getCountriesMap(session).values))
                 it.setLanguageData(ArrayList(DatabaseUtils.getLanguageMap(session).values))
             }
-            newsPaperMapFromParser.forEach { println("Newspaper from parser: ${it}") }
+//            newsPaperMapFromParser.forEach { println("Newspaper from parser: ${it}") }
 
             val newsPaperMapFromDb = DatabaseUtils.getNewspaperMap(session)
 

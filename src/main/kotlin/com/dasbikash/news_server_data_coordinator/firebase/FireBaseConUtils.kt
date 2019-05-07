@@ -19,26 +19,25 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.database.FirebaseDatabase
-import java.io.File
-import java.io.FileInputStream
+import com.google.cloud.Identity.serviceAccount
+
 
 object FireBaseConUtils {
 
-    private const val SERVICE_ACCOUNT_CONFIG_FILE_PATH = "src/main/resources/newsserver-bdb31-firebase-adminsdk-x4lq3-7ab25285b7.json"
     val mFirebaseDatabaseCon: FirebaseDatabase
-    val mFireStoreCon:Firestore
+    val mFireStoreCon: Firestore
 
     init {
-        val serviceAccount = FileInputStream(SERVICE_ACCOUNT_CONFIG_FILE_PATH)
-        val credentials = GoogleCredentials.fromStream(serviceAccount)
+        val credentialsStream = javaClass.getResourceAsStream(FirebaseCredentials.SERVICE_ACCOUNT_CONFIG_FILE_PATH)
 
         val options = FirebaseOptions.Builder()
-                .setCredentials(credentials)
-                .build()
+                                        .setCredentials(GoogleCredentials.fromStream(credentialsStream))
+                                        .setDatabaseUrl(FirebaseCredentials.FIREBASE_DB_URL)
+                                        .build()
 
         FirebaseApp.initializeApp(options)
 
         mFireStoreCon = FirestoreClient.getFirestore()
-        mFirebaseDatabaseCon = FirebaseDatabase.getInstance("https://newsserver-bdb31.firebaseio.com/")
+        mFirebaseDatabaseCon = FirebaseDatabase.getInstance()
     }
 }
