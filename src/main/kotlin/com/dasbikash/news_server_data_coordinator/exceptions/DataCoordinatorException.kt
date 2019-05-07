@@ -1,7 +1,5 @@
 package com.dasbikash.news_server_data_coordinator.exceptions
 
-import java.lang.RuntimeException
-
 open class DataCoordinatorException:RuntimeException {
     constructor() : super()
     constructor(message: String?) : super(message)

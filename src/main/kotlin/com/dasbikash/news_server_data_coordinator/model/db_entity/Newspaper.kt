@@ -15,7 +15,6 @@ package com.dasbikash.news_server_data_coordinator.model.db_entity
 
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.google.cloud.firestore.annotation.Exclude
-import java.lang.IllegalArgumentException
 import javax.persistence.*
 
 @Entity

@@ -19,7 +19,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.database.FirebaseDatabase
-import com.google.cloud.Identity.serviceAccount
 
 
 object FireBaseConUtils {

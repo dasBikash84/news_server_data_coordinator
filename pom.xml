@@ -44,14 +44,16 @@
         <dependency>
             <groupId>org.glassfish.jersey.bundles</groupId>
             <artifactId>jaxrs-ri</artifactId>
-            <version>2.16</version>
+            <version>2.28</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
-            <version>2.16</version>
+            <version>2.28</version>
         </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -114,7 +116,7 @@
 
 
     <build>
-        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
@@ -140,6 +142,28 @@
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.dasbikash.news_server_data_coordinator.DataCoordinator</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

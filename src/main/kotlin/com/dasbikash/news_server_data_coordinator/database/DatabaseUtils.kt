@@ -13,10 +13,11 @@
 
 package com.dasbikash.news_server_data_coordinator.database
 
-import com.dasbikash.news_server_data_coordinator.model.*
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import com.dasbikash.news_server_data_coordinator.model.EntityClassNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
-import org.hibernate.Session
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import org.hibernate.Session
 
 object DatabaseUtils {
 

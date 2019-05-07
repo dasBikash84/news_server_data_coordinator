@@ -4,6 +4,7 @@ import com.dasbikash.news_server_data_coordinator.model.EmailAuth
 import com.dasbikash.news_server_data_coordinator.model.EmailTargets
 import com.google.gson.Gson
 import java.io.FileReader
+import java.io.InputStreamReader
 import java.util.*
 import javax.mail.*
 import javax.mail.internet.InternetAddress
@@ -14,11 +15,11 @@ object EmailUtils {
     private val emailTargets:EmailTargets
 
     init {
-        val authReader = FileReader("src/main/resources/email_details_auth.json")
-        emailAuth = Gson().fromJson(authReader,EmailAuth::class.java)
+        val authReader = InputStreamReader(javaClass.getResourceAsStream("/email_details_auth.json"))
+        emailAuth = Gson().fromJson(authReader, EmailAuth::class.java)
 
-        val targetReader = FileReader("src/main/resources/email_details_targets.json")
-        emailTargets = Gson().fromJson(targetReader,EmailTargets::class.java)
+        val targetReader = InputStreamReader(javaClass.getResourceAsStream("/email_details_targets.json"))
+        emailTargets = Gson().fromJson(targetReader, EmailTargets::class.java)
     }
 
     fun sendEmail(subject:String,body:String):Boolean{

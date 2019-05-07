@@ -14,7 +14,6 @@
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
@@ -51,7 +50,10 @@ object DataFetcherFromParser {
 
     fun getLanguageMap(): Map<String, Language> {
         val response = languagesTarget.request(MediaType.APPLICATION_JSON).get()
-        val languagesFromParser = response.readEntity(Languages::class.java)
+
+        val data = response.readEntity(String::class.java)!!
+        val languagesFromParser = gson.fromJson(data, Languages::class.java)
+
         val languageMap = mutableMapOf<String, Language>()
         languagesFromParser.languages!!.asSequence().forEach {
             languageMap.put(it.id, it)
@@ -61,7 +63,10 @@ object DataFetcherFromParser {
 
     fun getCountryMap(): Map<String, Country> {
         val response = countriesTarget.request(MediaType.APPLICATION_JSON).get()
-        val countriesFromParser = response.readEntity(Countries::class.java)
+        val data = response.readEntity(String::class.java)!!
+
+        val countriesFromParser = gson.fromJson(data, Countries::class.java)
+
         val countryMap = mutableMapOf<String, Country>()
         countriesFromParser.countries!!.asSequence()
                 .forEach {
@@ -72,7 +77,10 @@ object DataFetcherFromParser {
 
     fun getNewspaperMap(): Map<String, Newspaper> {
         val response = newsPapersTarget.request(MediaType.APPLICATION_JSON).get()
-        val newspapersFromParser = response.readEntity(Newspapers::class.java)
+        val data = response.readEntity(String::class.java)!!
+
+        val newspapersFromParser = gson.fromJson(data, Newspapers::class.java)
+
         val newspaperMap = mutableMapOf<String, Newspaper>()
         newspapersFromParser.newspapers!!.asSequence()
                 .forEach {
@@ -83,7 +91,10 @@ object DataFetcherFromParser {
 
     fun getPages(): List<Page> {
         val response = pagesTarget.request(MediaType.APPLICATION_JSON).get()
-        val pages = response.readEntity(Pages::class.java)
+        val data = response.readEntity(String::class.java)!!
+
+        val pages = gson.fromJson(data, Pages::class.java)
+
         return pages.pages!!
     }
 
@@ -91,7 +102,9 @@ object DataFetcherFromParser {
         val response = pagesForNpTarget.resolveTemplate(NEWSPAPER_ID_PATH_PARAM, newspaper.id)
                 .request(MediaType.APPLICATION_JSON).get()
         if (response.status == Response.Status.OK.statusCode) {
-            val pages = response.readEntity(Pages::class.java).pages!!
+            val data = response.readEntity(String::class.java)!!
+
+            val pages = gson.fromJson(data, Pages::class.java).pages!!
             pages.forEach { it.newspaper = newspaper }
             return pages
         } else {
@@ -100,7 +113,6 @@ object DataFetcherFromParser {
     }
 
     fun getLatestArticlesForPage(page: Page, articleCount: Int = 5): List<Article> {
-//        println("page: ${page.name}")
         val response = latestArticlesForPageTarget
                 .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
                 .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
@@ -117,7 +129,6 @@ object DataFetcherFromParser {
     }
 
     fun getArticlesBeforeGivenArticleForPage(page: Page, article: Article, articleCount: Int = 5): List<Article> {
-//        println("page: ${page.name}")
         val response = articlesBeforeGivenArticleForPageTarget
                 .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
                 .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)

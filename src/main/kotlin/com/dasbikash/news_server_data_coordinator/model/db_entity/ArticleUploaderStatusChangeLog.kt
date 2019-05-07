@@ -1,6 +1,5 @@
 package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import org.hibernate.annotations.UpdateTimestamp
 import java.util.*
