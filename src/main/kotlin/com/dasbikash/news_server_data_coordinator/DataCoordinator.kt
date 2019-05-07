@@ -187,7 +187,7 @@ object DataCoordinator {
             val session = DbSessionManager.getNewSession()
 
             var settingsUpdated = false
-            val settingsUpdateLog = StringBuilder()
+            val settingsUpdateLogMessageBuilder = StringBuilder()
 
             fun setSettingsUpdated() {
                 settingsUpdated = true
@@ -208,7 +208,7 @@ object DataCoordinator {
             }
 
             newLanguageIds.asSequence().forEach {
-                settingsUpdateLog.append("Language added id: ${it} | ")
+                settingsUpdateLogMessageBuilder.append("Language added id: ${it} | ")
                 DatabaseUtils.runDbTransection(session) {
                     session.save(languageMapFromParser.get(it))
                 }
@@ -218,7 +218,7 @@ object DataCoordinator {
                         if (languageMapFromParser.containsKey(it) &&
                                 !languageMapFromParser.get(it)!!.equals(languageMapFromDb.get(it))) {
                             setSettingsUpdated()
-                            settingsUpdateLog.append("Language modified id: ${it} | ")
+                            settingsUpdateLogMessageBuilder.append("Language modified id: ${it} | ")
                             val oldLanguage = languageMapFromDb.get(it)
                             val newLanguage = languageMapFromParser.get(it)
                             oldLanguage!!.updateData(newLanguage!!)
@@ -240,7 +240,7 @@ object DataCoordinator {
             }
 
             newCountryIds.asSequence().forEach {
-                settingsUpdateLog.append("Country added id: ${it} | ")
+                settingsUpdateLogMessageBuilder.append("Country added id: ${it} | ")
                 DatabaseUtils.runDbTransection(session) {
                     session.save(countriesMapFromParser.get(it))
                 }
@@ -251,7 +251,7 @@ object DataCoordinator {
                         if (countriesMapFromParser.containsKey(it) &&
                                 !countriesMapFromParser.get(it)!!.equals(countriesMapFromDb.get(it))) {
                             setSettingsUpdated()
-                            settingsUpdateLog.append("Country modified id: ${it} | ")
+                            settingsUpdateLogMessageBuilder.append("Country modified id: ${it} | ")
                             val oldCountry = countriesMapFromDb.get(it)
                             val newCountry = countriesMapFromParser.get(it)
                             oldCountry!!.updateData(newCountry!!)
@@ -286,7 +286,7 @@ object DataCoordinator {
                 val newspaperFromDb = DatabaseUtils.findNewspaperById(session, it)
 
                 if (newspaperFromDb == null) {
-                    settingsUpdateLog.append("Newspaper added id: ${it} | ")
+                    settingsUpdateLogMessageBuilder.append("Newspaper added id: ${it} | ")
                     val newNewspaper = newsPaperMapFromParser.get(it)!!
                     println("new Newspapers found : ${newNewspaper}")
                     val pages = DataFetcherFromParser.getPagesForNewspaper(newNewspaper)
@@ -294,12 +294,12 @@ object DataCoordinator {
                     DatabaseUtils.runDbTransection(session) {
                         session.save(newNewspaper)
                         newNewspaper.pageList.forEach {
-                            settingsUpdateLog.append("Page added id: ${it.id} | ")
+                            settingsUpdateLogMessageBuilder.append("Page added id: ${it.id} | ")
                             session.save(it)
                         }
                     }
                 } else {
-                    settingsUpdateLog.append("Newspaper activated id: ${it} | ")
+                    settingsUpdateLogMessageBuilder.append("Newspaper activated id: ${it} | ")
                     newspaperFromDb.active = true
                     newspaperFromDb.pageList.asSequence().forEach { it.active = false }
                     val pagesFromParser = DataFetcherFromParser.getPagesForNewspaper(newspaperFromDb)
@@ -310,7 +310,7 @@ object DataCoordinator {
 //                            pageFromDb.hasChild = it.hasChild
                         } else {
                             DatabaseUtils.runDbTransection(session) {
-                                settingsUpdateLog.append("Page added id: ${it.id} | ")
+                                settingsUpdateLogMessageBuilder.append("Page added id: ${it.id} | ")
                                 session.save(it)
                             }
                             newspaperFromDb.pageList.add(it)
@@ -326,7 +326,7 @@ object DataCoordinator {
             deactivatedIds.asSequence()
                     .forEach {
                         setSettingsUpdated()
-                        settingsUpdateLog.append("Newspaper deactivated id: ${it} | ")
+                        settingsUpdateLogMessageBuilder.append("Newspaper deactivated id: ${it} | ")
                         val deactivatedNewspaper = newsPaperMapFromDb.get(it)!!
                         deactivatedNewspaper.active = false
                         DatabaseUtils.runDbTransection(session) {
@@ -346,7 +346,7 @@ object DataCoordinator {
                     pagesFromParser.asSequence().forEach {
                         if (!unChangedNewspaperFromDb.pageList.contains(it)) {
                             DatabaseUtils.runDbTransection(session) {
-                                settingsUpdateLog.append("Page added id: ${it.id} | ")
+                                settingsUpdateLogMessageBuilder.append("Page added id: ${it.id} | ")
                                 session.save(it)
                             }
                             unChangedNewspaperFromDb.pageList.add(it)
@@ -355,8 +355,9 @@ object DataCoordinator {
                 }
             }
             if (settingsUpdated) {
+                val logMessage = settingsUpdateLogMessageBuilder.toString()
                 DatabaseUtils.runDbTransection(session) {
-                    session.save(SettingsUpdateLog(logMessage = settingsUpdateLog.toString()))
+                    session.save(SettingsUpdateLog(logMessage = logMessage.substring(0,logMessage.length-3))) //trailing " | " striped
                 }
             }
             session.close()

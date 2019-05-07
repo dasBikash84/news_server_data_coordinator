@@ -12,10 +12,15 @@ data class ArticleUploaderStatusChangeLog (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id:Int?=null,
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE')")
     var articleDataUploaderTarget: ArticleUploadTarget?=null,
+
     @UpdateTimestamp
     var created: Date?=null,
+
+    @Column(columnDefinition = "enum('ON','OFF')")
     @Enumerated(EnumType.STRING)
     var status: TwoStateStatus?=null
 )

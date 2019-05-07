@@ -18,6 +18,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "article_upload_log")
 class ArticleUploadLog(
+        @Column(columnDefinition = "enum('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE')")
         @Enumerated(EnumType.STRING)
         val uploadTarget: ArticleUploadTarget,
         uploadedArticles: List<Article>

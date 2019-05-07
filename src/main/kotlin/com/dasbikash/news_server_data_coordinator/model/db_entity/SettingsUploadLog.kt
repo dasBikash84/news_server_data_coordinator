@@ -24,6 +24,7 @@ class SettingsUploadLog (
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id:Int?=null,
         var uploadTime:Date = Date(),
+        @Column(columnDefinition = "enum('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE')")
         @Enumerated(EnumType.STRING)
         var uploadTarget: ArticleUploadTarget?=null
 ){
