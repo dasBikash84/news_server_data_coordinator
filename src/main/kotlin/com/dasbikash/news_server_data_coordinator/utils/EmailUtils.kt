@@ -11,15 +11,16 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 object EmailUtils {
+
+    private const val EMAIL_AUTH_FILE_LOCATION = "/email_details_auth.json"
+    private const val EMAIL_TARGET_DETAILS_FILE_LOCATION = "/email_details_targets.json"
+
     private val emailAuth:EmailAuth
     private val emailTargets:EmailTargets
 
     init {
-        val authReader = InputStreamReader(javaClass.getResourceAsStream("/email_details_auth.json"))
-        emailAuth = Gson().fromJson(authReader, EmailAuth::class.java)
-
-        val targetReader = InputStreamReader(javaClass.getResourceAsStream("/email_details_targets.json"))
-        emailTargets = Gson().fromJson(targetReader, EmailTargets::class.java)
+        emailAuth = FileReaderUtils.jsonFileToEntityList(EMAIL_AUTH_FILE_LOCATION,EmailAuth::class.java)
+        emailTargets = FileReaderUtils.jsonFileToEntityList(EMAIL_TARGET_DETAILS_FILE_LOCATION,EmailTargets::class.java)
     }
 
     fun sendEmail(subject:String,body:String):Boolean{
