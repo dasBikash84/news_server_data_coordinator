@@ -2,10 +2,10 @@
 
 package com.dasbikash.news_server_data_coordinator
 
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploader
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForFireStoreDb
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForMongoRestService
-import com.dasbikash.news_server_data_coordinator.article_data_uploader.ArticleDataUploaderForRealTimeDb
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploader
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForFireStoreDb
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForMongoRestService
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.article_fetcher.ArticleFetcher
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
@@ -36,9 +36,9 @@ object DataCoordinator {
 
     private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
     private val SETTINGS_UPDATE_ITERATION_PERIOD = 60 * 60 * 1000L //60 mins
-    private lateinit var realTimeDbArticleDataUploader: ArticleDataUploader
-    private lateinit var fireStoreDbArticleDataUploader: ArticleDataUploader
-    private lateinit var mongoRestArticleDataUploader: ArticleDataUploader
+    private lateinit var realTimeDbDataUploader: DataUploader
+    private lateinit var fireStoreDbDataUploader: DataUploader
+    private lateinit var mongoRestDataUploader: DataUploader
     private val INIT_DELAY_FOR_ERROR = 60 * 1000L
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
@@ -129,50 +129,50 @@ object DataCoordinator {
         try {
             val session = DbSessionManager.getNewSession()
             if (isRealTimeDbDataUploadEnabled(session)) {
-                if (!::realTimeDbArticleDataUploader.isInitialized) {
-                    realTimeDbArticleDataUploader = ArticleDataUploaderForRealTimeDb()
-                    realTimeDbArticleDataUploader.start()
+                if (!::realTimeDbDataUploader.isInitialized) {
+                    realTimeDbDataUploader = DataUploaderForRealTimeDb()
+                    realTimeDbDataUploader.start()
                 } else {
-                    if (!realTimeDbArticleDataUploader.isAlive) {
-                        realTimeDbArticleDataUploader = ArticleDataUploaderForRealTimeDb()
-                        realTimeDbArticleDataUploader.start()
+                    if (!realTimeDbDataUploader.isAlive) {
+                        realTimeDbDataUploader = DataUploaderForRealTimeDb()
+                        realTimeDbDataUploader.start()
                     }
                 }
             } else {
-                if (::realTimeDbArticleDataUploader.isInitialized && realTimeDbArticleDataUploader.isAlive) {
-                    realTimeDbArticleDataUploader.interrupt()
+                if (::realTimeDbDataUploader.isInitialized && realTimeDbDataUploader.isAlive) {
+                    realTimeDbDataUploader.interrupt()
                 }
             }
 
             if (isFireStoreDbDataUploadEnabled(session)) {
-                if (!::fireStoreDbArticleDataUploader.isInitialized) {
-                    fireStoreDbArticleDataUploader = ArticleDataUploaderForFireStoreDb()
-                    fireStoreDbArticleDataUploader.start()
+                if (!::fireStoreDbDataUploader.isInitialized) {
+                    fireStoreDbDataUploader = DataUploaderForFireStoreDb()
+                    fireStoreDbDataUploader.start()
                 } else {
-                    if (!fireStoreDbArticleDataUploader.isAlive) {
-                        fireStoreDbArticleDataUploader = ArticleDataUploaderForFireStoreDb()
-                        fireStoreDbArticleDataUploader.start()
+                    if (!fireStoreDbDataUploader.isAlive) {
+                        fireStoreDbDataUploader = DataUploaderForFireStoreDb()
+                        fireStoreDbDataUploader.start()
                     }
                 }
             } else {
-                if (::fireStoreDbArticleDataUploader.isInitialized && fireStoreDbArticleDataUploader.isAlive) {
-                    fireStoreDbArticleDataUploader.interrupt()
+                if (::fireStoreDbDataUploader.isInitialized && fireStoreDbDataUploader.isAlive) {
+                    fireStoreDbDataUploader.interrupt()
                 }
             }
 
             if (isMongoRestDataUploadEnabled(session)) {
-                if (!::mongoRestArticleDataUploader.isInitialized) {
-                    mongoRestArticleDataUploader = ArticleDataUploaderForMongoRestService()
-                    mongoRestArticleDataUploader.start()
+                if (!::mongoRestDataUploader.isInitialized) {
+                    mongoRestDataUploader = DataUploaderForMongoRestService()
+                    mongoRestDataUploader.start()
                 } else {
-                    if (!mongoRestArticleDataUploader.isAlive) {
-                        mongoRestArticleDataUploader = ArticleDataUploaderForMongoRestService()
-                        mongoRestArticleDataUploader.start()
+                    if (!mongoRestDataUploader.isAlive) {
+                        mongoRestDataUploader = DataUploaderForMongoRestService()
+                        mongoRestDataUploader.start()
                     }
                 }
             } else {
-                if (::mongoRestArticleDataUploader.isInitialized && mongoRestArticleDataUploader.isAlive) {
-                    mongoRestArticleDataUploader.interrupt()
+                if (::mongoRestDataUploader.isInitialized && mongoRestDataUploader.isAlive) {
+                    mongoRestDataUploader.interrupt()
                 }
             }
             session.close()

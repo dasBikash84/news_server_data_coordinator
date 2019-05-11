@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-abstract class ArticleDataUploader:Thread() {
+abstract class DataUploader:Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
     private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 

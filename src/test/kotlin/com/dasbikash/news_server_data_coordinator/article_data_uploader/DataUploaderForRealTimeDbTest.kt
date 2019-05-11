@@ -16,10 +16,9 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class ArticleDataUploaderForFireStoreDbTest {
+internal class DataUploaderForRealTimeDbTest {
 
     @BeforeEach
     fun setUp() {
@@ -30,9 +29,11 @@ internal class ArticleDataUploaderForFireStoreDbTest {
     }
 
     @Test
-    fun testwrite(){
-//        val fireStoreWriter = ArticleDataUploaderForFireStoreDb()
-//        fireStoreWriter.start()
-//        fireStoreWriter.join()
+    fun testWrite(){
+//        val writeThread = DataUploaderForRealTimeDb()
+//        writeThread.start()
+//        writeThread.join()
+        /*val task = RealTimeDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
+        while (!task.isDone){}*/
     }
 }
