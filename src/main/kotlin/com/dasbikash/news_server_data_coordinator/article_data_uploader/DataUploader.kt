@@ -36,7 +36,7 @@ abstract class DataUploader:Thread() {
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
 
-    private val INIT_DELAY_FOR_ERROR = 60 * 1000L
+    private val INIT_DELAY_FOR_ERROR = 5 *60 * 1000L
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
     private var settingsUploadResumeAfterError = false

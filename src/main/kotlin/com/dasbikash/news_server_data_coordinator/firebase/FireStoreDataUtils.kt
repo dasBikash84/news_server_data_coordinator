@@ -24,8 +24,8 @@ object FireStoreDataUtils {
     private const val MAX_BATCH_SIZE_FOR_WRITE = 400
     private const val MAX_BATCH_SIZE_FOR_DELETE = 100
 
-    fun writeArticleData(articles:List<Article>){
-        if (articles.size> MAX_BATCH_SIZE_FOR_WRITE){
+    fun writeArticleData(articles: List<Article>) {
+        if (articles.size > MAX_BATCH_SIZE_FOR_WRITE) {
             throw IllegalArgumentException()
         }
 
@@ -35,7 +35,7 @@ object FireStoreDataUtils {
             batch.set(FireStoreRefUtils.getArticleCollectionRef().document(it.id), ArticleForFB.fromArticle(it))
         }
         val future = batch.commit()
-        while (!future.isDone){}
+        for (result in future.get()) {}
     }
 
     fun nukeAppSettings() {
@@ -46,37 +46,37 @@ object FireStoreDataUtils {
     }
 
     fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                          newspapers: Collection<Newspaper>, pages: Collection<Page>):Boolean {
-        val languageMap = mutableMapOf<LanguageForFB,String>()
+                          newspapers: Collection<Newspaper>, pages: Collection<Page>): Boolean {
+        val languageMap = mutableMapOf<LanguageForFB, String>()
         languages.asSequence().forEach {
-            languageMap.put(LanguageForFB.getFromLanguage(it),it.id)
+            languageMap.put(LanguageForFB.getFromLanguage(it), it.id)
         }
-        if (!writeToCollection(languageMap,FireStoreRefUtils.getLanguageSettingsCollectionRef())){
+        if (!writeToCollection(languageMap, FireStoreRefUtils.getLanguageSettingsCollectionRef())) {
             return false
         }
 
-        val countryMap = mutableMapOf<CountryForFB,String>()
+        val countryMap = mutableMapOf<CountryForFB, String>()
         countries.asSequence().forEach {
-            countryMap.put(CountryForFB.getFromCountry(it),it.name)
+            countryMap.put(CountryForFB.getFromCountry(it), it.name)
         }
-        if (!writeToCollection(countryMap,FireStoreRefUtils.getCountrySettingsCollectionRef())){
+        if (!writeToCollection(countryMap, FireStoreRefUtils.getCountrySettingsCollectionRef())) {
             return false
         }
 
-        val newspaperMap = mutableMapOf<NewspaperForFB,String>()
+        val newspaperMap = mutableMapOf<NewspaperForFB, String>()
         newspapers.asSequence().forEach {
-            newspaperMap.put(NewspaperForFB.getFromNewspaper(it),it.id)
+            newspaperMap.put(NewspaperForFB.getFromNewspaper(it), it.id)
         }
-        if (!writeToCollection(newspaperMap,FireStoreRefUtils.getNewspaperSettingsCollectionRef())){
+        if (!writeToCollection(newspaperMap, FireStoreRefUtils.getNewspaperSettingsCollectionRef())) {
             return false
         }
 
-        val pagesMap = mutableMapOf<PageForFB,String>()
+        val pagesMap = mutableMapOf<PageForFB, String>()
         pages.asSequence().forEach {
-            pagesMap.put(PageForFB.getFromPage(it),it.id)
+            pagesMap.put(PageForFB.getFromPage(it), it.id)
         }
 
-        if (!writeToCollection(pagesMap,FireStoreRefUtils.getPageSettingsCollectionRef())){
+        if (!writeToCollection(pagesMap, FireStoreRefUtils.getPageSettingsCollectionRef())) {
             return false
         }
 
@@ -85,16 +85,17 @@ object FireStoreDataUtils {
 
     fun addToServerUploadTimeLog() {
         val task = FireStoreRefUtils.getSettingsUpdateTimeCollectionRef()
-                                            .document().set(UpdateTimeEntry(FieldValue.serverTimestamp()))
+                .document().set(UpdateTimeEntry(FieldValue.serverTimestamp()))
 
-        while (!task.isDone){}
+        while (!task.isDone) {
+        }
     }
 
-    private fun <T:Any> writeToCollection(dataMap:Map<T,String?>, collectionRef: CollectionReference):Boolean{
+    private fun <T : Any> writeToCollection(dataMap: Map<T, String?>, collectionRef: CollectionReference): Boolean {
         val contents = dataMap.keys
 
         var contentCount = 0
-        var batch:WriteBatch? = null
+        var batch: WriteBatch? = null
         try {
             contents.asSequence().forEach {
                 if (contentCount == 0) {
@@ -113,12 +114,12 @@ object FireStoreDataUtils {
                     contentCount = 0
                 }
             }
-            if (contentCount>0){
+            if (contentCount > 0) {
                 val future = batch!!.commit()
                 while (!future.isDone) {
                 }
             }
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             ex.printStackTrace()
             System.err.println("Error writing collection : " + ex.message)
             return false
@@ -130,7 +131,7 @@ object FireStoreDataUtils {
     /** Delete a collection in batches to avoid out-of-memory errors.
      * Batch size may be tuned based on document size (atmost 1MB) and application requirements.
      */
-    private fun deleteCollectionInBatch(collection: CollectionReference, batchSize: Int= MAX_BATCH_SIZE_FOR_DELETE) {
+    private fun deleteCollectionInBatch(collection: CollectionReference, batchSize: Int = MAX_BATCH_SIZE_FOR_DELETE) {
         var maxRetry = 3
         try {
             // retrieve a small batch of documents to avoid out-of-memory errors
@@ -149,9 +150,9 @@ object FireStoreDataUtils {
         } catch (e: Exception) {
             maxRetry--
             System.err.println("Error deleting collection : " + e.message)
-            if (maxRetry >=0){
+            if (maxRetry >= 0) {
                 deleteCollectionInBatch(collection, batchSize)
-            }else{
+            } else {
                 throw e
             }
         }

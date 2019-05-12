@@ -16,7 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 
-class DataUploaderForFireStoreDb:DataUploader() {
+class DataUploaderForFireStoreDb : DataUploader() {
 
     override fun getUploadDestinationInfo(): UploadDestinationInfo {
         return UploadDestinationInfo.FIRE_STORE_DB
@@ -27,16 +27,9 @@ class DataUploaderForFireStoreDb:DataUploader() {
     }
 
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
-        try {
-//            println("Going to upload data")
-            FireStoreDataUtils.writeArticleData(articlesForUpload)
-            println("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
-            return true
-        }catch (ex:Exception){
-            println("Article upload failure to ${getUploadDestinationInfo().articleUploadTarget.name}")
-            ex.printStackTrace()
-            return false
-        }
+        FireStoreDataUtils.writeArticleData(articlesForUpload)
+        println("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
+        return true
     }
 
     override fun maxArticleCountForUpload(): Int {
@@ -56,7 +49,7 @@ class DataUploaderForFireStoreDb:DataUploader() {
         FireStoreDataUtils.nukeAppSettings()
     }
 
-    companion object{
+    companion object {
         private const val MAX_ARTICLE_AGE_DAYS = 20
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
     }

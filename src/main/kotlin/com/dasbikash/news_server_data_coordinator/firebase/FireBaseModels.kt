@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.google.cloud.firestore.annotation.Exclude
 import java.util.*
 
 class LanguageForFB(
@@ -67,6 +68,7 @@ class ArticleForFB(
         val pageId: String,
         val title: String,
         val publicationTime: Date,
+        @Exclude
         private var publicationTimeRTDB: Long? = null,
         val articleText: String,
         val imageLinkList: List<ArticleImage>,
@@ -78,7 +80,7 @@ class ArticleForFB(
                                 article.articleText!!,article.imageLinkList,article.previewImageLink)
         }
     }
-
+    @Exclude
     fun getPublicationTimeRTDB():Long{
         return publicationTime.time
     }
