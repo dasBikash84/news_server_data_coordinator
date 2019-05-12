@@ -158,6 +158,13 @@ CREATE TABLE `news_server_data_coordinator`.`tokens`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
+CREATE  INDEX `articles_upOnFirebaseDb_index` ON articles(upOnFirebaseDb);
+CREATE  INDEX `articles_upOnFireStore_index` ON articles(upOnFireStore);
+CREATE  INDEX `articles_upOnMongoRest_index` ON articles(upOnMongoRest);
+
+CREATE  INDEX `articles_created_index` ON articles(created);
+CREATE  INDEX `articles_publicationTime_index` ON articles(publicationTime);
+
 drop user if exists 'nsdc_app_user'@'localhost';
 drop user if exists 'nsdc_rest_user'@'localhost';
 
