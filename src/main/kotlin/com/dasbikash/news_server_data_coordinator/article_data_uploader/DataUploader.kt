@@ -36,7 +36,8 @@ abstract class DataUploader:Thread() {
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
 
-    private val INIT_DELAY_FOR_ERROR = 5 *60 * 1000L
+    private val INIT_DELAY_FOR_ERROR = 5 *60 * 1000L //5 mins
+    private val MAX_DELAY_FOR_ERROR = 60 *60 * 1000L //60 mins
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
     private var settingsUploadResumeAfterError = false
@@ -54,6 +55,11 @@ abstract class DataUploader:Thread() {
     private fun getErrorDelayPeriod(): Long {
         errorIteration++
         errorDelayPeriod += (INIT_DELAY_FOR_ERROR * errorIteration)
+
+        if(errorDelayPeriod > MAX_DELAY_FOR_ERROR){
+            errorDelayPeriod = MAX_DELAY_FOR_ERROR
+        }
+
         return errorDelayPeriod
     }
 
@@ -153,8 +159,7 @@ abstract class DataUploader:Thread() {
                 if (checkIfSettingsModified(session) || settingsUploadResumeAfterError) {
                     uploadSettingsToServer(session)
                 }
-                errorDelayPeriod = 0L
-                errorIteration = 0L
+                resetErrorDelay()
                 settingsUploadResumeAfterError = false
             }catch (ex:Exception){
                 ex.printStackTrace()
@@ -180,8 +185,7 @@ abstract class DataUploader:Thread() {
                         if (uploadArticles(articlesForUpload)){
                             markArticlesAsUploaded(articlesForUpload,session)
                             LoggerUtils.logArticleUploadHistory(session,articlesForUpload,getUploadDestinationInfo())
-                            errorDelayPeriod = 0L
-                            errorIteration = 0L
+                            resetErrorDelay()
                         }
                     }catch(ex:Exception){
                         ex.printStackTrace()
@@ -218,5 +222,10 @@ abstract class DataUploader:Thread() {
                 }
             }
         }while (true)
+    }
+
+    private fun resetErrorDelay() {
+        errorDelayPeriod = 0L
+        errorIteration = 0L
     }
 }
