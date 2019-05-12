@@ -1,4 +1,8 @@
-CREATE TABLE `countries`
+DROP DATABASE if exists `news_server_data_coordinator`;
+
+CREATE DATABASE `news_server_data_coordinator`;
+
+CREATE TABLE `news_server_data_coordinator`.`countries`
 (
     `name`        varchar(255) NOT NULL,
     `countryCode` varchar(255) NOT NULL,
@@ -8,7 +12,7 @@ CREATE TABLE `countries`
     PRIMARY KEY (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `languages`
+CREATE TABLE `news_server_data_coordinator`.`languages`
 (
     `id`       varchar(255) NOT NULL,
     `name`     varchar(255) NOT NULL,
@@ -18,7 +22,7 @@ CREATE TABLE `languages`
     UNIQUE KEY `language_name_unique_key` (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `newspapers`
+CREATE TABLE `news_server_data_coordinator`.`newspapers`
 (
     `id`          varchar(255) NOT NULL,
     `name`        varchar(255) NOT NULL,
@@ -35,7 +39,7 @@ CREATE TABLE `newspapers`
     CONSTRAINT `newspaper_languageId_fk` FOREIGN KEY (`languageId`) REFERENCES `languages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `pages`
+CREATE TABLE `news_server_data_coordinator`.`pages`
 (
     `id`           varchar(255) NOT NULL,
     `name`         varchar(255) NOT NULL,
@@ -53,7 +57,7 @@ CREATE TABLE `pages`
     CONSTRAINT `pages_newsPaperId_fkey_constraint` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `articles`
+CREATE TABLE `news_server_data_coordinator`.`articles`
 (
     `id`               varchar(255) NOT NULL,
     `pageId`           varchar(255) NOT NULL,
@@ -71,7 +75,7 @@ CREATE TABLE `articles`
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `image_links`
+CREATE TABLE `news_server_data_coordinator`.`image_links`
 (
     `articleId` varchar(255) NOT NULL,
     `link`      text         NOT NULL,
@@ -81,7 +85,7 @@ CREATE TABLE `image_links`
     CONSTRAINT `FKtarkqvk2kgymilolrr4g2x3ae` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `article_download_log`
+CREATE TABLE `news_server_data_coordinator`.`article_download_log`
 (
     `id`         int(11) NOT NULL AUTO_INCREMENT,
     `parents`    varchar(255) DEFAULT NULL,
@@ -90,7 +94,7 @@ CREATE TABLE `article_download_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `article_uploader_status_change_log`
+CREATE TABLE `news_server_data_coordinator`.`article_uploader_status_change_log`
 (
     `id`                        int(11)                                                    NOT NULL AUTO_INCREMENT,
     `status`                    enum ('ON','OFF')                                          NOT NULL,
@@ -99,7 +103,7 @@ CREATE TABLE `article_uploader_status_change_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `article_upload_log`
+CREATE TABLE `news_server_data_coordinator`.`article_upload_log`
 (
     `id`           int(11)                                                    NOT NULL AUTO_INCREMENT,
     `uploadTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
@@ -108,7 +112,7 @@ CREATE TABLE `article_upload_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `exception_log`
+CREATE TABLE `news_server_data_coordinator`.`exception_log`
 (
     `id`                       int(11) NOT NULL AUTO_INCREMENT,
     `exceptionClassFullName`   varchar(255) DEFAULT NULL,
@@ -120,7 +124,7 @@ CREATE TABLE `exception_log`
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `general_log`
+CREATE TABLE `news_server_data_coordinator`.`general_log`
 (
     `id`         int(11) NOT NULL AUTO_INCREMENT,
     `logMessage` text,
@@ -128,7 +132,7 @@ CREATE TABLE `general_log`
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `settings_update_log`
+CREATE TABLE `news_server_data_coordinator`.`settings_update_log`
 (
     `id`         int(11)  NOT NULL AUTO_INCREMENT,
     `updateTime` datetime NOT NULL,
@@ -136,7 +140,7 @@ CREATE TABLE `settings_update_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `settings_upload_log`
+CREATE TABLE `news_server_data_coordinator`.`settings_upload_log`
 (
     `id`           int(11)                                                    NOT NULL AUTO_INCREMENT,
     `uploadTime`   datetime                                                   NOT NULL,
@@ -144,7 +148,7 @@ CREATE TABLE `settings_upload_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-CREATE TABLE `tokens`
+CREATE TABLE `news_server_data_coordinator`.`tokens`
 (
     `token`     varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `expiresOn` datetime                                NOT NULL,
@@ -153,3 +157,21 @@ CREATE TABLE `tokens`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
+drop user if exists 'nsdc_app_user'@'localhost';
+drop user if exists 'nsdc_rest_user'@'localhost';
+
+create user 'nsdc_app_user'@'localhost' identified by 'nsdc_app_user';
+create user 'nsdc_rest_user'@'localhost' identified by 'nsdc_rest_user';
+
+grant select,insert,update,delete on news_server_data_coordinator.* to 'nsdc_app_user'@'localhost';
+
+grant select on news_server_data_coordinator.* to 'nsdc_rest_user'@'localhost';
+grant insert,update on news_server_data_coordinator.tokens to 'nsdc_rest_user'@'localhost';
+grant insert on news_server_data_coordinator.article_uploader_status_change_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.general_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.exception_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.article_upload_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.article_download_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.settings_update_log to 'nsdc_rest_user'@'localhost';
+grant delete on news_server_data_coordinator.settings_upload_log to 'nsdc_rest_user'@'localhost';
