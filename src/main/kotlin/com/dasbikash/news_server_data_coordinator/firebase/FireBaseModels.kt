@@ -39,11 +39,13 @@ class NewspaperForFB(
         val id: String,
         val name: String,
         val countryName: String,
-        val languageId: String){
+        val languageId: String,
+        val active:Boolean
+){
     companion object{
         fun getFromNewspaper(newspaper: Newspaper) =
                 NewspaperForFB(newspaper.id,newspaper.name!!,newspaper.country!!.name,
-                        newspaper.language!!.id)
+                        newspaper.language!!.id,newspaper.active)
     }
 }
 
@@ -54,12 +56,13 @@ class PageForFB(
         val name: String,
         var hasData: Boolean?=null,
         var hasChild: Boolean?=null,
-        var topLevelPage: Boolean?=null
+        var topLevelPage: Boolean?=null,
+        val active:Boolean
 ){
     companion object{
         fun getFromPage(page: Page) =
                 PageForFB(page.id,page.newspaper!!.id,page.parentPageId!!,page.name!!,
-                            page.hasData,page.hasChild,page.topLevelPage)
+                            page.hasData,page.hasChild,page.topLevelPage,page.active)
     }
 
 }

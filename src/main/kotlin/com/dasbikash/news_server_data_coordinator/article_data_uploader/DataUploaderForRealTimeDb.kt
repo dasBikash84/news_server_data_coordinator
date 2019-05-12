@@ -56,7 +56,7 @@ class DataUploaderForRealTimeDb : DataUploader() {
     }
 
     companion object {
-        private const val MAX_ARTICLE_AGE_DAYS = 20
-        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
+        private const val MAX_ARTICLE_AGE_DAYS = 30
+        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
     }
 }

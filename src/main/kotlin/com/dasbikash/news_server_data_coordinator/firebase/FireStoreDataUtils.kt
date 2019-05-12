@@ -35,7 +35,8 @@ object FireStoreDataUtils {
             batch.set(FireStoreRefUtils.getArticleCollectionRef().document(it.id), ArticleForFB.fromArticle(it))
         }
         val future = batch.commit()
-        for (result in future.get()) {}
+        for (result in future.get()) {
+        }
     }
 
     fun nukeAppSettings() {
@@ -86,9 +87,7 @@ object FireStoreDataUtils {
     fun addToServerUploadTimeLog() {
         val task = FireStoreRefUtils.getSettingsUpdateTimeCollectionRef()
                 .document().set(UpdateTimeEntry(FieldValue.serverTimestamp()))
-
-        while (!task.isDone) {
-        }
+        task.get()
     }
 
     private fun <T : Any> writeToCollection(dataMap: Map<T, String?>, collectionRef: CollectionReference): Boolean {
@@ -96,33 +95,27 @@ object FireStoreDataUtils {
 
         var contentCount = 0
         var batch: WriteBatch? = null
-        try {
-            contents.asSequence().forEach {
-                if (contentCount == 0) {
-                    batch = FireBaseConUtils.mFireStoreCon.batch()
-                }
-                contentCount++
-                if (dataMap.get(it) == null) {
-                    batch!!.set(collectionRef.document(), it)
-                } else {
-                    batch!!.set(collectionRef.document(dataMap.get(it) as String), it)
-                }
-                if (contentCount == MAX_BATCH_SIZE_FOR_WRITE) {
-                    val future = batch!!.commit()
-                    while (!future.isDone) {
-                    }
-                    contentCount = 0
-                }
+        contents.asSequence().forEach {
+            if (contentCount == 0) {
+                batch = FireBaseConUtils.mFireStoreCon.batch()
             }
-            if (contentCount > 0) {
+            contentCount++
+            if (dataMap.get(it) == null) {
+                batch!!.set(collectionRef.document(), it)
+            } else {
+                batch!!.set(collectionRef.document(dataMap.get(it) as String), it)
+            }
+            if (contentCount == MAX_BATCH_SIZE_FOR_WRITE) {
                 val future = batch!!.commit()
-                while (!future.isDone) {
+                for (result in future.get()) {
                 }
+                contentCount = 0
             }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            System.err.println("Error writing collection : " + ex.message)
-            return false
+        }
+        if (contentCount > 0) {
+            val future = batch!!.commit()
+            for (result in future.get()) {
+            }
         }
         return true
 
@@ -132,7 +125,7 @@ object FireStoreDataUtils {
      * Batch size may be tuned based on document size (atmost 1MB) and application requirements.
      */
     private fun deleteCollectionInBatch(collection: CollectionReference, batchSize: Int = MAX_BATCH_SIZE_FOR_DELETE) {
-        var maxRetry = 3
+        var maxRetry = 1
         try {
             // retrieve a small batch of documents to avoid out-of-memory errors
             val future = collection.limit(batchSize).get()

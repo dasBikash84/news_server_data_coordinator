@@ -139,7 +139,7 @@ abstract class DataUploader:Thread() {
         if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
             throw IllegalStateException("Basic app settings not found.")
         }
-        nukeOldSettings()
+//        nukeOldSettings()
         uploadNewSettings(languages, countries, newspapers, pages)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)

@@ -80,7 +80,7 @@ object DatabaseUtils {
         return countriesMap
     }
 
-    fun getNewspaperMap(session: Session): Map<String, Newspaper> {
+    fun getActiveNewspaperMap(session: Session): Map<String, Newspaper> {
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val query = session.createQuery(hql, Newspaper::class.java)
         val newspaperMap = mutableMapOf<String, Newspaper>()
@@ -91,8 +91,33 @@ object DatabaseUtils {
         return newspaperMap
     }
 
-    fun getPageMap(session: Session): Map<String, Page> {
+    fun getNewspaperMap(session: Session): Map<String, Newspaper> {
+        val hql = "FROM ${EntityClassNames.NEWSPAPER}"
+        val query = session.createQuery(hql, Newspaper::class.java)
+        val newspaperMap = mutableMapOf<String, Newspaper>()
+        (query.list() as List<Newspaper>).asSequence()
+                .forEach {
+                    newspaperMap.put(it.id, it)
+                }
+        return newspaperMap
+    }
+
+    fun getActivePageMap(session: Session): Map<String, Page> {
         val hql = "FROM ${EntityClassNames.PAGE} where active=true"
+        val query = session.createQuery(hql, Page::class.java)
+        val pageMap = mutableMapOf<String, Page>()
+        (query.list() as List<Page>).asSequence()
+                .filter {
+                    it.newspaper!!.active
+                }
+                .forEach {
+                    pageMap.put(it.id, it)
+                }
+        return pageMap
+    }
+
+    fun getPageMap(session: Session): Map<String, Page> {
+        val hql = "FROM ${EntityClassNames.PAGE}"
         val query = session.createQuery(hql, Page::class.java)
         val pageMap = mutableMapOf<String, Page>()
         (query.list() as List<Page>).asSequence()

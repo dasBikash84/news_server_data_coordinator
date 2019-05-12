@@ -269,7 +269,7 @@ object DataCoordinator {
             }
 //            newsPaperMapFromParser.forEach { println("Newspaper from parser: ${it}") }
 
-            val newsPaperMapFromDb = DatabaseUtils.getNewspaperMap(session)
+            val newsPaperMapFromDb = DatabaseUtils.getActiveNewspaperMap(session)
 
             val newNewspaperIds = ArrayList(newsPaperMapFromParser.keys)
             newNewspaperIds.removeAll(newsPaperMapFromDb.keys)
