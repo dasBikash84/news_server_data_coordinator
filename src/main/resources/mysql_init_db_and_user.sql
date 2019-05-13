@@ -57,6 +57,33 @@ CREATE TABLE `news_server_data_coordinator`.`pages`
     CONSTRAINT `pages_newsPaperId_fkey_constraint` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+
+
+CREATE TABLE `news_server_data_coordinator`.`page_groups`
+(
+    `id`      int(11)      NOT NULL AUTO_INCREMENT,
+    `name`    varchar(255) NOT NULL,
+    `active`  bit(1)   DEFAULT b'1',
+    `created` datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`page_group_entries`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `pageGroupId` int(11)      NOT NULL,
+    `pageId`      varchar(255) NOT NULL,
+    `created`     datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `page_group_entries_pageGroupId_pageId_unique_key` (`pageGroupId`, `pageId`),
+    KEY `page_group_entries_pageId_fk` (`pageId`),
+    CONSTRAINT `page_group_entries_pageGroupId_fk` FOREIGN KEY (`pageGroupId`) REFERENCES `page_groups` (`id`),
+    CONSTRAINT `page_group_entries_pageId_fk` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE `news_server_data_coordinator`.`articles`
 (
     `id`               varchar(255) NOT NULL,
