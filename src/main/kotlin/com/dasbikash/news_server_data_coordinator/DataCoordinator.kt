@@ -354,6 +354,17 @@ object DataCoordinator {
                     }
                 }
             }
+
+            if (DatabaseUtils.getPageGroups(session).isEmpty()){
+                DataFetcherFromParser.getPageGroups(session).asSequence().forEach {
+                    setSettingsUpdated()
+                    DatabaseUtils.runDbTransection(session) {
+                        settingsUpdateLogMessageBuilder.append("Pagegroud added name: ${it.name} | ")
+                        session.save(it)
+                    }
+                }
+            }
+
             if (settingsUpdated) {
                 val logMessage = settingsUpdateLogMessageBuilder.toString()
                 DatabaseUtils.runDbTransection(session) {

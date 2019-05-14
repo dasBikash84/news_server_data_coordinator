@@ -20,3 +20,4 @@ class Countries(){var countries:List<Country>?=null}
 class Newspapers(){var newspapers:List<Newspaper>?=null}
 class Pages(){var pages:List<Page>?=null}
 class Articles(){var articles:List<Article>?=null}
+class PageGroups(){var pageGroups:List<PageGroup>?=null}

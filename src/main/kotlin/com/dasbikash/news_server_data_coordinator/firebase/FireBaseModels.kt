@@ -66,6 +66,18 @@ class PageForFB(
     }
 
 }
+
+class PageGroupForFB(
+        val name: String,
+        val active: Boolean,
+        val pageList: List<String>
+){
+    companion object{
+        fun getFromPageGroup(pageGroup: PageGroup) =
+                PageGroupForFB(pageGroup.name!!,pageGroup.active,pageGroup.pageList!!.map { it.id }.toList())
+    }
+
+}
 class ArticleForFB(
         val id: String,
         val pageId: String,

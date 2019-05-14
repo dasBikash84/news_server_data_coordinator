@@ -41,5 +41,6 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.TwoStateStatus"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploaderStatusChangeLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleDownloadLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.PageGroup"/>
  </session-factory>
 </hibernate-configuration>

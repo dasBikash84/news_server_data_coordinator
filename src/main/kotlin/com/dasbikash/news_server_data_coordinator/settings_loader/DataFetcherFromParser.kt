@@ -13,8 +13,10 @@
 
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.google.gson.GsonBuilder
+import org.hibernate.Session
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -34,6 +36,7 @@ object DataFetcherFromParser {
     private val LATEST_ARTICLES_FOR_PAGE_ID_NODE = "articles/page_id/{${PAGE_ID_PATH_PARAM}}/latest"
     private val ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE =
             "articles/page_id/{${PAGE_ID_PATH_PARAM}}/before/article_id/{${LAST_ARTICLE_ID_PATH_PARAM}}"
+    private val PAGE_GROUPS_NODE = "page-groups"
 
     private val jerseyClient = ClientBuilder.newClient()
     private val baseTarget = jerseyClient.target(BASE_ADDRESS)
@@ -45,6 +48,7 @@ object DataFetcherFromParser {
     private val articlesBeforeGivenArticleForPageTarget = baseTarget.path(ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE)
 
     private val pagesForNpTarget = pagesTarget.path("newspaper_id/{${NEWSPAPER_ID_PATH_PARAM}}")
+    private val pageGroupsTarget = baseTarget.path(PAGE_GROUPS_NODE)
 
     private val gson = GsonBuilder().setLenient().disableHtmlEscaping().create()
 
@@ -140,6 +144,20 @@ object DataFetcherFromParser {
             val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
             articles.forEach { it.page = page }
             return articles
+        } else {
+            return emptyList()
+        }
+    }
+
+    fun getPageGroups(session: Session): List<PageGroup> {
+        val response = pageGroupsTarget.request(MediaType.APPLICATION_JSON).get()
+
+        if (response.status == Response.Status.OK.statusCode) {
+            val data = response.readEntity(String::class.java)!!
+            val pageGroups = gson.fromJson(data, PageGroups::class.java).pageGroups!!
+            val pages = DatabaseUtils.getPageMap(session).values.toList()
+            pageGroups.asSequence().forEach { it.setPages(pages) }
+            return pageGroups
         } else {
             return emptyList()
         }

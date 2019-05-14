@@ -43,7 +43,8 @@ class DataUploaderForMongoRestService:DataUploader() {
     }
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                                   newspapers: Collection<Newspaper>, pages: Collection<Page>) {
+                                   newspapers: Collection<Newspaper>, pages: Collection<Page>,
+                                   pageGroups: Collection<PageGroup>) {
         TODO()
     }
 

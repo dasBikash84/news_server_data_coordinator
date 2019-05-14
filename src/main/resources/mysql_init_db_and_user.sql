@@ -58,8 +58,6 @@ CREATE TABLE `news_server_data_coordinator`.`pages`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-
-
 CREATE TABLE `news_server_data_coordinator`.`page_groups`
 (
     `id`      int(11)      NOT NULL AUTO_INCREMENT,

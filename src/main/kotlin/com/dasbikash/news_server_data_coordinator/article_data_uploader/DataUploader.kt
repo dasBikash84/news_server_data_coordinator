@@ -49,7 +49,8 @@ abstract class DataUploader:Thread() {
     abstract protected fun maxArticleCountForUpload():Int // Must be >=0
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                                             newspapers: Collection<Newspaper>, pages: Collection<Page>)
+                                             newspapers: Collection<Newspaper>, pages: Collection<Page>,
+                                             pageGroups:Collection<PageGroup>)
     abstract protected fun addToServerUploadTimeLog()
 
     private fun getErrorDelayPeriod(): Long {
@@ -136,11 +137,12 @@ abstract class DataUploader:Thread() {
         val countries = DatabaseUtils.getCountriesMap(session).values
         val newspapers = DatabaseUtils.getNewspaperMap(session).values
         val pages = DatabaseUtils.getPageMap(session).values
+        val pageGroups = DatabaseUtils.getPageGroups(session)
         if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
             throw IllegalStateException("Basic app settings not found.")
         }
 //        nukeOldSettings()
-        uploadNewSettings(languages, countries, newspapers, pages)
+        uploadNewSettings(languages, countries, newspapers, pages,pageGroups)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)
     }
