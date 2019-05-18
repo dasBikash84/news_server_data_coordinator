@@ -173,6 +173,7 @@ CREATE TABLE `news_server_data_coordinator`.`settings_upload_log`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE `news_server_data_coordinator`.`tokens`
 (
     `token`     varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -182,6 +183,21 @@ CREATE TABLE `news_server_data_coordinator`.`tokens`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `news_server_data_coordinator`.`rest_activity_log`
+(
+    `id`         int(11)  NOT NULL AUTO_INCREMENT,
+    `requestURL` varchar(255)  NOT NULL,
+    `requestMethod` varchar(255)  NOT NULL,
+    `remoteHost` varchar(255)  NOT NULL,
+    `methodSignature` varchar(255)  NOT NULL,
+    `exceptionClassName` varchar(255)  DEFAULT NULL,
+    `timeTakenMs` int(5)  NOT NULL,
+    `returnedEntiryCount` int(3)  DEFAULT 0,
+    `created`    datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = MyISAM
+  DEFAULT CHARSET = utf8;
 
 CREATE  INDEX `articles_upOnFirebaseDb_index` ON articles(upOnFirebaseDb);
 CREATE  INDEX `articles_upOnFireStore_index` ON articles(upOnFireStore);
@@ -201,6 +217,7 @@ grant select,insert,update,delete on news_server_data_coordinator.* to 'nsdc_app
 grant select on news_server_data_coordinator.* to 'nsdc_rest_user'@'localhost';
 grant insert,update on news_server_data_coordinator.tokens to 'nsdc_rest_user'@'localhost';
 grant insert on news_server_data_coordinator.article_uploader_status_change_log to 'nsdc_rest_user'@'localhost';
+grant insert on news_server_data_coordinator.rest_activity_log to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.general_log to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.exception_log to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.article_upload_log to 'nsdc_rest_user'@'localhost';
