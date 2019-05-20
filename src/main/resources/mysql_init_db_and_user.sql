@@ -194,6 +194,8 @@ CREATE TABLE `news_server_data_coordinator`.`rest_activity_log`
     `exceptionClassName` varchar(255)  DEFAULT NULL,
     `timeTakenMs` int(5)  NOT NULL,
     `returnedEntiryCount` int(3)  DEFAULT 0,
+    `acceptHeader` VARCHAR(45) DEFAULT NULL,
+    `userAgentHeader` VARCHAR(255) DEFAULT NULL,
     `created`    datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
