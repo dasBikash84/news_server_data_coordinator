@@ -17,40 +17,46 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "exception_log")
-class ErrorLog(exception: Throwable){
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Int = 0
-        @Transient
-        val exception:Throwable
-        val exceptionClassFullName:String
-        val exceptionClassSimpleName:String
-        @Column(columnDefinition="text")
-        var exceptionCause:String=""
-        @Column(columnDefinition="text")
-        var exceptionMessage:String=""
-        @Column(columnDefinition="text")
-        var stackTrace:String =""
+class ErrorLog(exception: Throwable) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Int = 0
+    @Transient
+    val exception: Throwable
+    val exceptionClassFullName: String
+    val exceptionClassSimpleName: String
+    @Column(columnDefinition = "text")
+    var exceptionCause: String = ""
+    @Column(columnDefinition = "text")
+    var exceptionMessage: String = ""
+    @Column(columnDefinition = "text")
+    var stackTrace: String = ""
 
-        init {
-                this.exception=exception
-                this.exceptionClassSimpleName = exception::class.java.simpleName
-                this.exceptionClassFullName = exception::class.java.canonicalName
-                this.exceptionCause = exception.cause?.message ?: ""
-                this.exceptionMessage = exception.message ?: ""
-//                val stackTrace = mutableListOf<StackTraceElement>()
-                val stackTraceBuilder = StringBuilder("")
-                exception.stackTrace.asSequence().forEach { stackTraceBuilder.append(it.toString()).append("\n") }
-                this.stackTrace = stackTraceBuilder.toString()
-        }
+    init {
+        this.exception = exception
+        this.exceptionClassSimpleName = exception::class.java.simpleName
+        this.exceptionClassFullName = exception::class.java.canonicalName
+        this.exceptionCause = exception.cause?.message ?: ""
+        this.exceptionMessage = exception.message ?: ""
+        val stackTraceBuilder = StringBuilder("")
+        var exp :Throwable = exception
+        do {
+            exp.stackTrace.asSequence().forEach { stackTraceBuilder.append(it.toString()).append("\n") }
+            if (exp.cause == null){
+                break
+            }
+            exp = exp.cause!!
+        }while (true)
+        this.stackTrace = stackTraceBuilder.toString()
+    }
 
-        override fun toString(): String {
-                return "exceptionClassFullName='$exceptionClassFullName',\n" +
-                        "exceptionClassSimpleName='$exceptionClassSimpleName',\n" +
-                        "exceptionCause='$exceptionCause',\n" +
-                        "exceptionMessage='$exceptionMessage',\n" +
-                        "stackTrace='$stackTrace"
-        }
+    override fun toString(): String {
+        return "exceptionClassFullName='$exceptionClassFullName',\n" +
+                "exceptionClassSimpleName='$exceptionClassSimpleName',\n" +
+                "exceptionCause='$exceptionCause',\n" +
+                "exceptionMessage='$exceptionMessage',\n" +
+                "stackTrace='$stackTrace"
+    }
 
 
 }

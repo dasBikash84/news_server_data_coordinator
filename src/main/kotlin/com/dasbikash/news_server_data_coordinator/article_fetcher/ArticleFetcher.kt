@@ -17,7 +17,7 @@ import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.ArticleFetcherInterruptedException
 import com.dasbikash.news_server_data_coordinator.exceptions.DataCoordinatorException
-import com.dasbikash.news_server_data_coordinator.exceptions.ParserUnavailableException
+import com.dasbikash.news_server_data_coordinator.exceptions.ArticleFetcherException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Newspaper
@@ -112,7 +112,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                     println("${ex::class.java.simpleName} error for page: ${it.name} Np: ${newspaper.name}")
                     val exceptionForLogging:DataCoordinatorException
                     if(ex is ProcessingException || ex.cause is ConnectException){
-                        exceptionForLogging =ParserUnavailableException(ex)
+                        exceptionForLogging = ArticleFetcherException(ex)
                     }else{
                         exceptionForLogging = DataCoordinatorException(ex)
                     }

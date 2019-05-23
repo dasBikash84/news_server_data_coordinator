@@ -1,6 +1,6 @@
 package com.dasbikash.news_server_data_coordinator.exceptions
 
-class ParserUnavailableException:HighestLevelException {
+class ArticleFetcherException:HighestLevelException {
     constructor() : super()
     constructor(message: String?) : super(message)
     constructor(message: String?, cause: Throwable?) : super(message, cause)
