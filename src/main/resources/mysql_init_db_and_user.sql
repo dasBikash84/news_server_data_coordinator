@@ -186,27 +186,38 @@ CREATE TABLE `news_server_data_coordinator`.`tokens`
 
 CREATE TABLE `news_server_data_coordinator`.`rest_activity_log`
 (
-    `id`         int(11)  NOT NULL AUTO_INCREMENT,
-    `requestURL` varchar(255)  NOT NULL,
-    `requestMethod` varchar(255)  NOT NULL,
-    `remoteHost` varchar(255)  NOT NULL,
-    `methodSignature` varchar(255)  NOT NULL,
-    `exceptionClassName` varchar(255)  DEFAULT NULL,
-    `timeTakenMs` int(5)  NOT NULL,
-    `returnedEntiryCount` int(3)  DEFAULT 0,
-    `acceptHeader` VARCHAR(45) DEFAULT NULL,
-    `userAgentHeader` VARCHAR(255) DEFAULT NULL,
-    `created`    datetime DEFAULT CURRENT_TIMESTAMP,
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT,
+    `requestURL`          varchar(255) NOT NULL,
+    `requestMethod`       varchar(255) NOT NULL,
+    `remoteHost`          varchar(255) NOT NULL,
+    `methodSignature`     varchar(255) NOT NULL,
+    `exceptionClassName`  varchar(255) DEFAULT NULL,
+    `timeTakenMs`         int(5)       NOT NULL,
+    `returnedEntiryCount` int(3)       DEFAULT 0,
+    `acceptHeader`        VARCHAR(45)  DEFAULT NULL,
+    `userAgentHeader`     VARCHAR(255) DEFAULT NULL,
+    `created`             datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8;
 
-CREATE  INDEX `articles_upOnFirebaseDb_index` ON articles(upOnFirebaseDb);
-CREATE  INDEX `articles_upOnFireStore_index` ON articles(upOnFireStore);
-CREATE  INDEX `articles_upOnMongoRest_index` ON articles(upOnMongoRest);
+CREATE TABLE `news_server_data_coordinator`.`article_delete_request`
+(
+    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
+    `pageId`             varchar(255) NOT NULL,
+    `deleteRequestCount` int(3)      NOT NULL,
+    `created`            datetime DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `article_delete_request_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
+    PRIMARY KEY (`id`)
+) ENGINE = MyISAM
+  DEFAULT CHARSET = utf8;
 
-CREATE  INDEX `articles_created_index` ON articles(created);
-CREATE  INDEX `articles_publicationTime_index` ON articles(publicationTime);
+CREATE INDEX `articles_upOnFirebaseDb_index` ON articles (upOnFirebaseDb);
+CREATE INDEX `articles_upOnFireStore_index` ON articles (upOnFireStore);
+CREATE INDEX `articles_upOnMongoRest_index` ON articles (upOnMongoRest);
+
+CREATE INDEX `articles_created_index` ON articles (created);
+CREATE INDEX `articles_publicationTime_index` ON articles (publicationTime);
 
 drop user if exists 'nsdc_app_user'@'localhost';
 drop user if exists 'nsdc_rest_user'@'localhost';
@@ -214,12 +225,13 @@ drop user if exists 'nsdc_rest_user'@'localhost';
 create user 'nsdc_app_user'@'localhost' identified by 'nsdc_app_user';
 create user 'nsdc_rest_user'@'localhost' identified by 'nsdc_rest_user';
 
-grant select,insert,update,delete on news_server_data_coordinator.* to 'nsdc_app_user'@'localhost';
+grant select, insert, update, delete on news_server_data_coordinator.* to 'nsdc_app_user'@'localhost';
 
 grant select on news_server_data_coordinator.* to 'nsdc_rest_user'@'localhost';
-grant insert,update on news_server_data_coordinator.tokens to 'nsdc_rest_user'@'localhost';
+grant insert, update on news_server_data_coordinator.tokens to 'nsdc_rest_user'@'localhost';
 grant insert on news_server_data_coordinator.article_uploader_status_change_log to 'nsdc_rest_user'@'localhost';
 grant insert on news_server_data_coordinator.rest_activity_log to 'nsdc_rest_user'@'localhost';
+grant insert on news_server_data_coordinator.article_delete_request to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.general_log to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.exception_log to 'nsdc_rest_user'@'localhost';
 grant delete on news_server_data_coordinator.article_upload_log to 'nsdc_rest_user'@'localhost';
