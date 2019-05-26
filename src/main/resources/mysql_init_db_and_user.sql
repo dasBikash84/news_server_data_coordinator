@@ -205,11 +205,22 @@ CREATE TABLE `news_server_data_coordinator`.`article_delete_request`
 (
     `id`                 int(11)      NOT NULL AUTO_INCREMENT,
     `pageId`             varchar(255) NOT NULL,
-    `deleteRequestCount` int(3)      NOT NULL,
+    `deleteRequestCount` int(3)       NOT NULL,
     `created`            datetime DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT `article_delete_request_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
     PRIMARY KEY (`id`)
-) ENGINE = MyISAM
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+CREATE TABLE `news_server_data_coordinator`.`article_delete_request_serving_log`
+(
+    `id`                     int(11)                                                    NOT NULL AUTO_INCREMENT,
+    `articleDeleteRequestId` int(11)                                                    NOT NULL,
+    `articleUploadTarget`    enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
+    `created`                datetime DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `article_delete_request_serving_log_articleDeleteRequestId_fkey_constraint` FOREIGN KEY (`articleDeleteRequestId`) REFERENCES `article_delete_request` (`id`),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
 CREATE INDEX `articles_upOnFirebaseDb_index` ON articles (upOnFirebaseDb);

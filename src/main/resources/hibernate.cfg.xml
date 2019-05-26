@@ -42,5 +42,7 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploaderStatusChangeLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleDownloadLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.PageGroup"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleDeleteRequest"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleDeleteRequestServingLog"/>
  </session-factory>
 </hibernate-configuration>
