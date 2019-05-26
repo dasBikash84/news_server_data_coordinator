@@ -254,4 +254,32 @@ object DatabaseUtils {
         return query.resultList as List<ArticleDeleteRequestServingLog>
     }
 
+    fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int, articleUploadTarget: ArticleUploadTarget): List<Article> {
+        val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}").append(" WHERE pageId='${page.id}' AND")
+        when(articleUploadTarget){
+            ArticleUploadTarget.REAL_TIME_DB -> sqlStringBuilder.append( " upOnFirebaseDb=1 AND deletedFromFirebaseDb=0")
+            ArticleUploadTarget.FIRE_STORE_DB -> sqlStringBuilder.append( " upOnFireStore=1 AND deletedFromFireStore=0")
+            ArticleUploadTarget.MONGO_REST_SERVICE -> sqlStringBuilder.append( " upOnMongoRest=1 AND deletedFromMongoRest=0")
+        }
+        sqlStringBuilder.append(" ORDER BY publicationTime asc limit ${deleteRequestCount}")
+        println(sqlStringBuilder.toString())
+        val query = session.createNativeQuery(sqlStringBuilder.toString(),Article::class.java)
+        return query.resultList as List<Article>
+    }
+
+    fun markArticleAsDeletedFromDataStore(session: Session,article: Article,articleUploadTarget: ArticleUploadTarget){
+        val sqlStringBuilder = StringBuilder("UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME}").append(" SET")
+        when(articleUploadTarget){
+            ArticleUploadTarget.REAL_TIME_DB -> sqlStringBuilder.append( " deletedFromFirebaseDb=1")
+            ArticleUploadTarget.FIRE_STORE_DB -> sqlStringBuilder.append( " deletedFromFireStore=1")
+            ArticleUploadTarget.MONGO_REST_SERVICE -> sqlStringBuilder.append( " deletedFromMongoRest=1")
+        }
+        sqlStringBuilder.append(" WHERE id='${article.id}'")
+        println(sqlStringBuilder.toString())
+        val query = session.createNativeQuery(sqlStringBuilder.toString())
+        runDbTransection(session) {
+            query.executeUpdate()
+        }
+    }
+
 }

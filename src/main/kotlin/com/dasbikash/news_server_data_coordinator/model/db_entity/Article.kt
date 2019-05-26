@@ -22,7 +22,8 @@ import kotlin.collections.ArrayList
 @Table(name = DatabaseTableNames.ARTICLE_TABLE_NAME)
 data class Article(
         @Id
-        var id: String=""
+        var id: String="",
+        var publicationTime:Date? = null
 ){
         var title: String? = null
         @Column(name = "articleText", columnDefinition = "text")
@@ -30,14 +31,18 @@ data class Article(
 
         @Column(columnDefinition = "text")
         var previewImageLink: String? = null
-        var publicationTime:Date? = null
 
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
         var page: Page? = null
+
         var upOnFirebaseDb:Boolean = false
         var upOnFireStore:Boolean = false
         var upOnMongoRest:Boolean = false
+
+        var deletedFromFirebaseDb:Boolean = false
+        var deletedFromFireStore:Boolean = false
+        var deletedFromMongoRest:Boolean = false
 
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])

@@ -84,17 +84,20 @@ CREATE TABLE `news_server_data_coordinator`.`page_group_entries`
 
 CREATE TABLE `news_server_data_coordinator`.`articles`
 (
-    `id`               varchar(255) NOT NULL,
-    `pageId`           varchar(255) NOT NULL,
-    `title`            varchar(255) NOT NULL,
-    `articleText`      text         NOT NULL,
-    `previewImageLink` text,
-    `publicationTime`  datetime     NOT NULL,
-    `upOnFirebaseDb`   bit(1)       NOT NULL DEFAULT b'0',
-    `upOnFireStore`    bit(1)       NOT NULL DEFAULT b'0',
-    `upOnMongoRest`    bit(1)       NOT NULL DEFAULT b'0',
-    `created`          datetime              DEFAULT CURRENT_TIMESTAMP,
-    `modified`         datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                    varchar(255) NOT NULL,
+    `pageId`                varchar(255) NOT NULL,
+    `title`                 varchar(255) NOT NULL,
+    `articleText`           text         NOT NULL,
+    `previewImageLink`      text,
+    `publicationTime`       datetime     NOT NULL,
+    `upOnFirebaseDb`        bit(1)       NOT NULL DEFAULT b'0',
+    `upOnFireStore`         bit(1)       NOT NULL DEFAULT b'0',
+    `upOnMongoRest`         bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFirebaseDb` bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFireStore`  bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromMongoRest`  bit(1)       NOT NULL DEFAULT b'0',
+    `created`               datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified`              datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
@@ -210,7 +213,7 @@ CREATE TABLE `news_server_data_coordinator`.`article_delete_request`
     CONSTRAINT `article_delete_request_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `news_server_data_coordinator`.`article_delete_request_serving_log`
 (
@@ -218,10 +221,10 @@ CREATE TABLE `news_server_data_coordinator`.`article_delete_request_serving_log`
     `articleDeleteRequestId` int(11)                                                    NOT NULL,
     `articleUploadTarget`    enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
     `created`                datetime DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT `article_delete_request_serving_log_articleDeleteRequestId_fkey_constraint` FOREIGN KEY (`articleDeleteRequestId`) REFERENCES `article_delete_request` (`id`),
+    CONSTRAINT `adr_serving_log_articleDeleteRequestId_fkey_constraint` FOREIGN KEY (`articleDeleteRequestId`) REFERENCES `article_delete_request` (`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4;
 
 CREATE INDEX `articles_upOnFirebaseDb_index` ON articles (upOnFirebaseDb);
 CREATE INDEX `articles_upOnFireStore_index` ON articles (upOnFireStore);

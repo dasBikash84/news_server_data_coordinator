@@ -85,5 +85,11 @@ object RealTimeDbDataUtils {
         while (!task.isDone) {}
     }
 
+    fun deleteArticleFromServer(article: Article): Boolean {
+        val future = mArticleDataRootReference.child(article.page!!.id).child(article.id).setValueAsync(null)
+        while (future.isDone){}
+        return true
+    }
+
 
 }

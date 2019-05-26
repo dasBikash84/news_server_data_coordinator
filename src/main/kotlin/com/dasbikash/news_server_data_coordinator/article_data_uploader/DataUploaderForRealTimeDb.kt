@@ -15,7 +15,6 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
-import org.hibernate.Session
 
 class DataUploaderForRealTimeDb : DataUploader() {
 
@@ -57,8 +56,8 @@ class DataUploaderForRealTimeDb : DataUploader() {
         RealTimeDbDataUtils.nukeAppSettings()
     }
 
-    override fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun deleteArticleFromServer(article: Article): Boolean {
+        return RealTimeDbDataUtils.deleteArticleFromServer(article)
     }
 
     companion object {

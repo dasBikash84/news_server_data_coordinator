@@ -163,6 +163,12 @@ object FireStoreDataUtils {
 
     }
 
+    fun deleteArticleFromServer(article: Article): Boolean {
+        val future = FireStoreRefUtils.getArticleCollectionRef().document(article.id).delete()
+        while (future.isDone){}
+        return true
+    }
+
 }
 
 class UpdateTimeEntry(val updateTime: FieldValue)

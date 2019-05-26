@@ -25,13 +25,14 @@ import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.random.Random
 
 
 abstract class DataUploader : Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
     private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10 * 60 * 1000L // 10 mins
+    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 5 * 60 * 1000L // 10 mins
     private val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
 
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
@@ -53,8 +54,30 @@ abstract class DataUploader : Thread() {
                                              pageGroups: Collection<PageGroup>)
 
     abstract protected fun addToServerUploadTimeLog()
+    abstract protected fun deleteArticleFromServer(article: Article): Boolean
 
-    abstract protected fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest)
+    private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest){
+        getArticlesForDeletion(session,articleDeleteRequest.page!!,articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
+            if (deleteArticleFromServer(it)){
+                DatabaseUtils.markArticleAsDeletedFromDataStore(session,it,getUploadDestinationInfo().articleUploadTarget)
+//                markArticleAsDeleted(session,it)
+            }
+        }
+    }
+
+//    private fun markArticleAsDeleted(session: Session,article: Article) {
+//        when(getUploadDestinationInfo().articleUploadTarget){
+//            ArticleUploadTarget.REAL_TIME_DB -> article.deletedFromFirebaseDb=true
+//            ArticleUploadTarget.FIRE_STORE_DB -> article.deletedFromFireStore=true
+//            ArticleUploadTarget.MONGO_REST_SERVICE -> article.deletedFromMongoRest=true
+//        }
+//        DatabaseUtils.markArticleAsDeletedFromDataStore(session,article,getUploadDestinationInfo().articleUploadTarget)
+//    }
+
+    private fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int): List<Article> {
+        return DatabaseUtils.getArticlesForDeletion(
+                    session,page,deleteRequestCount,getUploadDestinationInfo().articleUploadTarget)
+    }
 
 
     private fun getPendingArticleDeleteRequest(session: Session): ArticleDeleteRequest?{
@@ -71,6 +94,13 @@ abstract class DataUploader : Thread() {
             }
         }
         return null
+    }
+
+    private fun logArticleDeleteRequestServing(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
+        val articleDeleteRequestServingLog = ArticleDeleteRequestServingLog()
+        articleDeleteRequestServingLog.articleDeleteRequest = articleDeleteRequest
+        articleDeleteRequestServingLog.articleUploadTarget = getUploadDestinationInfo().articleUploadTarget
+        DatabaseUtils.runDbTransection(session){session.save(articleDeleteRequestServingLog)}
     }
 
     private fun getErrorDelayPeriod(): Long {
@@ -167,6 +197,7 @@ abstract class DataUploader : Thread() {
     }
 
     override fun run() {
+        sleep(Random(System.currentTimeMillis()).nextLong(5000L)+5000L)
         do {
             val session = DbSessionManager.getNewSession()
 
@@ -181,7 +212,7 @@ abstract class DataUploader : Thread() {
                     uploadSettingsToServer(session)
                     resetErrorDelay()
                 }
-            } catch (ex: Exception) {
+            } catch (ex: Throwable) {
                 session.close()
                 ex.printStackTrace()
                 DataCoordinatorExceptionHandler.handleException(
@@ -195,16 +226,17 @@ abstract class DataUploader : Thread() {
                 getPendingArticleDeleteRequest(session)?.let {
                     println("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
                     serveArticleDeleteRequest(session, it)
-                    resetErrorDelay()
+                    logArticleDeleteRequestServing(session,it)
+//                    resetErrorDelay()
                 }
-            } catch (ex: Exception) {
+            } catch (ex: Throwable) {
                 session.close()
                 ex.printStackTrace()
                 DataCoordinatorExceptionHandler.handleException(
                         ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
                 )
-                waitHere(getErrorDelayPeriod())
-                continue
+//                waitHere(getErrorDelayPeriod())
+//                continue
             }
 
             val articlesForUpload = getArticlesForUpload(session)
@@ -216,7 +248,7 @@ abstract class DataUploader : Thread() {
                         LoggerUtils.logArticleUploadHistory(session, articlesForUpload, getUploadDestinationInfo())
                         resetErrorDelay()
                     }
-                } catch (ex: Exception) {
+                } catch (ex: Throwable) {
                     session.close()
                     ex.printStackTrace()
                     DataCoordinatorExceptionHandler.handleException(
@@ -230,7 +262,8 @@ abstract class DataUploader : Thread() {
 
             } else {
                 session.close()
-                waitHere(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS)
+                waitHere(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS +
+                        Random(System.currentTimeMillis()).nextLong(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS))
             }
         } while (true)
     }

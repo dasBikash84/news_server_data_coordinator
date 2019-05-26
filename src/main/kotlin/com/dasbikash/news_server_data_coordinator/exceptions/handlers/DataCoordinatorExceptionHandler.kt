@@ -45,6 +45,7 @@ object DataCoordinatorExceptionHandler {
     }
 
     private fun highestLevelExceptionHandler(ex: HighestLevelException) {
+        println("Major error on News-Server Data Coordinator App!!! Cause: ${ex.message?: ex.cause}, ${ErrorLog(ex).toString()}")
         EmailUtils.sendEmail("Major error on News-Server Data Coordinator App!!! Cause: ${ex.message ?: ex.cause}",ErrorLog(ex).toString())
         dataCoordinatorExceptionHandler(ex)
     }
