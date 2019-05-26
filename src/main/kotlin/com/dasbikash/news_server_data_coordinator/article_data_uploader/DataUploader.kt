@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.exceptions.ArticleDeleteException
 import com.dasbikash.news_server_data_coordinator.exceptions.ArticleUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.SettingsUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
@@ -26,50 +27,70 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-abstract class DataUploader:Thread() {
+abstract class DataUploader : Thread() {
     private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
     private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10*60*1000L // 10 mins
-    private val WAITING_TIME_BETWEEN_ITERATION = 5*1000L //5 secs
+    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10 * 60 * 1000L // 10 mins
+    private val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
 
     private val SQL_DATE_FORMAT = "yyyy-MM-dd"
     private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
 
-    private val INIT_DELAY_FOR_ERROR = 5 *60 * 1000L //5 mins
-    private val MAX_DELAY_FOR_ERROR = 60 *60 * 1000L //60 mins
+    private val INIT_DELAY_FOR_ERROR = 5 * 60 * 1000L //5 mins
+    private val MAX_DELAY_FOR_ERROR = 60 * 60 * 1000L //60 mins
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
-    private var settingsUploadResumeAfterError = false
 
 
-    abstract protected fun getUploadDestinationInfo():UploadDestinationInfo
-    abstract protected fun getMaxArticleAgeInDays():Int //Must be >=0
-    abstract protected fun uploadArticles(articlesForUpload: List<Article>):Boolean
-    abstract protected fun maxArticleCountForUpload():Int // Must be >=0
+    abstract protected fun getUploadDestinationInfo(): UploadDestinationInfo
+    abstract protected fun getMaxArticleAgeInDays(): Int //Must be >=0
+    abstract protected fun uploadArticles(articlesForUpload: List<Article>): Boolean
+    abstract protected fun maxArticleCountForUpload(): Int // Must be >=0
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>,
-                                             pageGroups:Collection<PageGroup>)
+                                             pageGroups: Collection<PageGroup>)
+
     abstract protected fun addToServerUploadTimeLog()
 
-    private fun getErrorDelayPeriod(): Long {
-        errorIteration++
-        errorDelayPeriod += (INIT_DELAY_FOR_ERROR * errorIteration)
+    abstract protected fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest)
 
-        if(errorDelayPeriod > MAX_DELAY_FOR_ERROR){
+
+    private fun getPendingArticleDeleteRequest(session: Session): ArticleDeleteRequest?{
+        val totalDeleteRequestCount = DatabaseUtils.getArticleDeleteRequestCount(session)
+        val servedDeleteRequestCount =
+                DatabaseUtils.getArticleDeleteRequestServingLogCountForTarget(session,getUploadDestinationInfo().articleUploadTarget)
+        if (servedDeleteRequestCount >= totalDeleteRequestCount){return null}
+        val deleteRequests = DatabaseUtils.getArticleDeleteRequests(session)
+        val servedDeleteRequestLogs =
+                DatabaseUtils.getArticleDeleteRequestServingLogsForTarget(session,getUploadDestinationInfo().articleUploadTarget)
+        deleteRequests.asSequence().forEach {
+            if (!servedDeleteRequestLogs.map { it.articleDeleteRequest!!.id!! }.contains(it.id!!)){
+                return it
+            }
+        }
+        return null
+    }
+
+    private fun getErrorDelayPeriod(): Long {
+//        errorIteration++
+//        errorDelayPeriod += (INIT_DELAY_FOR_ERROR * errorIteration)
+        errorDelayPeriod += INIT_DELAY_FOR_ERROR
+
+        if (errorDelayPeriod > MAX_DELAY_FOR_ERROR) {
             errorDelayPeriod = MAX_DELAY_FOR_ERROR
         }
 
         return errorDelayPeriod
     }
 
-    private fun getSqlForArticleFetch():String{
-        if (maxArticleCountForUpload()<0){
+    private fun getSqlForArticleFetch(): String {
+        if (maxArticleCountForUpload() < 0) {
             throw IllegalArgumentException(MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE)
         }
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                        .append(" WHERE ${Article.PUBLICATION_TIME_COLUMN_NAME} > '")
+                .append(" WHERE ${Article.PUBLICATION_TIME_COLUMN_NAME} > '")
         sqlBuilder
                 .append(getMinArticleDateString())
                 .append("' AND ${getUploadDestinationInfo().flagName}=0")
@@ -79,22 +100,21 @@ abstract class DataUploader:Thread() {
     }
 
     private fun getMinArticleDateString(): String {
-        if (getMaxArticleAgeInDays() < 0){
+        if (getMaxArticleAgeInDays() < 0) {
             throw IllegalArgumentException(MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE)
         }
         val today = Calendar.getInstance()
-        today.add(Calendar.DAY_OF_YEAR,-1*getMaxArticleAgeInDays())
+        today.add(Calendar.DAY_OF_YEAR, -1 * getMaxArticleAgeInDays())
         return sqlDateFormatter.format(today.time)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun getArticlesForUpload(session:Session): List<Article> {
+    private fun getArticlesForUpload(session: Session): List<Article> {
         val nativeSql = getSqlForArticleFetch()
-//        println("SqlForArticleFetch: ${nativeSql}")
         return session.createNativeQuery(nativeSql, Article::class.java).resultList as List<Article>
     }
 
-    private fun getSqlToMarkUploadedArticle(article: Article):String{
+    private fun getSqlToMarkUploadedArticle(article: Article): String {
         return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().flagName}=1 WHERE id='${article.id}'"
     }
 
@@ -104,8 +124,7 @@ abstract class DataUploader:Thread() {
                 .forEach {
                     val sql = getSqlToMarkUploadedArticle(it)
                     if (!flag) {
-//                        println("sql to ArticlesAsUploaded: ${sql}")
-                        flag=true
+                        flag = true
                     }
                     DatabaseUtils.runDbTransection(session) {
                         session.createNativeQuery(sql).executeUpdate()
@@ -113,26 +132,26 @@ abstract class DataUploader:Thread() {
                 }
     }
 
-    private fun checkIfSettingsModified(session:Session):Boolean{
-        val settingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
-        val settingsUploadLog = DatabaseUtils
-                                                    .getLastSettingsUploadLogByTarget(session, getUploadDestinationInfo().articleUploadTarget)
-//        println(settingsUpdateLog)
-//        println(settingsUploadLog)
-        if (settingsUploadLog !=null){
-            if (settingsUploadLog.uploadTime > settingsUpdateLog.updateTime){
+    private fun checkIfSettingsModified(session: Session): Boolean {
+        val lastSettingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
+        val lastSettingsUploadLog = DatabaseUtils
+                .getLastSettingsUploadLogByTarget(session, getUploadDestinationInfo().articleUploadTarget)
+
+        if (lastSettingsUploadLog != null) {
+            if (lastSettingsUploadLog.uploadTime > lastSettingsUpdateLog.updateTime) {
                 return false
             }
         }
         return true
     }
 
-    private fun addSettingsUpdateLog(session: Session){
+    private fun addSettingsUpdateLog(session: Session) {
         DatabaseUtils.runDbTransection(session) {
             session.save(SettingsUploadLog(uploadTarget = getUploadDestinationInfo().articleUploadTarget))
         }
     }
-    private fun uploadSettingsToServer(session: Session){
+
+    private fun uploadSettingsToServer(session: Session) {
         val languages = DatabaseUtils.getLanguageMap(session).values
         val countries = DatabaseUtils.getCountriesMap(session).values
         val newspapers = DatabaseUtils.getNewspaperMap(session).values
@@ -142,7 +161,7 @@ abstract class DataUploader:Thread() {
             throw IllegalStateException("Basic app settings not found.")
         }
 //        nukeOldSettings()
-        uploadNewSettings(languages, countries, newspapers, pages,pageGroups)
+        uploadNewSettings(languages, countries, newspapers, pages, pageGroups)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)
     }
@@ -151,79 +170,85 @@ abstract class DataUploader:Thread() {
         do {
             val session = DbSessionManager.getNewSession()
 
-            if (!DatabaseUtils.getArticleUploaderStatus(session,getUploadDestinationInfo().articleUploadTarget)){
-                LoggerUtils.logMessage("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} " +
-                                                "article uploader.",session)
+            if (!DatabaseUtils.getArticleUploaderStatus(session, getUploadDestinationInfo().articleUploadTarget)) {
+                logExit(session)
+                session.close()
                 return
             }
 
             try {
-                if (checkIfSettingsModified(session) || settingsUploadResumeAfterError) {
+                if (checkIfSettingsModified(session)) {
                     uploadSettingsToServer(session)
+                    resetErrorDelay()
                 }
-                resetErrorDelay()
-                settingsUploadResumeAfterError = false
-            }catch (ex:Exception){
+            } catch (ex: Exception) {
+                session.close()
                 ex.printStackTrace()
                 DataCoordinatorExceptionHandler.handleException(
-                        SettingsUploadException(getUploadDestinationInfo().articleUploadTarget,ex)
+                        SettingsUploadException(getUploadDestinationInfo().articleUploadTarget, ex)
                 )
-                try {
-                    settingsUploadResumeAfterError = true
-                    sleep(getErrorDelayPeriod())
-                    continue
-                } catch (ex: InterruptedException) {
-                    ex.printStackTrace()
-                    return //Exit due to iterruption by Master
+                waitHere(getErrorDelayPeriod())
+                continue
+            }
+
+            try {
+                getPendingArticleDeleteRequest(session)?.let {
+                    println("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
+                    serveArticleDeleteRequest(session, it)
+                    resetErrorDelay()
                 }
+            } catch (ex: Exception) {
+                session.close()
+                ex.printStackTrace()
+                DataCoordinatorExceptionHandler.handleException(
+                        ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
+                )
+                waitHere(getErrorDelayPeriod())
+                continue
             }
 
             val articlesForUpload = getArticlesForUpload(session)
             println("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
-            if (articlesForUpload.size>0){
-                do{
-                    try {
-//                        throw java.lang.IllegalStateException()
-                        if (uploadArticles(articlesForUpload)){
-                            markArticlesAsUploaded(articlesForUpload,session)
-                            LoggerUtils.logArticleUploadHistory(session,articlesForUpload,getUploadDestinationInfo())
-                            resetErrorDelay()
-                        }
-                    }catch(ex:Exception){
-                        ex.printStackTrace()
-                        DataCoordinatorExceptionHandler.handleException(
-                                ArticleUploadException(getUploadDestinationInfo().articleUploadTarget,ex))
-                        try {
-                            sleep(getErrorDelayPeriod())
-                            continue
-                        } catch (ex: InterruptedException) {
-                            ex.printStackTrace()
-                            return
-                        }
+            if (articlesForUpload.size > 0) {
+                try {
+                    if (uploadArticles(articlesForUpload)) {
+                        markArticlesAsUploaded(articlesForUpload, session)
+                        LoggerUtils.logArticleUploadHistory(session, articlesForUpload, getUploadDestinationInfo())
+                        resetErrorDelay()
                     }
-                    break
-                }while (true)
-                try {
+                } catch (ex: Exception) {
                     session.close()
-                    sleep(WAITING_TIME_BETWEEN_ITERATION)
-                }catch (ex:InterruptedException){
                     ex.printStackTrace()
-                    return //Exit due to iterruption by Master
-                }catch (ex:Exception){
-                    ex.printStackTrace()
+                    DataCoordinatorExceptionHandler.handleException(
+                            ArticleUploadException(getUploadDestinationInfo().articleUploadTarget, ex))
+                    waitHere(getErrorDelayPeriod())
+                    continue
                 }
-            }else{
-                try {
-                    session.close()
-                    sleep(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS)
-                }catch (ex:InterruptedException){
-                    ex.printStackTrace()
-                    return //Exit due to iterruption by Master
-                }catch (ex:Exception){
-                    ex.printStackTrace()
-                }
+
+                session.close()
+                waitHere(WAITING_TIME_BETWEEN_ITERATION)
+
+            } else {
+                session.close()
+                waitHere(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS)
             }
-        }while (true)
+        } while (true)
+    }
+
+    private fun waitHere(waitTimeMs:Long){
+        try {
+            sleep(waitTimeMs)
+        } catch (ex: InterruptedException) {
+            ex.printStackTrace()
+        }
+    }
+
+    private fun logExit(session: Session? = null) {
+        println("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} article uploader.")
+        session?.let {
+            LoggerUtils.logMessage("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} " +
+                    "article uploader.", session)
+        }
     }
 
     private fun resetErrorDelay() {

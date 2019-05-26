@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import org.hibernate.Session
 
 class DataUploaderForMongoRestService:DataUploader() {
 
@@ -54,6 +55,10 @@ class DataUploaderForMongoRestService:DataUploader() {
 
     override fun nukeOldSettings() {
         TODO()
+    }
+
+    override fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     companion object{

@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import org.hibernate.Session
 
 class DataUploaderForFireStoreDb : DataUploader() {
 
@@ -48,6 +49,10 @@ class DataUploaderForFireStoreDb : DataUploader() {
 
     override fun nukeOldSettings() {
         FireStoreDataUtils.nukeAppSettings()
+    }
+
+    override fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     companion object {
