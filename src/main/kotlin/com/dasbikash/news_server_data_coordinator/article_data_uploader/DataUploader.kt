@@ -60,19 +60,9 @@ abstract class DataUploader : Thread() {
         getArticlesForDeletion(session,articleDeleteRequest.page!!,articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
             if (deleteArticleFromServer(it)){
                 DatabaseUtils.markArticleAsDeletedFromDataStore(session,it,getUploadDestinationInfo().articleUploadTarget)
-//                markArticleAsDeleted(session,it)
             }
         }
     }
-
-//    private fun markArticleAsDeleted(session: Session,article: Article) {
-//        when(getUploadDestinationInfo().articleUploadTarget){
-//            ArticleUploadTarget.REAL_TIME_DB -> article.deletedFromFirebaseDb=true
-//            ArticleUploadTarget.FIRE_STORE_DB -> article.deletedFromFireStore=true
-//            ArticleUploadTarget.MONGO_REST_SERVICE -> article.deletedFromMongoRest=true
-//        }
-//        DatabaseUtils.markArticleAsDeletedFromDataStore(session,article,getUploadDestinationInfo().articleUploadTarget)
-//    }
 
     private fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int): List<Article> {
         return DatabaseUtils.getArticlesForDeletion(
@@ -81,26 +71,16 @@ abstract class DataUploader : Thread() {
 
 
     private fun getPendingArticleDeleteRequest(session: Session): ArticleDeleteRequest?{
-        val totalDeleteRequestCount = DatabaseUtils.getArticleDeleteRequestCount(session)
-        val servedDeleteRequestCount =
-                DatabaseUtils.getArticleDeleteRequestServingLogCountForTarget(session,getUploadDestinationInfo().articleUploadTarget)
-        if (servedDeleteRequestCount >= totalDeleteRequestCount){return null}
-        val deleteRequests = DatabaseUtils.getArticleDeleteRequests(session)
-        val servedDeleteRequestLogs =
-                DatabaseUtils.getArticleDeleteRequestServingLogsForTarget(session,getUploadDestinationInfo().articleUploadTarget)
-        deleteRequests.asSequence().forEach {
-            if (!servedDeleteRequestLogs.map { it.articleDeleteRequest!!.id!! }.contains(it.id!!)){
-                return it
-            }
+        val deleteRequests = DatabaseUtils.getArticleDeleteRequests(session,getUploadDestinationInfo().articleUploadTarget)
+        if (deleteRequests.isNotEmpty()){
+            return deleteRequests.get(0)
         }
         return null
     }
 
     private fun logArticleDeleteRequestServing(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
-        val articleDeleteRequestServingLog = ArticleDeleteRequestServingLog()
-        articleDeleteRequestServingLog.articleDeleteRequest = articleDeleteRequest
-        articleDeleteRequestServingLog.articleUploadTarget = getUploadDestinationInfo().articleUploadTarget
-        DatabaseUtils.runDbTransection(session){session.save(articleDeleteRequestServingLog)}
+        articleDeleteRequest.served = true
+        DatabaseUtils.runDbTransection(session){session.update(articleDeleteRequest)}
     }
 
     private fun getErrorDelayPeriod(): Long {
@@ -227,7 +207,6 @@ abstract class DataUploader : Thread() {
                     println("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
                     serveArticleDeleteRequest(session, it)
                     logArticleDeleteRequestServing(session,it)
-//                    resetErrorDelay()
                 }
             } catch (ex: Throwable) {
                 session.close()
@@ -235,8 +214,6 @@ abstract class DataUploader : Thread() {
                 DataCoordinatorExceptionHandler.handleException(
                         ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
                 )
-//                waitHere(getErrorDelayPeriod())
-//                continue
             }
 
             val articlesForUpload = getArticlesForUpload(session)

@@ -1,7 +1,9 @@
 package com.dasbikash.news_server_data_coordinator.database
 
+import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 internal class DatabaseUtilsTest {
 
@@ -29,5 +31,10 @@ internal class DatabaseUtilsTest {
 //    fun markArticleAsDeletedFromDataStoreTest() {
 //        val session = DbSessionManager.getNewSession()
 //        DatabaseUtils.markArticleAsDeletedFromDataStore(session, Article(id = "-1000095956903709058"),ArticleUploadTarget.FIRE_STORE_DB)
+//    }
+//    @Test
+//    fun testGetArticleDeleteRequests(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getArticleDeleteRequests(session,ArticleUploadTarget.REAL_TIME_DB).forEach { println(it) }
 //    }
 }

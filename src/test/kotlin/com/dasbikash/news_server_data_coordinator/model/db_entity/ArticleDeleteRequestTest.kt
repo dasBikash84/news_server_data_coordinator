@@ -17,16 +17,16 @@ internal class ArticleDeleteRequestTest {
     @AfterEach
     fun tearDown() {
     }
-    @Test
-    fun readAllDbEntry(){
-        val session = DbSessionManager.getNewSession()
-        DatabaseUtils.getArticleDeleteRequests(session).asSequence().forEach { println(it) }
-        session.close()
-    }
-    @Test
-    fun readAllDbEntryCount(){
-        val session = DbSessionManager.getNewSession()
-        DatabaseUtils.getArticleDeleteRequestCount(session).apply { println("readAllDbEntryCount:${this}") }
-        session.close()
-    }
+//    @Test
+//    fun readAllDbEntry(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getArticleDeleteRequests(session).asSequence().forEach { println(it) }
+//        session.close()
+//    }
+//    @Test
+//    fun readAllDbEntryCount(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getArticleDeleteRequestCount(session).apply { println("readAllDbEntryCount:${this}") }
+//        session.close()
+//    }
 }

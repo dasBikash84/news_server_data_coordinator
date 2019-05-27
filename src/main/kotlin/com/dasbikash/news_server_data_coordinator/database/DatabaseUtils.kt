@@ -224,34 +224,10 @@ object DatabaseUtils {
         return false
     }
 
-    fun getArticleDeleteRequests(session: Session): List<ArticleDeleteRequest> {
-        val hql = "FROM ${EntityClassNames.ARTICLE_DELETE_REQUEST}"
+    fun getArticleDeleteRequests(session: Session,articleUploadTarget: ArticleUploadTarget): List<ArticleDeleteRequest> {
+        val hql = "FROM ${EntityClassNames.ARTICLE_DELETE_REQUEST} WHERE served=false AND articleUploadTarget='${articleUploadTarget.name}'"
         val query = session.createQuery(hql, ArticleDeleteRequest::class.java)
         return query.list() as List<ArticleDeleteRequest>
-    }
-
-    fun getArticleDeleteRequestCount(session: Session): Int {
-        val hql = "SELECT COUNT(*) FROM ${EntityClassNames.ARTICLE_DELETE_REQUEST}"
-        val query = session.createQuery(hql)
-        return (query.singleResult as Long).toInt()
-    }
-
-    fun getArticleDeleteRequestServingLogCount(session: Session): Int {
-        val hql = "SELECT COUNT(*) FROM ${EntityClassNames.ARTICLE_DELETE_REQUEST_SERVING_LOG}"
-        val query = session.createQuery(hql)
-        return (query.singleResult as Long).toInt()
-    }
-
-    fun getArticleDeleteRequestServingLogCountForTarget(session: Session,articleUploadTarget: ArticleUploadTarget): Int {
-        val sqlString = "SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_SERVING_LOG_TABLE_NAME} WHERE articleUploadTarget='${articleUploadTarget.name}'"
-        val query = session.createNativeQuery(sqlString)
-        return (query.singleResult as BigInteger).toInt()
-    }
-
-    fun getArticleDeleteRequestServingLogsForTarget(session: Session,articleUploadTarget: ArticleUploadTarget): List<ArticleDeleteRequestServingLog> {
-        val sqlString = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_SERVING_LOG_TABLE_NAME} WHERE articleUploadTarget='${articleUploadTarget.name}'"
-        val query = session.createNativeQuery(sqlString,ArticleDeleteRequestServingLog::class.java)
-        return query.resultList as List<ArticleDeleteRequestServingLog>
     }
 
     fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int, articleUploadTarget: ArticleUploadTarget): List<Article> {

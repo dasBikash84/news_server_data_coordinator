@@ -25,5 +25,4 @@ object DatabaseTableNames {
     const val ARTICLE_DOWNLOAD_LOG_TABLE_NAME = "article_download_log";
     const val PAGE_GROUP_TABLE_NAME = "page_groups";
     const val ARTICLE_DELETE_REQUEST_TABLE_NAME = "article_delete_request"
-    const val ARTICLE_DELETE_REQUEST_SERVING_LOG_TABLE_NAME = "article_delete_request_serving_log"
 }
