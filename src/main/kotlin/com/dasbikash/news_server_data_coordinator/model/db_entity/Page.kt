@@ -61,6 +61,7 @@ data class Page(
         override fun toString(): String {
                 return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
         }
+        @Transient
         fun getContentFromOther(other: Page){
                 this.name=other.name
                 this.active=other.active

@@ -364,7 +364,6 @@ object DataCoordinator {
                         if (newspaperFromDb.pageList.contains(it)) {
                             val pageFromDb = newspaperFromDb.pageList.get(newspaperFromDb.pageList.indexOf(it))
                             pageFromDb.getContentFromOther(it)
-//                            pageFromDb.hasChild = it.hasChild
                         } else {
                             DatabaseUtils.runDbTransection(session) {
                                 settingsUpdateLogMessageBuilder.append("Page added id: ${it.id} | ")

@@ -21,25 +21,39 @@ import javax.persistence.*
 @Entity
 @Table(name = DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME)
 class ArticleDownloadLog(
-        page: Page? = null,
-        downloadedArticles: List<Article>
+        @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
+        @JoinColumn(name = "pageId")
+        var page: Page? = null,
+        downloadedArticles: List<Article>?=null
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null
+    var id: Int? = null
     @Column(columnDefinition = "text")
-    val logMessage: String
-    val parents: String
-    @UpdateTimestamp
-    val created: Date? = null
+    var logMessage: String?=null
+    var parents: String?=null
 
     init {
-        val logBuilder = StringBuilder()
-        downloadedArticles.asSequence().take(downloadedArticles.size - 1).forEach {
-            logBuilder.append("${it.id} | ")
+        if (page!=null) {
+            parents = "${page?.name} | ${page?.newspaper?.name}"
         }
-        logBuilder.append(downloadedArticles.last().id)
-        logMessage = logBuilder.toString()
-        parents = "${page?.name} | ${page?.newspaper?.name}"
+        if (downloadedArticles!=null) {
+            val logBuilder = StringBuilder()
+            downloadedArticles.asSequence().take(downloadedArticles.size - 1).forEach {
+                logBuilder.append("${it.id} | ")
+            }
+            logBuilder.append(downloadedArticles.last().id)
+            logMessage = logBuilder.toString()
+        }
     }
+
+    @Transient
+    fun getArticleCount():Int{
+        return logMessage?.split("|")?.size ?: 0
+    }
+
+    override fun toString(): String {
+        return "ArticleDownloadLog(page=${page?.id}, id=$id, logMessage=${getArticleCount()}, parents=$parents)"
+    }
+
 }

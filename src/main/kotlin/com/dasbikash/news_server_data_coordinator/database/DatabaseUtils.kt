@@ -16,9 +16,10 @@ package com.dasbikash.news_server_data_coordinator.database
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.EntityClassNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
-import java.math.BigInteger
+import java.util.*
 
 object DatabaseUtils {
 
@@ -129,6 +130,20 @@ object DatabaseUtils {
                     pageMap.put(it.id, it)
                 }
         return pageMap
+    }
+
+    fun getAllPages(session: Session): List<Page> {
+        val hql = "FROM ${EntityClassNames.PAGE}"
+        val query = session.createQuery(hql, Page::class.java)
+//        val pageMap = mutableMapOf<String, Page>()
+//        (query.list() as List<Page>).asSequence()
+//                .filter {
+//                    it.newspaper!!.active
+//                }
+//                .forEach {
+//                    pageMap.put(it.id, it)
+//                }
+        return query.list()
     }
 
     fun getPageGroups(session: Session): List<PageGroup> {
@@ -256,6 +271,166 @@ object DatabaseUtils {
         runDbTransection(session) {
             query.executeUpdate()
         }
+    }
+
+    fun getArticleDownloadLogWithNullPageId(session: Session,count:Int):List<ArticleDownloadLog>{
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME} WHERE " +
+                            "pageId is null order by created desc limit ${count}"
+        println(sql)
+        try {
+            return session.createNativeQuery(sql, ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
+    }
+
+    fun getArticleDownloadLog(session: Session,count:Int):List<ArticleDownloadLog>{
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME} limit ${count}"
+        try {
+            return session.createNativeQuery(sql, ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
+    }
+
+    fun getArticleDownloadCountForPageOfYesterday(session: Session, page: Page, today: Date): Int {
+        val yesterday = DateUtils.getYesterDay(today)
+        return getArticleDownloadCountForPageBetweenTwoDates(page, yesterday, today, session)
+    }
+
+    fun getArticleDownloadCountForPageOfLastWeek(session: Session, page: Page, thisWeekFirstDay: Date): Int {
+        val lastWeekFirstDay = DateUtils.getLastWeekSameDay(thisWeekFirstDay)
+        return getArticleDownloadCountForPageBetweenTwoDates(page, lastWeekFirstDay, thisWeekFirstDay, session)
+    }
+
+    fun getArticleDownloadCountForPageOfLastMonth(session: Session, page: Page, anyDayOfMonth: Date): Int {
+        val firstDayOfMonth = DateUtils.getFirstDayOfMonth(anyDayOfMonth)
+        val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(anyDayOfMonth)
+
+        return getArticleDownloadCountForPageBetweenTwoDates(page, firstDayOfLastMonth, firstDayOfMonth, session)
+    }
+
+    private fun getArticleDownloadCountForPageBetweenTwoDates(page: Page, startDate: Date, firstDayOfMonth: Date, session: Session): Int {
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME}")
+                                            .append(" WHERE pageId='${page.id}' ")
+                                            .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
+                                            .append("AND created<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
+        println(sqlBuilder.toString())
+        val articleDownloadLogs =
+                session.createNativeQuery(sqlBuilder.toString(), ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
+        var articleDownloadCount = 0
+        articleDownloadLogs.asSequence().forEach {
+            articleDownloadCount += it.getArticleCount()
+        }
+        return articleDownloadCount
+    }
+
+    fun getArticleUploadCountForTargetOfYesterday(session: Session, articleUploadTarget: ArticleUploadTarget, today: Date): Int {
+        val yesterday = DateUtils.getYesterDay(today)
+        return getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget, yesterday, today, session)
+    }
+
+    fun getArticleUploadCountForTargetOfLastWeek(session: Session, articleUploadTarget: ArticleUploadTarget, thisWeekFirstDay: Date): Int {
+        val lastWeekFirstDay = DateUtils.getLastWeekSameDay(thisWeekFirstDay)
+        return getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget, lastWeekFirstDay, thisWeekFirstDay, session)
+    }
+
+    fun getArticleUploadCountForTargetOfLastMonth(session: Session, articleUploadTarget: ArticleUploadTarget, anyDayOfMonth: Date): Int {
+        val firstDayOfMonth = DateUtils.getFirstDayOfMonth(anyDayOfMonth)
+        val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(anyDayOfMonth)
+        return getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget,firstDayOfLastMonth, firstDayOfMonth,  session)
+    }
+
+    fun getArticleUploadCountForTargetFromBeginning(session: Session, articleUploadTarget: ArticleUploadTarget): Int {
+
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_UPLOAD_LOG_TABLE_NAME}")
+                                        .append(" WHERE uploadTarget='${articleUploadTarget.name}'")
+
+        println(sqlBuilder.toString())
+        val articleUploadLogs =
+                session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
+        var articleUploadCount = 0
+        articleUploadLogs.asSequence().forEach {
+            articleUploadCount += it.getArticleUpCount()
+        }
+        return articleUploadCount
+    }
+
+    private fun getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget: ArticleUploadTarget, startDate: Date, endDate: Date, session: Session): Int {
+
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_UPLOAD_LOG_TABLE_NAME}")
+                                            .append(" WHERE uploadTarget='${articleUploadTarget.name}' ")
+                                            .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
+                                            .append("AND created<'${DateUtils.getDateStringForDb(endDate)}'")
+
+        println(sqlBuilder.toString())
+        val articleUploadLogs =
+                session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
+        var articleUploadCount = 0
+        articleUploadLogs.asSequence().forEach {
+            articleUploadCount += it.getArticleUpCount()
+        }
+        return articleUploadCount
+    }
+
+    fun getArticleCountForPage(session: Session, page: Page): Int {
+        val sql = "SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${page.id}'"
+        val result = session.createNativeQuery(sql).list() as List<Int>
+        if (result.size == 1) {
+            return result.get(0)
+        }
+        return 0
+    }
+
+    fun getArticleDeletionCountFromAllUploaderTargetsForPage(session: Session,page: Page):Map<ArticleUploadTarget,Int>{
+
+        val targetArticleDeletionCountMap = mutableMapOf<ArticleUploadTarget,Int>()
+
+        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.REAL_TIME_DB,page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.REAL_TIME_DB,this)
+        }
+        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.FIRE_STORE_DB,page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.FIRE_STORE_DB,this)
+        }
+        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.MONGO_REST_SERVICE,page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.MONGO_REST_SERVICE,this)
+        }
+        return targetArticleDeletionCountMap.toMap()
+    }
+
+    private fun getArticleDeletionCountFromUploaderTargetForPage(session: Session,articleUploadTarget: ArticleUploadTarget,page: Page):Int{
+
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_TABLE_NAME}")
+                                                            .append(" WHERE pageId='${page.id}' ")
+                                                            .append(" AND articleUploadTarget='${articleUploadTarget.name}'")
+                                                            .append(" AND served=1")
+        println(sqlBuilder.toString())
+        val articleDeleteRequests =
+                session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
+        var articleDeletionCount = 0
+        articleDeleteRequests.asSequence().forEach {
+            articleDeletionCount += it.deleteRequestCount ?: 0
+        }
+        return articleDeletionCount
+
+    }
+
+    fun getArticleDeletionCountFromUploaderTarget(session: Session,articleUploadTarget: ArticleUploadTarget):Int{
+
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_TABLE_NAME}")
+                                                            .append(" WHERE articleUploadTarget='${articleUploadTarget.name}'")
+                                                            .append(" AND served=1")
+        println(sqlBuilder.toString())
+        val articleDeleteRequests =
+                session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
+        var articleDeletionCount = 0
+        articleDeleteRequests.asSequence().forEach {
+            articleDeletionCount += it.deleteRequestCount ?: 0
+        }
+        return articleDeletionCount
+
     }
 
 }

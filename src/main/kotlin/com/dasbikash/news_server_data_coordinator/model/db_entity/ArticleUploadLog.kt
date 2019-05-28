@@ -20,21 +20,28 @@ import javax.persistence.*
 class ArticleUploadLog(
         @Column(columnDefinition = "enum('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE')")
         @Enumerated(EnumType.STRING)
-        val uploadTarget: ArticleUploadTarget,
-        uploadedArticles: List<Article>
+        var uploadTarget: ArticleUploadTarget?=null,
+        uploadedArticles: List<Article>?=null
 ) {
+    @Transient
+    fun getArticleUpCount(): Int {
+        return logMessage?.split("|")?.size ?: 0
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null
+    var id: Int? = null
     @Column(columnDefinition = "text")
-    val logMessage: String
+    var logMessage: String?=null
 
     init {
         val logBuilder = StringBuilder()
-        uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
-            logBuilder.append("${it.id} | ")
+        if (uploadedArticles!=null) {
+            uploadedArticles.asSequence().take(uploadedArticles.size - 1).forEach {
+                logBuilder.append("${it.id} | ")
+            }
+            logBuilder.append(uploadedArticles.last().id)
+            logMessage = logBuilder.toString()
         }
-        logBuilder.append(uploadedArticles.last().id)
-        logMessage = logBuilder.toString()
     }
 }
