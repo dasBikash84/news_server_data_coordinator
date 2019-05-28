@@ -11,12 +11,17 @@ import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.AppInitException
 import com.dasbikash.news_server_data_coordinator.exceptions.DataCoordinatorException
+import com.dasbikash.news_server_data_coordinator.exceptions.ReportGenerationException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import com.dasbikash.news_server_data_coordinator.utils.ReportGenerationUtils
 import org.hibernate.Session
+import java.util.*
+import kotlin.collections.ArrayList
 
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
@@ -35,7 +40,7 @@ import org.hibernate.Session
 object DataCoordinator {
 
     private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
-    private val SETTINGS_UPDATE_ITERATION_PERIOD = 60 * 60 * 1000L //60 mins
+    private val DATA_COORDINATOR_ITERATION_PERIOD = 15 * 60 * 1000L //15 mins
     private lateinit var realTimeDbDataUploader: DataUploader
     private lateinit var fireStoreDbDataUploader: DataUploader
     private lateinit var mongoRestDataUploader: DataUploader
@@ -43,8 +48,11 @@ object DataCoordinator {
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
 
+    private lateinit var currentDate:Calendar
+
     @JvmStatic
     fun main(args: Array<String>) {
+        currentDate = Calendar.getInstance()
         do {
             try {
                 val (newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
@@ -55,7 +63,32 @@ object DataCoordinator {
 
                 errorDelayPeriod = 0L
                 errorIteration = 0L
-                Thread.sleep(SETTINGS_UPDATE_ITERATION_PERIOD)
+
+                val now = Calendar.getInstance()
+                if (now.get(Calendar.YEAR)> currentDate.get(Calendar.YEAR) ||
+                        now.get(Calendar.DAY_OF_YEAR)> currentDate.get(Calendar.DAY_OF_YEAR)){
+                    try {
+                        val session = DbSessionManager.getNewSession()
+
+                        generateAndDistributeDailyReport(now.time!!, session)
+
+                        if (DateUtils.isFirstDayOfWeek(now.time)) {
+                            generateAndDistributeWeeklyReport(now.time, session)
+                        }
+
+                        if (DateUtils.isFirstDayOfMonth(now.time)) {
+                            generateAndDistributeMonthlyReport(now.time, session)
+                        }
+                        session.close()
+
+                        currentDate = now
+                    }catch (ex:Throwable){
+                        ex.printStackTrace()
+                        DataCoordinatorExceptionHandler.handleException(ReportGenerationException(ex))
+                    }
+                }
+
+                Thread.sleep(DATA_COORDINATOR_ITERATION_PERIOD)
             } catch (ex: DataCoordinatorException) {
                 DataCoordinatorExceptionHandler.handleException(ex)
                 ex.printStackTrace()
@@ -81,6 +114,30 @@ object DataCoordinator {
             }
 
         } while (true)
+    }
+
+    private fun generateAndDistributeDailyReport(today: Date, session: Session) {
+        println("Starting daily data-coordinator activity report generation.")
+        ReportGenerationUtils.prepareDailyReport(today, session)
+        println("Daily data-coordinator activity report generated.")
+        ReportGenerationUtils.emailDailyReport(today)
+        println("Daily data-coordinator activity report distributed.")
+    }
+
+    private fun generateAndDistributeWeeklyReport(today: Date, session: Session) {
+        println("Starting weekly data-coordinator activity report generation.")
+        ReportGenerationUtils.prepareWeeklyReport(today, session)
+        println("Weekly data-coordinator activity report generated.")
+        ReportGenerationUtils.emailWeeklyReport(today)
+        println("Weekly data-coordinator activity report distributed.")
+    }
+
+    private fun generateAndDistributeMonthlyReport(today: Date, session: Session) {
+        println("Starting monthly data-coordinator activity report generation.")
+        ReportGenerationUtils.prepareMonthlyReport(today, session)
+        println("Monthly data-coordinator activity report generated.")
+        ReportGenerationUtils.emailMonthlyReport(today)
+        println("Monthly data-coordinator activity report distributed.")
     }
 
     private fun getErrorDelayPeriod(): Long {
