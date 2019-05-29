@@ -62,7 +62,8 @@ object EmailUtils {
             message.subject = subject
 
             val messageBodyTextPart: MimeBodyPart = MimeBodyPart()
-            messageBodyTextPart.setContent(body,HTML_CONTENT_TYPE)
+
+            messageBodyTextPart.setContent(body.replace("\n","<br>"),HTML_CONTENT_TYPE)
 
             val multipart = MimeMultipart()
             multipart.addBodyPart(messageBodyTextPart)
