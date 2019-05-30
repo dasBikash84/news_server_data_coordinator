@@ -105,9 +105,8 @@ object DataFetcherFromParser {
     fun getPagesForNewspaper(newspaper: Newspaper): List<Page> {
         val response = pagesForNpTarget.resolveTemplate(NEWSPAPER_ID_PATH_PARAM, newspaper.id)
                 .request(MediaType.APPLICATION_JSON).get()
-        if (response.status == Response.Status.OK.statusCode) {
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
             val data = response.readEntity(String::class.java)!!
-
             val pages = gson.fromJson(data, Pages::class.java).pages!!
             pages.forEach { it.newspaper = newspaper }
             return pages
@@ -118,11 +117,11 @@ object DataFetcherFromParser {
 
     fun getLatestArticlesForPage(page: Page, articleCount: Int = 5): List<Article> {
         val response = latestArticlesForPageTarget
-                .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
-                .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
-                .request(MediaType.APPLICATION_JSON).get()
+                                    .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
+                                    .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
+                                    .request(MediaType.APPLICATION_JSON).get()
 
-        if (response.status == Response.Status.OK.statusCode) {
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
             val data = response.readEntity(String::class.java)!!
             val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
             articles.forEach { it.page = page }
@@ -139,7 +138,7 @@ object DataFetcherFromParser {
                 .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
                 .request(MediaType.APPLICATION_JSON).get()
 
-        if (response.status == Response.Status.OK.statusCode) {
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
             val data = response.readEntity(String::class.java)!!
             val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
             articles.forEach { it.page = page }
@@ -152,7 +151,7 @@ object DataFetcherFromParser {
     fun getPageGroups(session: Session): List<PageGroup> {
         val response = pageGroupsTarget.request(MediaType.APPLICATION_JSON).get()
 
-        if (response.status == Response.Status.OK.statusCode) {
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
             val data = response.readEntity(String::class.java)!!
             val pageGroups = gson.fromJson(data, PageGroups::class.java).pageGroups!!
             val pages = DatabaseUtils.getPageMap(session).values.toList()
