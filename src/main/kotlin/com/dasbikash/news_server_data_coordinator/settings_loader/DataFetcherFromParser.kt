@@ -17,6 +17,7 @@ import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.google.gson.GsonBuilder
 import org.hibernate.Session
+import javax.ws.rs.ProcessingException
 import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -116,33 +117,51 @@ object DataFetcherFromParser {
     }
 
     fun getLatestArticlesForPage(page: Page, articleCount: Int = 5): List<Article> {
-        val response = latestArticlesForPageTarget
+        val target = latestArticlesForPageTarget
                                     .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
                                     .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
-                                    .request(MediaType.APPLICATION_JSON).get()
 
+        val response = target.request(MediaType.APPLICATION_JSON).get()
         if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
-            val data = response.readEntity(String::class.java)!!
-            val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
-            articles.forEach { it.page = page }
-            return articles
+            try {
+                val data = response.readEntity(String::class.java)!!
+                val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
+                articles.forEach { it.page = page }
+                return articles
+            }catch (ex:ProcessingException){
+                val pathBuilder = StringBuilder("Path: ")
+                target.uri.rawPath?.let { pathBuilder.append(it) }
+                target.uri.rawQuery?.let { pathBuilder.append("?").append(it) }
+                val exp = ProcessingException(ex.message+pathBuilder.toString(),ex)
+                throw exp
+            }
         } else {
             return emptyList()
         }
     }
 
     fun getArticlesBeforeGivenArticleForPage(page: Page, article: Article, articleCount: Int = 5): List<Article> {
-        val response = articlesBeforeGivenArticleForPageTarget
-                .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
-                .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)
-                .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
-                .request(MediaType.APPLICATION_JSON).get()
+
+        val target = articlesBeforeGivenArticleForPageTarget
+                                    .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
+                                    .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)
+                                    .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
+
+        val response = target.request(MediaType.APPLICATION_JSON).get()
 
         if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
-            val data = response.readEntity(String::class.java)!!
-            val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
-            articles.forEach { it.page = page }
-            return articles
+            try {
+                val data = response.readEntity(String::class.java)!!
+                val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
+                articles.forEach { it.page = page }
+                return articles
+            }catch (ex:ProcessingException){
+                val pathBuilder = StringBuilder("Path: ")
+                target.uri.rawPath?.let { pathBuilder.append(it) }
+                target.uri.rawQuery?.let { pathBuilder.append("?").append(it) }
+                val exp = ProcessingException(ex.message+pathBuilder.toString(),ex)
+                throw exp
+            }
         } else {
             return emptyList()
         }
