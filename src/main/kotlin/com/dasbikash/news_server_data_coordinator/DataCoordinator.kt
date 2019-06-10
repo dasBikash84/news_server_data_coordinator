@@ -117,27 +117,27 @@ object DataCoordinator {
     }
 
     private fun generateAndDistributeDailyReport(today: Date, session: Session) {
-        println("Starting daily data-coordinator activity report generation.")
+        LoggerUtils.logOnConsole("Starting daily data-coordinator activity report generation.")
         ReportGenerationUtils.prepareDailyReport(today, session)
-        println("Daily data-coordinator activity report generated.")
+        LoggerUtils.logOnConsole("Daily data-coordinator activity report generated.")
         ReportGenerationUtils.emailDailyReport(today)
-        println("Daily data-coordinator activity report distributed.")
+        LoggerUtils.logOnConsole("Daily data-coordinator activity report distributed.")
     }
 
     private fun generateAndDistributeWeeklyReport(today: Date, session: Session) {
-        println("Starting weekly data-coordinator activity report generation.")
+        LoggerUtils.logOnConsole("Starting weekly data-coordinator activity report generation.")
         ReportGenerationUtils.prepareWeeklyReport(today, session)
-        println("Weekly data-coordinator activity report generated.")
+        LoggerUtils.logOnConsole("Weekly data-coordinator activity report generated.")
         ReportGenerationUtils.emailWeeklyReport(today)
-        println("Weekly data-coordinator activity report distributed.")
+        LoggerUtils.logOnConsole("Weekly data-coordinator activity report distributed.")
     }
 
     private fun generateAndDistributeMonthlyReport(today: Date, session: Session) {
-        println("Starting monthly data-coordinator activity report generation.")
+        LoggerUtils.logOnConsole("Starting monthly data-coordinator activity report generation.")
         ReportGenerationUtils.prepareMonthlyReport(today, session)
-        println("Monthly data-coordinator activity report generated.")
+        LoggerUtils.logOnConsole("Monthly data-coordinator activity report generated.")
         ReportGenerationUtils.emailMonthlyReport(today)
-        println("Monthly data-coordinator activity report distributed.")
+        LoggerUtils.logOnConsole("Monthly data-coordinator activity report distributed.")
     }
 
     private fun getErrorDelayPeriod(): Long {
@@ -150,7 +150,7 @@ object DataCoordinator {
         try {
             val session = DbSessionManager.getNewSession()
             newNewspaperIds.asSequence().forEach {
-                println("newNewspaperId: ${it}")
+                LoggerUtils.logOnConsole("newNewspaperId: ${it}")
                 val newNewspaper = DatabaseUtils.findNewspaperById(session, it)!!
                 session.detach(newNewspaper)
                 val articleFetcher = ArticleFetcher(newNewspaper)
@@ -159,7 +159,7 @@ object DataCoordinator {
             }
             deactivatedIds.asSequence()
                     .forEach {
-                        println("deactivatedId: ${it}")
+                        LoggerUtils.logOnConsole("deactivatedId: ${it}")
                         if (ARTICLE_FETCHER_MAP.containsKey(it)) {
                             ARTICLE_FETCHER_MAP.get(it)!!.interrupt()
                             ARTICLE_FETCHER_MAP.remove(it)
@@ -345,7 +345,7 @@ object DataCoordinator {
                 if (newspaperFromDb == null) {
                     settingsUpdateLogMessageBuilder.append("Newspaper added id: ${it} | ")
                     val newNewspaper = newsPaperMapFromParser.get(it)!!
-                    println("new Newspapers found : ${newNewspaper}")
+                    LoggerUtils.logOnConsole("new Newspapers found : ${newNewspaper}")
                     val pages = DataFetcherFromParser.getPagesForNewspaper(newNewspaper)
                     newNewspaper.pageList = pages.toMutableList()
                     DatabaseUtils.runDbTransection(session) {

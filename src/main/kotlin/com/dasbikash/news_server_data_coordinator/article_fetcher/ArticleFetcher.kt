@@ -39,7 +39,7 @@ class ArticleFetcher(val newspaper: Newspaper)
     override fun run() {
         super.run()
 
-        println("ArticleFetcher for ${newspaper.name} started")
+        LoggerUtils.logOnConsole("ArticleFetcher for ${newspaper.name} started")
 
         do {
             val session = DbSessionManager.getNewSession()
@@ -62,7 +62,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                             }
                         }
                         if (savedArticleCount > 0) {
-                            println("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
+                            LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                         }
                         sleep(100L)
                         if (savedArticleCount < fetchedArticles.size) {
@@ -89,7 +89,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                                 }
                             }
                             if (savedArticleCount > 0) {
-                                println("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
+                                LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                             }
                             sleep(100L)
                             fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())
@@ -109,7 +109,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                     return
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    println("${ex::class.java.simpleName} error for page: ${it.name} Np: ${newspaper.name}")
+                    LoggerUtils.logOnConsole("${ex::class.java.simpleName} error for page: ${it.name} Np: ${newspaper.name}")
                     val exceptionForLogging:DataCoordinatorException
                     if(ex is ProcessingException || ex.cause is ConnectException){
                         exceptionForLogging = ArticleFetcherException(ex)

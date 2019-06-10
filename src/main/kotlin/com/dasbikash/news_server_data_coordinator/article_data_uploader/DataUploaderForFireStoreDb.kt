@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 
 class DataUploaderForFireStoreDb : DataUploader() {
 
@@ -28,7 +29,7 @@ class DataUploaderForFireStoreDb : DataUploader() {
 
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         FireStoreDataUtils.writeArticleData(articlesForUpload)
-        println("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
+        LoggerUtils.logOnConsole("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
         return true
     }
 

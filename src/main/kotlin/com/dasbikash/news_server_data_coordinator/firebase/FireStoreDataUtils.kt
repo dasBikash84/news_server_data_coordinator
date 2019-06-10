@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.google.cloud.firestore.CollectionReference
 import com.google.cloud.firestore.FieldValue
 import com.google.cloud.firestore.WriteBatch
@@ -153,7 +154,7 @@ object FireStoreDataUtils {
             }
         } catch (e: Exception) {
             maxRetry--
-            System.err.println("Error deleting collection : " + e.message)
+            LoggerUtils.logOnConsole("Error deleting collection : " + e.message)
             if (maxRetry >= 0) {
                 deleteCollectionInBatch(collection, batchSize)
             } else {

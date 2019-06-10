@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 
 class DataUploaderForMongoRestService:DataUploader() {
 
@@ -27,9 +28,9 @@ class DataUploaderForMongoRestService:DataUploader() {
 
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
-            println("Going to upload data")
+            LoggerUtils.logOnConsole("Going to upload data")
             TODO("Data uploader not implemented")
-            println("Upload successful")
+            LoggerUtils.logOnConsole("Upload successful")
             return true
         }catch (ex:Exception){
             println("Upload failure")

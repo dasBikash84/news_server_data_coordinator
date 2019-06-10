@@ -204,7 +204,7 @@ abstract class DataUploader : Thread() {
 
             try {
                 getPendingArticleDeleteRequest(session)?.let {
-                    println("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
+                    LoggerUtils.logOnConsole("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
                     serveArticleDeleteRequest(session, it)
                     logArticleDeleteRequestServing(session,it)
                 }
@@ -217,7 +217,7 @@ abstract class DataUploader : Thread() {
             }
 
             val articlesForUpload = getArticlesForUpload(session)
-            println("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
+            LoggerUtils.logOnConsole("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
             if (articlesForUpload.size > 0) {
                 try {
                     if (uploadArticles(articlesForUpload)) {
@@ -254,9 +254,9 @@ abstract class DataUploader : Thread() {
     }
 
     private fun logExit(session: Session? = null) {
-        println("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} article uploader.")
+        LoggerUtils.logOnConsole("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} article uploader.")
         session?.let {
-            LoggerUtils.logMessage("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} " +
+            LoggerUtils.logOnDb("Exiting ${getUploadDestinationInfo().articleUploadTarget.name} " +
                     "article uploader.", session)
         }
     }

@@ -52,7 +52,7 @@ object DatabaseUtils {
             if (!session.transaction.isActive) {
                 session.beginTransaction()
             }
-            LoggerUtils.logMessage("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
+            LoggerUtils.logOnDb("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
             session.transaction.commit()
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -253,7 +253,7 @@ object DatabaseUtils {
             ArticleUploadTarget.MONGO_REST_SERVICE -> sqlStringBuilder.append( " upOnMongoRest=1 AND deletedFromMongoRest=0")
         }
         sqlStringBuilder.append(" ORDER BY publicationTime asc limit ${deleteRequestCount}")
-        println(sqlStringBuilder.toString())
+        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
         val query = session.createNativeQuery(sqlStringBuilder.toString(),Article::class.java)
         return query.resultList as List<Article>
     }
@@ -266,7 +266,7 @@ object DatabaseUtils {
             ArticleUploadTarget.MONGO_REST_SERVICE -> sqlStringBuilder.append( " deletedFromMongoRest=1")
         }
         sqlStringBuilder.append(" WHERE id='${article.id}'")
-        println(sqlStringBuilder.toString())
+        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
         val query = session.createNativeQuery(sqlStringBuilder.toString())
         runDbTransection(session) {
             query.executeUpdate()
@@ -276,7 +276,7 @@ object DatabaseUtils {
     fun getArticleDownloadLogWithNullPageId(session: Session,count:Int):List<ArticleDownloadLog>{
         val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME} WHERE " +
                             "pageId is null order by created desc limit ${count}"
-        println(sql)
+        LoggerUtils.logOnConsole(sql)
         try {
             return session.createNativeQuery(sql, ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
         } catch (ex: Exception) {
@@ -317,7 +317,7 @@ object DatabaseUtils {
                                             .append(" WHERE pageId='${page.id}' ")
                                             .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
                                             .append("AND created<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
-        println(sqlBuilder.toString())
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
         val articleDownloadLogs =
                 session.createNativeQuery(sqlBuilder.toString(), ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
         var articleDownloadCount = 0
@@ -348,7 +348,7 @@ object DatabaseUtils {
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_UPLOAD_LOG_TABLE_NAME}")
                                         .append(" WHERE uploadTarget='${articleUploadTarget.name}'")
 
-        println(sqlBuilder.toString())
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
         val articleUploadLogs =
                 session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
         var articleUploadCount = 0
@@ -365,7 +365,7 @@ object DatabaseUtils {
                                             .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
                                             .append("AND created<'${DateUtils.getDateStringForDb(endDate)}'")
 
-        println(sqlBuilder.toString())
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
         val articleUploadLogs =
                 session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
         var articleUploadCount = 0
@@ -406,7 +406,7 @@ object DatabaseUtils {
                                                             .append(" WHERE pageId='${page.id}' ")
                                                             .append(" AND articleUploadTarget='${articleUploadTarget.name}'")
                                                             .append(" AND served=1")
-        println(sqlBuilder.toString())
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
         val articleDeleteRequests =
                 session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
         var articleDeletionCount = 0
@@ -422,7 +422,7 @@ object DatabaseUtils {
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_TABLE_NAME}")
                                                             .append(" WHERE articleUploadTarget='${articleUploadTarget.name}'")
                                                             .append(" AND served=1")
-        println(sqlBuilder.toString())
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
         val articleDeleteRequests =
                 session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
         var articleDeletionCount = 0

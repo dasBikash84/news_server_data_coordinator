@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 
 class DataUploaderForRealTimeDb : DataUploader() {
 
@@ -29,10 +30,10 @@ class DataUploaderForRealTimeDb : DataUploader() {
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
             RealTimeDbDataUtils.writeArticleData(articlesForUpload)
-            println("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
+            LoggerUtils.logOnConsole("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
             return true
         } catch (ex: Exception) {
-            println("Article upload failure to ${getUploadDestinationInfo().articleUploadTarget}")
+            LoggerUtils.logOnConsole("Article upload failure to ${getUploadDestinationInfo().articleUploadTarget}")
             ex.printStackTrace()
             return false
         }

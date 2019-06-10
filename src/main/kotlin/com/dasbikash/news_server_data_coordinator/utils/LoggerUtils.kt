@@ -17,10 +17,11 @@ import com.dasbikash.news_server_data_coordinator.article_data_uploader.UploadDe
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import org.hibernate.Session
+import java.util.*
 
 object LoggerUtils {
 
-    fun logMessage(message: String, session: Session) {
+    fun logOnDb(message: String, session: Session) {
         DatabaseUtils.runDbTransection(session) {
             session.save(GeneralLog(message))
         }
@@ -30,6 +31,10 @@ object LoggerUtils {
         DatabaseUtils.runDbTransection(session) {
             session.save(ErrorLog(exception))
         }
+    }
+
+    fun logOnConsole(message: String) {
+        println("${Date()}: ${message}")
     }
 
     fun logArticleUploadHistory(session: Session, articleList:List<Article>,

@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.google.api.core.ApiFuture
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ServerValue
@@ -71,7 +72,7 @@ object RealTimeDbDataUtils {
         }
 
         pageGroups.asSequence().forEach {
-            println(it)
+            LoggerUtils.logOnConsole(it.toString())
             listOfFuture.add(RealTimeDbRefUtils.getPageGroupsRef().child(it.name).setValueAsync(PageGroupForFB.getFromPageGroup(it)))
         }
 
