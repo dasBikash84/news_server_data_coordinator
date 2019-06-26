@@ -30,11 +30,13 @@ import kotlin.random.Random
 class ArticleFetcher(val newspaper: Newspaper)
     : Thread() {
 
-    private val WAITING_TIME_BETWEEN_PAGES = 1000L
+    private val WAITING_TIME_BETWEEN_PAGES = 5000L
 
     private val INIT_DELAY_FOR_ERROR = 60 * 1000L
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
+
+    private val SLLEP_PERIOD_BETWEEN_REST_REQUEST = 500L
 
     override fun run() {
         super.run()
@@ -64,14 +66,13 @@ class ArticleFetcher(val newspaper: Newspaper)
                         if (savedArticleCount > 0) {
                             LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                         }
-                        sleep(100L)
+                        sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST)
                         if (savedArticleCount < fetchedArticles.size) {
-                            sleep(100L)
                             break
                         }
                         fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())
                     }
-                    sleep(100L)
+                    sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST * 2)
 
                     val oldestArticle = DatabaseUtils.findOldestArticleForPage(session, currentPage)
                     oldestArticle?.let {
@@ -91,7 +92,7 @@ class ArticleFetcher(val newspaper: Newspaper)
                             if (savedArticleCount > 0) {
                                 LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
                             }
-                            sleep(100L)
+                            sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST)
                             fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())
                         }
 

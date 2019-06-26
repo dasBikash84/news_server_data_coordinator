@@ -129,9 +129,7 @@ object DataFetcherFromParser {
                 articles.forEach { it.page = page }
                 return articles
             }catch (ex:ProcessingException){
-                val pathBuilder = StringBuilder("Path: ")
-                target.uri.rawPath?.let { pathBuilder.append(it) }
-                target.uri.rawQuery?.let { pathBuilder.append("?").append(it) }
+                val pathBuilder = StringBuilder("Path: ").append(target.uri.toURL())
                 val exp = ProcessingException(ex.message+pathBuilder.toString(),ex)
                 throw exp
             }
