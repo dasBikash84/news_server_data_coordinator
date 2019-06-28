@@ -51,11 +51,13 @@ class ArticleFetcher(val newspaper: Newspaper)
 
                 try {
                     val currentPage = it
+//                    LoggerUtils.logOnConsole("Looking for articles of page: ${it.name}")
                     var fetchedArticles = DataFetcherFromParser.getLatestArticlesForPage(currentPage)
                     while (fetchedArticles.size > 0) {
                         var savedArticleCount = 0
                         fetchedArticles.asSequence().forEach {
                             if (DatabaseUtils.findArticleById(session, it.id) == null) {
+//                                LoggerUtils.logOnConsole("New article: ${it.toString()}")
                                 DatabaseUtils.runDbTransection(session) {
                                     session.save(it)
                                     savedArticleCount++
@@ -64,13 +66,15 @@ class ArticleFetcher(val newspaper: Newspaper)
                             }
                         }
                         if (savedArticleCount > 0) {
-                            LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
+                            LoggerUtils.logOnConsole("${savedArticleCount} articles saved from front for page: ${currentPage.name} Np: ${newspaper.name}")
                         }
                         sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST)
+//                        LoggerUtils.logOnConsole("savedArticleCount: ${savedArticleCount} fetchedArticles.size: ${fetchedArticles.size}")
                         if (savedArticleCount < fetchedArticles.size) {
                             break
                         }
                         fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())
+//                        LoggerUtils.logOnConsole("fetchedArticles.size: ${fetchedArticles.size}")
                     }
                     sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST * 2)
 
@@ -90,7 +94,9 @@ class ArticleFetcher(val newspaper: Newspaper)
                                 }
                             }
                             if (savedArticleCount > 0) {
-                                LoggerUtils.logOnConsole("${savedArticleCount} articles saved for page: ${currentPage.name} Np: ${newspaper.name}")
+                                LoggerUtils.logOnConsole("${savedArticleCount} articles saved from back for page: ${currentPage.name} Np: ${newspaper.name}")
+                            }else{
+                                break
                             }
                             sleep(SLLEP_PERIOD_BETWEEN_REST_REQUEST)
                             fetchedArticles = DataFetcherFromParser.getArticlesBeforeGivenArticleForPage(currentPage, fetchedArticles.last())

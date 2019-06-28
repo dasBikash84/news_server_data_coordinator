@@ -27,9 +27,10 @@ object DataFetcherFromParser {
     private val DEFAULT_ARTICLE_REQUEST_COUNT = "article_count"
     private val NEWSPAPER_ID_PATH_PARAM = "newsPaperId"
     private val PAGE_ID_PATH_PARAM = "pageId"
-    private val LAST_ARTICLE_ID_PATH_PARAM = "pageId"
+    private val LAST_ARTICLE_ID_PATH_PARAM = "lastArticleId"
 
     private val BASE_ADDRESS = "http://localhost:8098"
+//    private val BASE_ADDRESS = "http://192.168.0.101:8098"
     private val LANGUAGE_SETTINGS_NODE = "languages"
     private val COUNTRY_SETTINGS_NODE = "countries"
     private val NEWS_PAPER_SETTINGS_NODE = "newspapers"
@@ -121,6 +122,8 @@ object DataFetcherFromParser {
                                     .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
                                     .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
 
+//        LoggerUtils.logOnConsole("getLatestArticlesForPage ${target.uri.toURL().toString()}")
+
         val response = target.request(MediaType.APPLICATION_JSON).get()
         if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
             try {
@@ -144,6 +147,8 @@ object DataFetcherFromParser {
                                     .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
                                     .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)
                                     .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
+
+//        LoggerUtils.logOnConsole("getArticlesBeforeGivenArticleForPage ${target.uri.toURL().toString()}")
 
         val response = target.request(MediaType.APPLICATION_JSON).get()
 
