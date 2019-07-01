@@ -13,27 +13,46 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
 import org.junit.jupiter.api.Test
 
 internal class DataUploaderForRealTimeDbTest {
+    lateinit var session:Session
+    lateinit var dataUploader: DataUploader
 
     @BeforeEach
     fun setUp() {
+        session=DbSessionManager.getNewSession()
+        dataUploader = DataUploaderForRealTimeDb()
     }
 
     @AfterEach
     fun tearDown() {
     }
 
-    @Test
-    fun testWrite(){
+//    @Test
+//    fun testWrite(){
 //        val writeThread = DataUploaderForRealTimeDb()
 //        writeThread.start()
 //        writeThread.join()
         /*val task = RealTimeDbRefUtils.getAppSettingsRootRef().setValueAsync(null)
         while (!task.isDone){}*/
-    }
+//    }
+
+//    @Test
+//    fun getUploadedArticleCountForPage(){
+//        DatabaseUtils.getAllPages(session).shuffled().take(10).asSequence().forEach {
+//            println()
+//            LoggerUtils.logOnConsole(it.toString())
+//            LoggerUtils.logOnConsole("getUploadedArticleCountForPage: ${dataUploader.getUploadedArticleCountForPage(session,it)}")
+//            println()
+//        }
+//    }
+
 }

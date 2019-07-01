@@ -211,7 +211,8 @@ CREATE TABLE `news_server_data_coordinator`.`article_delete_request`
     `deleteRequestCount`    int(3)                                                     NOT NULL,
     `articleUploaderTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
     `served`                bit(1)                                                     NOT NULL DEFAULT b'0',
-    `created`               datetime                                                            DEFAULT CURRENT_TIMESTAMP,
+    `created`               datetime                                                   DEFAULT CURRENT_TIMESTAMP,
+    `modified`              datetime                                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `article_delete_request_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB

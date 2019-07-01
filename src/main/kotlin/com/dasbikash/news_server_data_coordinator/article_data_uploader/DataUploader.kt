@@ -29,20 +29,26 @@ import kotlin.random.Random
 
 
 abstract class DataUploader : Thread() {
-    private val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
-    private val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 5 * 60 * 1000L // 10 mins
-    private val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
+    companion object{
 
-    private val SQL_DATE_FORMAT = "yyyy-MM-dd"
-    private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
+        private const val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
+        private const val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-    private val INIT_DELAY_FOR_ERROR = 5 * 60 * 1000L //5 mins
-    private val MAX_DELAY_FOR_ERROR = 60 * 60 * 1000L //60 mins
+        private const val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 5 * 60 * 1000L // 10 mins
+        private const val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
+
+        private const val SQL_DATE_FORMAT = "yyyy-MM-dd"
+        private val sqlDateFormatter = SimpleDateFormat(SQL_DATE_FORMAT)
+
+        private const val INIT_DELAY_FOR_ERROR = 5 * 60 * 1000L //5 mins
+        private const val MAX_DELAY_FOR_ERROR = 60 * 60 * 1000L //60 mins
+
+        private const val MINIMUM_ARTICLE_COUNT_FOR_PAGE = 5
+    }
+
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
-
 
     abstract protected fun getUploadDestinationInfo(): UploadDestinationInfo
     abstract protected fun getMaxArticleAgeInDays(): Int //Must be >=0
@@ -100,12 +106,11 @@ abstract class DataUploader : Thread() {
             throw IllegalArgumentException(MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE)
         }
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                .append(" WHERE ${Article.PUBLICATION_TIME_COLUMN_NAME} > '")
-        sqlBuilder
-                .append(getMinArticleDateString())
-                .append("' AND ${getUploadDestinationInfo().flagName}=0")
-                .append(" ORDER BY ${Article.PUBLICATION_TIME_COLUMN_NAME} DESC")
-                .append(" LIMIT ${maxArticleCountForUpload()}")
+                                            .append(" WHERE")
+                                            .append(" ${Article.PUBLICATION_TIME_COLUMN_NAME} > '${getMinArticleDateString()}'")
+                                            .append(" AND ${getUploadDestinationInfo().uploadFlagName}=0")
+                                            .append(" ORDER BY ${Article.PUBLICATION_TIME_COLUMN_NAME} DESC")
+                                            .append(" LIMIT ${maxArticleCountForUpload()}")
         return sqlBuilder.toString()
     }
 
@@ -118,6 +123,18 @@ abstract class DataUploader : Thread() {
         return sqlDateFormatter.format(today.time)
     }
 
+    private fun getUploadedArticleCountForPage(session: Session,page: Page):Int{
+        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                        .append(" WHERE")
+                                        .append(" pageId='${page.id}'")
+                                        .append(" AND ${getUploadDestinationInfo().uploadFlagName}=1")
+                                        .append(" AND ${getUploadDestinationInfo().deleteFlagName}=0")
+
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
+
+        return (session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>).get(0)
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun getArticlesForUpload(session: Session): List<Article> {
         val nativeSql = getSqlForArticleFetch()
@@ -125,7 +142,7 @@ abstract class DataUploader : Thread() {
     }
 
     private fun getSqlToMarkUploadedArticle(article: Article): String {
-        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().flagName}=1 WHERE id='${article.id}'"
+        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().uploadFlagName}=1 WHERE id='${article.id}'"
     }
 
     private fun markArticlesAsUploaded(articlesForUpload: List<Article>, session: Session) {

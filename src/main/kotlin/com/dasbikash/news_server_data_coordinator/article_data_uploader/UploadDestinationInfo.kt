@@ -15,8 +15,10 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 
-enum class UploadDestinationInfo(val flagName:String, val articleUploadTarget: ArticleUploadTarget){
-    REAL_TIME_DB("upOnFirebaseDb", ArticleUploadTarget.REAL_TIME_DB),
-    FIRE_STORE_DB("upOnFireStore", ArticleUploadTarget.FIRE_STORE_DB),
-    MONGO_REST_SERVICE("upOnMongoRest", ArticleUploadTarget.MONGO_REST_SERVICE)
+enum class UploadDestinationInfo(val uploadFlagName:String,
+                                 val deleteFlagName:String,
+                                 val articleUploadTarget: ArticleUploadTarget){
+    REAL_TIME_DB("upOnFirebaseDb","deletedFromFirebaseDb", ArticleUploadTarget.REAL_TIME_DB),
+    FIRE_STORE_DB("upOnFireStore","deletedFromFireStore", ArticleUploadTarget.FIRE_STORE_DB),
+    MONGO_REST_SERVICE("upOnMongoRest","deletedFromMongoRest", ArticleUploadTarget.MONGO_REST_SERVICE)
 }
