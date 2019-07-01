@@ -67,8 +67,8 @@ class DataUploaderForFireStoreDb : DataUploader() {
         private const val MAX_ARTICLE_AGE_DAYS = 30
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
         private const val MAX_ARTICLE_COUNT_FOR_PAGE = 100
-        private const val DAILY_ARTICLE_DELETION_LIMIT = 15000
+        private const val DAILY_ARTICLE_DELETION_LIMIT = 8000
         private const val MAX_ARTICLE_DELETION_CHUNK_SIZE = 400
-        private const val ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 3
+        private const val ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 9
     }
 }

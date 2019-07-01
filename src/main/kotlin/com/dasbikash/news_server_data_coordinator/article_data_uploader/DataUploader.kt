@@ -30,7 +30,7 @@ import kotlin.random.Random
 
 abstract class DataUploader : Thread() {
 
-    companion object{
+    companion object {
 
         private const val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
         private const val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
@@ -43,7 +43,7 @@ abstract class DataUploader : Thread() {
 
         private const val INIT_DELAY_FOR_ERROR = 5 * 60 * 1000L //5 mins
         private const val MAX_DELAY_FOR_ERROR = 60 * 60 * 1000L //60 mins
-        private const val ONE_DAY_IN_MS = 24* 60 * 60 * 1000L //1 day
+        private const val ONE_DAY_IN_MS = 24 * 60 * 60 * 1000L //1 day
 
         const val MAX_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 23
         const val MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 0
@@ -65,28 +65,28 @@ abstract class DataUploader : Thread() {
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article): Boolean
-    abstract protected fun getMaxArticleCountForPage():Int          //-1 for no delete action
-    abstract protected fun getDailyArticleDeletionLimit():Int
-    abstract protected fun getMaxArticleDeletionChunkSize():Int
-    abstract protected fun getArticleDeletionRoutineRunningHour():Int //between 0-23
+    abstract protected fun getMaxArticleCountForPage(): Int          //-1 for no delete action
+    abstract protected fun getDailyArticleDeletionLimit(): Int
+    abstract protected fun getMaxArticleDeletionChunkSize(): Int
+    abstract protected fun getArticleDeletionRoutineRunningHour(): Int //between 0-23
 
-    private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest){
-        getArticlesForDeletion(session,articleDeleteRequest.page!!,articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
-            if (deleteArticleFromServer(it)){
-                DatabaseUtils.markArticleAsDeletedFromDataStore(session,it,getUploadDestinationInfo().articleUploadTarget)
+    private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
+        getArticlesForDeletion(session, articleDeleteRequest.page!!, articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
+            if (deleteArticleFromServer(it)) {
+                DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
             }
         }
     }
 
     private fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int): List<Article> {
         return DatabaseUtils.getArticlesForDeletion(
-                    session,page,deleteRequestCount,getUploadDestinationInfo().articleUploadTarget)
+                session, page, deleteRequestCount, getUploadDestinationInfo())
     }
 
 
-    private fun getPendingArticleDeleteRequest(session: Session): ArticleDeleteRequest?{
-        val deleteRequests = DatabaseUtils.getArticleDeleteRequests(session,getUploadDestinationInfo().articleUploadTarget)
-        if (deleteRequests.isNotEmpty()){
+    private fun getPendingArticleDeleteRequest(session: Session): ArticleDeleteRequest? {
+        val deleteRequests = DatabaseUtils.getArticleDeleteRequests(session, getUploadDestinationInfo().articleUploadTarget)
+        if (deleteRequests.isNotEmpty()) {
             return deleteRequests.get(0)
         }
         return null
@@ -94,7 +94,7 @@ abstract class DataUploader : Thread() {
 
     private fun logArticleDeleteRequestServing(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
         articleDeleteRequest.served = true
-        DatabaseUtils.runDbTransection(session){session.update(articleDeleteRequest)}
+        DatabaseUtils.runDbTransection(session) { session.update(articleDeleteRequest) }
     }
 
     private fun getErrorDelayPeriod(): Long {
@@ -114,11 +114,11 @@ abstract class DataUploader : Thread() {
             throw IllegalArgumentException(MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE)
         }
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE")
-                                            .append(" ${Article.PUBLICATION_TIME_COLUMN_NAME} > '${getMinArticleDateString()}'")
-                                            .append(" AND ${getUploadDestinationInfo().uploadFlagName}=0")
-                                            .append(" ORDER BY ${Article.PUBLICATION_TIME_COLUMN_NAME} DESC")
-                                            .append(" LIMIT ${maxArticleCountForUpload()}")
+                .append(" WHERE")
+                .append(" ${Article.PUBLICATION_TIME_COLUMN_NAME} > '${getMinArticleDateString()}'")
+                .append(" AND ${getUploadDestinationInfo().uploadFlagName}=0")
+                .append(" ORDER BY ${Article.PUBLICATION_TIME_COLUMN_NAME} DESC")
+                .append(" LIMIT ${maxArticleCountForUpload()}")
         return sqlBuilder.toString()
     }
 
@@ -131,12 +131,12 @@ abstract class DataUploader : Thread() {
         return sqlDateFormatter.format(today.time)
     }
 
-    private fun getUploadedArticleCountForPage(session: Session,page: Page):Int{
+    private fun getUploadedArticleCountForPage(session: Session, page: Page): Int {
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                        .append(" WHERE")
-                                        .append(" pageId='${page.id}'")
-                                        .append(" AND ${getUploadDestinationInfo().uploadFlagName}=1")
-                                        .append(" AND ${getUploadDestinationInfo().deleteFlagName}=0")
+                .append(" WHERE")
+                .append(" pageId='${page.id}'")
+                .append(" AND ${getUploadDestinationInfo().uploadFlagName}=1")
+                .append(" AND ${getUploadDestinationInfo().deleteFlagName}=0")
 
         LoggerUtils.logOnConsole(sqlBuilder.toString())
 
@@ -202,7 +202,7 @@ abstract class DataUploader : Thread() {
     }
 
     override fun run() {
-        sleep(Random(System.currentTimeMillis()).nextLong(5000L)+5000L)
+        sleep(Random(System.currentTimeMillis()).nextLong(5000L) + 5000L)
         do {
             val session = DbSessionManager.getNewSession()
 
@@ -228,15 +228,13 @@ abstract class DataUploader : Thread() {
             }
 
             try {
-                val articleDeleteRequest = getPendingArticleDeleteRequest(session)
-                if (articleDeleteRequest !=null){
-                    LoggerUtils.logOnConsole("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${articleDeleteRequest}")
-                    serveArticleDeleteRequest(session, articleDeleteRequest)
-                    logArticleDeleteRequestServing(session,articleDeleteRequest)
-                }else{
-                    if (needToRunDailyDeletionTask(session)){
-                        runDailyDeletionTask(session)
-                    }
+                val pendingArticleDeleteRequest = getPendingArticleDeleteRequest(session)
+                if (pendingArticleDeleteRequest != null) {
+                    LoggerUtils.logOnConsole("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${pendingArticleDeleteRequest}")
+                    serveArticleDeleteRequest(session, pendingArticleDeleteRequest)
+                    logArticleDeleteRequestServing(session, pendingArticleDeleteRequest)
+                } else if (needToRunDailyArticleDeletionTask(session)) {
+                    runDailyArticleDeletionTask(session)
                 }
             } catch (ex: Throwable) {
                 ex.printStackTrace()
@@ -274,29 +272,60 @@ abstract class DataUploader : Thread() {
         } while (true)
     }
 
-    private fun runDailyDeletionTask(session: Session) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun runDailyArticleDeletionTask(session: Session) {
+        LoggerUtils.logOnDb("Starting daily article deletion task for ${getUploadDestinationInfo().articleUploadTarget.name}", session)
+        val deletedArticleIds = mutableListOf<String>()
+        DatabaseUtils.getAllPages(session).shuffled().asSequence()
+                .filter { (it.hasData ?: false) && deletedArticleIds.size < getDailyArticleDeletionLimit() }.forEach {
+                    //                    println(it)
+                    val currrentArticleCountInTargetForPage =
+                            DatabaseUtils.getArticleCountInTargetForPage(session, it, getUploadDestinationInfo())
+//                        println("currrentArticleCountInTargetForPage: ${currrentArticleCountInTargetForPage}")
+                    if (currrentArticleCountInTargetForPage <= getMaxArticleCountForPage()) {
+                        return@forEach
+                    }
+
+                    val articleDeletionChunkSize = when {
+                        (currrentArticleCountInTargetForPage - getMaxArticleCountForPage()) > getMaxArticleDeletionChunkSize()
+                        -> getMaxArticleDeletionChunkSize()
+                        else -> currrentArticleCountInTargetForPage - getMaxArticleCountForPage()
+                    }
+//                        println("articleDeletionChunkSize: ${articleDeletionChunkSize}")
+                    var articleDeletionCountForPage = 0
+                    getArticlesForDeletion(session, it, articleDeletionChunkSize).asSequence().forEach {
+                        //                            println(it)
+                        if (deleteArticleFromServer(it)) {
+                            DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
+                            deletedArticleIds.add(it.id)
+                            articleDeletionCountForPage++
+                        }
+                    }
+                    LoggerUtils.logOnDb("${articleDeletionCountForPage} articles deleted of page ${it.name} | ${it.id} from ${getUploadDestinationInfo().articleUploadTarget.name}", session)
+//                        println("deletedArticleIds.size: ${deletedArticleIds.size}")
+                }
+        DatabaseUtils.runDbTransection(session) {
+            session.save(DailyDeletionTaskLog.getInstance(getUploadDestinationInfo().articleUploadTarget, deletedArticleIds))
+        }
+        LoggerUtils.logOnDb("${deletedArticleIds.size} articles deleted from ${getUploadDestinationInfo().articleUploadTarget.name}", session)
     }
 
-    private fun needToRunDailyDeletionTask(session: Session): Boolean {
+    private fun needToRunDailyArticleDeletionTask(session: Session): Boolean {
         if (getArticleDeletionRoutineRunningHour() > MAX_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR ||
                 getArticleDeletionRoutineRunningHour() < MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR) {
             return false
         }
         val now = Calendar.getInstance()
-        if (now.get(Calendar.HOUR_OF_DAY) < getArticleDeletionRoutineRunningHour()){
+        if (now.get(Calendar.HOUR_OF_DAY) < getArticleDeletionRoutineRunningHour()) {
             return false
         }
         val lastDeletionTaskLog =
-                DatabaseUtils.getLastDeletionTaskLogForTarget(session,getUploadDestinationInfo().articleUploadTarget)
-        if (lastDeletionTaskLog == null ||
-                (now.timeInMillis - lastDeletionTaskLog.created!!.time)>ONE_DAY_IN_MS){
-            return true
-        }
-        return false
+                DatabaseUtils.getLastDeletionTaskLogForTarget(session, getUploadDestinationInfo().articleUploadTarget)
+
+        return (lastDeletionTaskLog == null) ||
+                (now.timeInMillis - lastDeletionTaskLog.created!!.time) > ONE_DAY_IN_MS
     }
 
-    private fun waitHere(waitTimeMs:Long){
+    private fun waitHere(waitTimeMs: Long) {
         try {
             sleep(waitTimeMs)
         } catch (ex: InterruptedException) {

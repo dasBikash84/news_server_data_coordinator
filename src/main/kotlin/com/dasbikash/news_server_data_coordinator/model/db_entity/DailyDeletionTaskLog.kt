@@ -21,4 +21,12 @@ data class DailyDeletionTaskLog(
         @Temporal(TemporalType.TIMESTAMP)
         @Column(nullable = false, updatable = false, insertable = false)
         var created:Date? = null
-)
+){
+        companion object{
+                fun getInstance(uploadTarget: ArticleUploadTarget,deletedArticleIds:List<String>):
+                        DailyDeletionTaskLog{
+                        return DailyDeletionTaskLog(uploadTarget=uploadTarget,
+                                deletionLogMessage = deletedArticleIds.joinToString(separator=" | "))
+                }
+        }
+}

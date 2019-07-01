@@ -72,8 +72,8 @@ class DataUploaderForMongoRestService:DataUploader() {
     companion object{
         private const val MAX_ARTICLE_AGE_DAYS = 90
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
-        private const val MAX_ARTICLE_COUNT_FOR_PAGE = -1
-        private const val DAILY_ARTICLE_DELETION_LIMIT = 15000
+        private const val MAX_ARTICLE_COUNT_FOR_PAGE = 1000
+        private const val DAILY_ARTICLE_DELETION_LIMIT = 5000
         private const val MAX_ARTICLE_DELETION_CHUNK_SIZE = 400
         private const val ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = (MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR - 1)
     }
