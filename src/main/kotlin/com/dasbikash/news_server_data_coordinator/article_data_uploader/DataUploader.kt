@@ -43,6 +43,10 @@ abstract class DataUploader : Thread() {
 
         private const val INIT_DELAY_FOR_ERROR = 5 * 60 * 1000L //5 mins
         private const val MAX_DELAY_FOR_ERROR = 60 * 60 * 1000L //60 mins
+        private const val ONE_DAY_IN_MS = 24* 60 * 60 * 1000L //1 day
+
+        const val MAX_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 23
+        const val MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 0
 
         private const val MINIMUM_ARTICLE_COUNT_FOR_PAGE = 5
     }
@@ -61,6 +65,10 @@ abstract class DataUploader : Thread() {
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article): Boolean
+    abstract protected fun getMaxArticleCountForPage():Int          //-1 for no delete action
+    abstract protected fun getDailyArticleDeletionLimit():Int
+    abstract protected fun getMaxArticleDeletionChunkSize():Int
+    abstract protected fun getArticleDeletionRoutineRunningHour():Int //between 0-23
 
     private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest){
         getArticlesForDeletion(session,articleDeleteRequest.page!!,articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
@@ -220,13 +228,17 @@ abstract class DataUploader : Thread() {
             }
 
             try {
-                getPendingArticleDeleteRequest(session)?.let {
-                    LoggerUtils.logOnConsole("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${it}")
-                    serveArticleDeleteRequest(session, it)
-                    logArticleDeleteRequestServing(session,it)
+                val articleDeleteRequest = getPendingArticleDeleteRequest(session)
+                if (articleDeleteRequest !=null){
+                    LoggerUtils.logOnConsole("target: ${getUploadDestinationInfo().articleUploadTarget.name} request: ${articleDeleteRequest}")
+                    serveArticleDeleteRequest(session, articleDeleteRequest)
+                    logArticleDeleteRequestServing(session,articleDeleteRequest)
+                }else{
+                    if (needToRunDailyDeletionTask(session)){
+                        runDailyDeletionTask(session)
+                    }
                 }
             } catch (ex: Throwable) {
-                session.close()
                 ex.printStackTrace()
                 DataCoordinatorExceptionHandler.handleException(
                         ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
@@ -260,6 +272,28 @@ abstract class DataUploader : Thread() {
                         Random(System.currentTimeMillis()).nextLong(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS))
             }
         } while (true)
+    }
+
+    private fun runDailyDeletionTask(session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun needToRunDailyDeletionTask(session: Session): Boolean {
+        if (getArticleDeletionRoutineRunningHour() > MAX_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR ||
+                getArticleDeletionRoutineRunningHour() < MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR) {
+            return false
+        }
+        val now = Calendar.getInstance()
+        if (now.get(Calendar.HOUR_OF_DAY) < getArticleDeletionRoutineRunningHour()){
+            return false
+        }
+        val lastDeletionTaskLog =
+                DatabaseUtils.getLastDeletionTaskLogForTarget(session,getUploadDestinationInfo().articleUploadTarget)
+        if (lastDeletionTaskLog == null ||
+                (now.timeInMillis - lastDeletionTaskLog.created!!.time)>ONE_DAY_IN_MS){
+            return true
+        }
+        return false
     }
 
     private fun waitHere(waitTimeMs:Long){

@@ -61,8 +61,20 @@ class DataUploaderForMongoRestService:DataUploader() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun getMaxArticleCountForPage() = MAX_ARTICLE_COUNT_FOR_PAGE
+
+    override fun getDailyArticleDeletionLimit() = DAILY_ARTICLE_DELETION_LIMIT
+
+    override fun getMaxArticleDeletionChunkSize() = MAX_ARTICLE_DELETION_CHUNK_SIZE
+
+    override fun getArticleDeletionRoutineRunningHour() = ARTICLE_DELETION_ROUTINE_RUNNING_HOUR
+
     companion object{
         private const val MAX_ARTICLE_AGE_DAYS = 90
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
+        private const val MAX_ARTICLE_COUNT_FOR_PAGE = -1
+        private const val DAILY_ARTICLE_DELETION_LIMIT = 15000
+        private const val MAX_ARTICLE_DELETION_CHUNK_SIZE = 400
+        private const val ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = (MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR - 1)
     }
 }
