@@ -35,11 +35,9 @@ object RealTimeDbAdminTaskUtils {
                     override fun onCancelled(error: DatabaseError?) {}
 
                     override fun onDataChange(snapshot: DataSnapshot?) {
-                        println(snapshot)
                         snapshot?.let {
                             val session = DbSessionManager.getNewSession()
                             it.children.asSequence().forEach {
-                                println(it)
                                 val tokenGenerationRequest = it.getValue(TokenGenerationRequest::class.java)
                                 if (tokenGenerationRequest.isValid()) {
                                     val token = AuthToken()
@@ -84,19 +82,16 @@ object RealTimeDbAdminTaskUtils {
                                         if (articleUploaderStatusChangeRequest.forRealTimeDb()) {
                                             val articleUploaderStatusChangeLog = ArticleUploaderStatusChangeLog(
                                                     articleDataUploaderTarget = ArticleUploadTarget.REAL_TIME_DB,status = it)
-                                            println(articleUploaderStatusChangeLog)
                                             DatabaseUtils.runDbTransection(session) { session.save(articleUploaderStatusChangeLog) }
                                             LoggerUtils.logOnDb("${ArticleUploadTarget.REAL_TIME_DB.name} set to ${it.name}", session)
                                         } else if (articleUploaderStatusChangeRequest.forFireStoreDb()) {
                                             val articleUploaderStatusChangeLog = ArticleUploaderStatusChangeLog(
                                                     articleDataUploaderTarget = ArticleUploadTarget.FIRE_STORE_DB,status = it)
-                                            println(articleUploaderStatusChangeLog)
                                             DatabaseUtils.runDbTransection(session) { session.save(articleUploaderStatusChangeLog) }
                                             LoggerUtils.logOnDb("${ArticleUploadTarget.FIRE_STORE_DB.name} set to ${it.name}", session)
                                         } else if (articleUploaderStatusChangeRequest.forMongoRestService()) {
                                             val articleUploaderStatusChangeLog = ArticleUploaderStatusChangeLog(
                                                     articleDataUploaderTarget = ArticleUploadTarget.MONGO_REST_SERVICE,status = it)
-                                            println(articleUploaderStatusChangeLog)
                                             DatabaseUtils.runDbTransection(session) { session.save(articleUploaderStatusChangeLog) }
                                             LoggerUtils.logOnDb("${ArticleUploadTarget.MONGO_REST_SERVICE.name} set to ${it.name}", session)
                                         }
