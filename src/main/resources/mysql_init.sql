@@ -185,3 +185,15 @@ CREATE TABLE `news_server_data_coordinator`.`tokens`
     PRIMARY KEY (`token`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`daily_deletion_task_log`
+(
+    `id`                 INT(6)                                                       NOT NULL AUTO_INCREMENT,
+    `uploadTarget`       ENUM ('REAL_TIME_DB', 'FIRE_STORE_DB', 'MONGO_REST_SERVICE') NOT NULL,
+    `deletionLogMessage` MEDIUMTEXT                                                   NOT NULL,
+    `created`            DATETIME                                                     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `daily_deletion_task_log_created_index` (`created` ASC),
+    INDEX `daily_deletion_task_log_uploadTarget_index` (`uploadTarget` ASC)
+)ENGINE = InnoDB
+ DEFAULT CHARSET = utf8mb4;

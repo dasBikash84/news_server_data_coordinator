@@ -25,4 +25,5 @@ object EntityClassNames {
     const val ARTICLE_UPLOADER_STATUS_CHANGE_LOG = "ArticleUploaderStatusChangeLog"
     const val ARTICLE_DOWNLOAD_LOG = "ArticleDownloadLog"
     const val ARTICLE_DELETE_REQUEST = "ArticleDeleteRequest"
+    const val DAILY_DELETION_TASK_LOG = "DailyDeletionTaskLog"
 }
