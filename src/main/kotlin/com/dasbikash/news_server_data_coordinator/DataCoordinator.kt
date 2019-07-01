@@ -13,6 +13,7 @@ import com.dasbikash.news_server_data_coordinator.exceptions.AppInitException
 import com.dasbikash.news_server_data_coordinator.exceptions.DataCoordinatorException
 import com.dasbikash.news_server_data_coordinator.exceptions.ReportGenerationException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
+import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbAdminTaskUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
@@ -87,7 +88,7 @@ object DataCoordinator {
                         DataCoordinatorExceptionHandler.handleException(ReportGenerationException(ex))
                     }
                 }
-
+                RealTimeDbAdminTaskUtils.init()
                 Thread.sleep(DATA_COORDINATOR_ITERATION_PERIOD)
             } catch (ex: DataCoordinatorException) {
                 DataCoordinatorExceptionHandler.handleException(ex)

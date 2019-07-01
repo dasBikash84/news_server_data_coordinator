@@ -2,6 +2,7 @@ package com.dasbikash.news_server_data_coordinator.utils
 
 import com.dasbikash.news_server_data_coordinator.model.EmailAuth
 import com.dasbikash.news_server_data_coordinator.model.EmailTargets
+import com.dasbikash.news_server_data_coordinator.model.db_entity.AuthToken
 import java.io.File
 import java.util.*
 import javax.activation.DataHandler
@@ -50,6 +51,10 @@ object EmailUtils {
                     })
         }
         return session
+    }
+
+    fun  emailAuthTokenToAdmin(authToken: AuthToken){
+        sendEmail("New Token for Data Coordinator App.","Token:\t${authToken.token}\nExpires on:\t${authToken.expiresOn}")
     }
 
     fun sendEmail(subject:String, body:String, filePath:String?=null):Boolean{

@@ -25,6 +25,7 @@ object LoggerUtils {
         DatabaseUtils.runDbTransection(session) {
             session.save(GeneralLog(message))
         }
+        logOnConsole(message)
     }
 
     fun logError( exception: Throwable,session: Session){

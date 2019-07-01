@@ -29,6 +29,8 @@ object RealTimeDbRefUtils {
     private const val PAGE_GROUPS_NODE = "page_groups"
     private const val APP_SETTINGS_UPDATE_TIME_NODE = "update_time"
 
+    private const val ADMIN_TASK_DATA_NODE = "admin_task_data"
+
     private lateinit var mRootReference:DatabaseReference
     private lateinit var  mAppSettingsRootReference: DatabaseReference
 //    private lateinit var  mUserSettingsRootReference: DatabaseReference
@@ -69,5 +71,6 @@ object RealTimeDbRefUtils {
     internal fun getPagesRef():DatabaseReference = getAppSettingsRootRef().child(PAGES_NODE)
     internal fun getPageGroupsRef():DatabaseReference = getAppSettingsRootRef().child(PAGE_GROUPS_NODE)
     internal fun getSettingsUpdateTimeRef():DatabaseReference = getAppSettingsRootRef().child(APP_SETTINGS_UPDATE_TIME_NODE)
+    internal fun getAdminTaskDataNode():DatabaseReference = getRootRef().child(ADMIN_TASK_DATA_NODE)
 
 }
