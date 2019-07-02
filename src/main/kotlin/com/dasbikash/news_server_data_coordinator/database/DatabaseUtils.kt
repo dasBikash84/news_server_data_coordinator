@@ -341,17 +341,20 @@ object DatabaseUtils {
 
     fun getArticleUploadCountForTargetFromBeginning(session: Session, articleUploadTarget: ArticleUploadTarget): Int {
 
-        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_UPLOAD_LOG_TABLE_NAME}")
-                                        .append(" WHERE uploadTarget='${articleUploadTarget.name}'")
+        val uploadDestinationInfo =
+                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+
+
+        val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                            .append(" WHERE ${uploadDestinationInfo.uploadFlagName}=1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val articleUploadLogs =
-                session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
-        var articleUploadCount = 0
-        articleUploadLogs.asSequence().forEach {
-            articleUploadCount += it.getArticleUpCount()
+
+        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+        if (result.size == 1) {
+            return result.get(0)
         }
-        return articleUploadCount
+        return 0
     }
 
     private fun getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget: ArticleUploadTarget, startDate: Date, endDate: Date, session: Session): Int {
@@ -398,34 +401,39 @@ object DatabaseUtils {
 
     private fun getArticleDeletionCountFromUploaderTargetForPage(session: Session,articleUploadTarget: ArticleUploadTarget,page: Page):Int{
 
-        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_TABLE_NAME}")
+        val uploadDestinationInfo =
+                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+
+
+        val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
                                                             .append(" WHERE pageId='${page.id}' ")
-                                                            .append(" AND articleUploadTarget='${articleUploadTarget.name}'")
-                                                            .append(" AND served=1")
+                                                            .append(" AND ${uploadDestinationInfo.deleteFlagName}=1")
+
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val articleDeleteRequests =
-                session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
-        var articleDeletionCount = 0
-        articleDeleteRequests.asSequence().forEach {
-            articleDeletionCount += it.deleteRequestCount ?: 0
+
+        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+        if (result.size == 1) {
+            return result.get(0)
         }
-        return articleDeletionCount
+        return 0
 
     }
 
     fun getArticleDeletionCountFromUploaderTarget(session: Session,articleUploadTarget: ArticleUploadTarget):Int{
 
-        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DELETE_REQUEST_TABLE_NAME}")
-                                                            .append(" WHERE articleUploadTarget='${articleUploadTarget.name}'")
-                                                            .append(" AND served=1")
+        val uploadDestinationInfo =
+                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+
+
+        val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                                    .append(" WHERE ${uploadDestinationInfo.deleteFlagName}=1")
+
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val articleDeleteRequests =
-                session.createNativeQuery(sqlBuilder.toString(), ArticleDeleteRequest::class.java).resultList as List<ArticleDeleteRequest>
-        var articleDeletionCount = 0
-        articleDeleteRequests.asSequence().forEach {
-            articleDeletionCount += it.deleteRequestCount ?: 0
+        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+        if (result.size == 1) {
+            return result.get(0)
         }
-        return articleDeletionCount
+        return 0
 
     }
 
