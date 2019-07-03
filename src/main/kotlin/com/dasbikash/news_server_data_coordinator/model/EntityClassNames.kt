@@ -26,4 +26,5 @@ object EntityClassNames {
     const val ARTICLE_DOWNLOAD_LOG = "ArticleDownloadLog"
     const val ARTICLE_DELETE_REQUEST = "ArticleDeleteRequest"
     const val DAILY_DELETION_TASK_LOG = "DailyDeletionTaskLog"
+    const val RESTRICTED_SEARCH_KEY_WORD = "RestrictedSearchKeyWord"
 }

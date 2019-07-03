@@ -472,4 +472,11 @@ object DatabaseUtils {
         }
         return 0
     }
+
+    fun getAllRestrictedSearchKeyWord(session: Session):List<RestrictedSearchKeyWord>{
+        val hql = "FROM ${EntityClassNames.RESTRICTED_SEARCH_KEY_WORD}"
+        val query =
+                session.createQuery(hql, RestrictedSearchKeyWord::class.java)
+        return query.list() as List<RestrictedSearchKeyWord>
+    }
 }

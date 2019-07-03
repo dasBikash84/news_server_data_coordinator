@@ -1,15 +1,19 @@
 package com.dasbikash.news_server_data_coordinator.database
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
+import com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord
+import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 
 internal class DatabaseUtilsTest {
+    lateinit var session:Session
 
     @BeforeEach
     fun setUp() {
+        session=DbSessionManager.getNewSession()
     }
 
     @AfterEach
@@ -203,5 +207,17 @@ internal class DatabaseUtilsTest {
 //            }
 //        }
 //
+//    }
+//    @Test
+//    fun getAllRestrictedSearchKeyWord(){
+//        DatabaseUtils.getAllRestrictedSearchKeyWord(session).asSequence().forEach {
+//            println(it)
+//        }
+//    }
+//    @Test
+//    fun readRestrictedSearchKeyWord(){
+//        session.get(RestrictedSearchKeyWord::class.java,"of")?.let {
+//            println(it)
+//        }
 //    }
 }
