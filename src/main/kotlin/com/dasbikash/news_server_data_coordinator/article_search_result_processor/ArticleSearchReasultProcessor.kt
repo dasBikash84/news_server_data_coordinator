@@ -20,6 +20,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         private const val INIT_DELAY_MS = 5 * ONE_MINUTE_IN_MS
         private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 2 * ONE_HOUR_IN_MS
         private const val MAX_UPLOADER_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
+        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 2 * ONE_HOUR_IN_MS
         private const val SLEEP_PERIOD_BETWEEN_ITERATION_MS = 30 * ONE_MINUTE_IN_MS
 
         private const val ARTICLE_SEARCH_RESULT_UPLOAD_CHUNK_SIZE = 400
@@ -64,7 +65,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
             ArticleSearchResultUtils.writeKeyWordSearchResults(newKeyWordSearchResults,getDatabaseSession())
             uploadedSearchResultCount += newKeyWordSearchResults.size
             newKeyWordSearchResults = DatabaseUtils.getNewKeyWordSearchResults(getDatabaseSession(),ARTICLE_SEARCH_RESULT_UPLOAD_CHUNK_SIZE)
-        } while (newKeyWordSearchResults.isNotEmpty() && (System.currentTimeMillis() - startTime < MAX_UPLOADER_RUN_PERIOD_MS))
+        } while (newKeyWordSearchResults.isNotEmpty() && ((System.currentTimeMillis() - startTime) < MAX_UPLOADER_RUN_PERIOD_MS))
 
         DatabaseUtils.runDbTransection(getDatabaseSession()){
             getDatabaseSession().save(ArticleSearchResultUploaderLog(
@@ -77,14 +78,15 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
     private fun processUnProcessedArticlesForSearchResults() {
         LoggerUtils.logOnDb("Starting routine for processing Articles for Search Results",getDatabaseSession())
         var processedArticleCount = 0
+        val startTime = System.currentTimeMillis()
         var unProcessedArticles = DatabaseUtils.getUnProcessedArticlesForSearchResult(getDatabaseSession(),ARTICLE_PROCESSING_CHUNK_SIZE)
-        while (unProcessedArticles.isNotEmpty()) {
+        while (unProcessedArticles.isNotEmpty() && ((System.currentTimeMillis() - startTime) < MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS)) {
             unProcessedArticles.asSequence().forEach {
                 ArticleSearchResultUtils.processArticleForSearchResult(getDatabaseSession(), it)
             }
             processedArticleCount += unProcessedArticles.size
             LoggerUtils.logOnDb("${unProcessedArticles.size} articles processed for Search Results in current iteration.",getDatabaseSession())
-            unProcessedArticles = DatabaseUtils.getUnProcessedArticlesForSearchResult(getDatabaseSession())
+            unProcessedArticles = DatabaseUtils.getUnProcessedArticlesForSearchResult(getDatabaseSession(),ARTICLE_PROCESSING_CHUNK_SIZE)
         }
         LoggerUtils.logOnDb("Total ${processedArticleCount} articles processed for Search Results",getDatabaseSession())
         LoggerUtils.logOnDb("Exiting routine for processing Articles for Search Results",getDatabaseSession())
