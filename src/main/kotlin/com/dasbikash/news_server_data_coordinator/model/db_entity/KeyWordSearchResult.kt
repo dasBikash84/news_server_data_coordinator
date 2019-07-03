@@ -8,30 +8,41 @@ import javax.persistence.*
 @Table(name = DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME)
 data class KeyWordSearchResult(
         @Id
-        var keyWord:String?=null,
+        var keyWord: String? = null,
 
         @Column(columnDefinition = "MEDIUMTEXT")
-        var searchResult:String="",
+        var searchResult: String = "",
 
         @Temporal(TemporalType.TIMESTAMP)
         @Column(nullable = false, updatable = false, insertable = false)
-        var modified:Date?=null,
+        var modified: Date? = null,
 
-        var lastUploadedOnFireBaseDb:Date?=null,
-        var lastUploadedOnFireStore:Date?=null,
-        var lastUploadedOnMongoRestService:Date?=null
-){
-        companion object{
-                const val ENTRY_SEPERATOR = " | "
-                const val PAGE_ID_ARTICLE_ID_SEPERATOR = ","
-        }
+        var lastUploadedOnFireBaseDb: Date? = null,
+        var lastUploadedOnFireStore: Date? = null,
+        var lastUploadedOnMongoRestService: Date? = null
+) {
+    companion object {
+        const val ENTRY_SEPERATOR = " | "
+        const val PAGE_ID_ARTICLE_ID_SEPERATOR = ","
+    }
 
-        fun addArticleInfo(article: Article) {
-                searchResult = StringBuilder(searchResult)
-                        .append(ENTRY_SEPERATOR)
-                        .append(article.page!!.id)
-                        .append(PAGE_ID_ARTICLE_ID_SEPERATOR)
-                        .append(article.id)
-                        .toString()
+    fun addArticleInfo(article: Article) {
+
+        val searchResultBuilder = StringBuilder(searchResult)
+
+        if (searchResult.isNotBlank()) {
+            searchResultBuilder.append(ENTRY_SEPERATOR)
         }
+        searchResultBuilder
+                .append(article.page!!.id)
+                .append(PAGE_ID_ARTICLE_ID_SEPERATOR)
+                .append(article.id)
+
+        searchResult = searchResultBuilder.toString()
+    }
+
+    override fun toString(): String {
+        return "KeyWordSearchResult(keyWord=$keyWord, searchResult='$searchResult', modified=$modified)"
+    }
+
 }

@@ -479,4 +479,14 @@ object DatabaseUtils {
                 session.createQuery(hql, RestrictedSearchKeyWord::class.java)
         return query.list() as List<RestrictedSearchKeyWord>
     }
+
+    fun getUnProcessedArticlesForSearchResult(session: Session,limit:Int=100):List<Article>{
+        val sql = "select * from ${DatabaseTableNames.ARTICLE_TABLE_NAME} where processedForSearchResult=false limit ${limit}"
+        val query =session.createNativeQuery(sql, Article::class.java)
+        try {
+            return query.resultList as List<Article>
+        }catch (ex:Exception){
+            return emptyList()
+        }
+    }
 }
