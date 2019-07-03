@@ -7,6 +7,7 @@ import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUplo
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForMongoRestService
 import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForRealTimeDb
 import com.dasbikash.news_server_data_coordinator.article_fetcher.ArticleFetcher
+import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchReasultProcessor
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.AppInitException
@@ -50,6 +51,7 @@ object DataCoordinator {
     private var errorIteration = 0L
 
     private lateinit var currentDate:Calendar
+    private var articleSearchReasultProcessor:ArticleSearchReasultProcessor?=null
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -61,6 +63,17 @@ object DataCoordinator {
 
                 refreshArticleFetchers(newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
                 refreshArticleDataUploaders()
+
+                if (articleSearchReasultProcessor !=null){
+                    if (! articleSearchReasultProcessor!!.isAlive){
+                        articleSearchReasultProcessor = null
+                    }
+                }
+
+                if (articleSearchReasultProcessor ==null){
+                    articleSearchReasultProcessor = ArticleSearchReasultProcessor.getInstance()
+                    articleSearchReasultProcessor?.start()
+                }
 
                 errorDelayPeriod = 0L
                 errorIteration = 0L

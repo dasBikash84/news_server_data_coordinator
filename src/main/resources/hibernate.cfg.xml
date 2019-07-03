@@ -48,5 +48,6 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.DailyDeletionTaskLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.KeyWordSearchResult"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleSearchResultUploaderLog"/>
  </session-factory>
 </hibernate-configuration>

@@ -30,4 +30,6 @@ object DatabaseTableNames {
     const val DAILY_DELETION_TASK_LOG_TABLE_NAME = "daily_deletion_task_log"
     const val RESTRICTED_SEARCH_KEY_WORD_TABLE_NAME = "restricted_search_key_word"
     const val KEY_WORD_SERACH_RESULT_TABLE_NAME = "key_word_serach_result"
+    const val ARTICLE_SEARCH_RESULT_UPLOADER_LOG_TABLE_NAME = "article_search_result_uploader_log"
+    const val ARTICLE_SEARCH_RESULT_DELETION_LOG_TABLE_NAME = "article_search_result_deletion_log"
 }

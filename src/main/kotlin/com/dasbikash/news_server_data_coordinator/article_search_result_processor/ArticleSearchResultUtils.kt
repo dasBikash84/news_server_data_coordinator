@@ -1,12 +1,14 @@
-package com.dasbikash.news_server_data_coordinator.utils
+package com.dasbikash.news_server_data_coordinator.article_search_result_processor
 
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.model.db_entity.KeyWordSearchResult
 import com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord
 import org.hibernate.Session
+import java.util.*
 
-object ArticleSearchResultUtils {
+internal object ArticleSearchResultUtils {
 
     private val restrictedSearchKeyWordList = mutableListOf<RestrictedSearchKeyWord>()
 
@@ -54,7 +56,7 @@ object ArticleSearchResultUtils {
 
         title.split(Regex("\\s+")).asSequence()
                 .map { it.trim() }
-                .filter { it.length >= MINIMUM_KEYWORD_LENGTH && !checkIfKeyWordRestricted(session,it) }
+                .filter { it.length >= MINIMUM_KEYWORD_LENGTH && !checkIfKeyWordRestricted(session, it) }
                 .forEach {
 //                    LoggerUtils.logOnConsole(it)
                     val keyWordSearchResult =
@@ -65,5 +67,13 @@ object ArticleSearchResultUtils {
                 }
         article.processedForSearchResult = true
         DatabaseUtils.runDbTransection(session){session.saveOrUpdate(article)}
+    }
+
+    fun writeKeyWordSearchResults(keyWordSearchResults: List<KeyWordSearchResult>,session: Session){
+        RealTimeDbDataUtils.uploadKeyWordSearchResultData(keyWordSearchResults,session)
+        keyWordSearchResults.asSequence().forEach {
+            it.lastUploadedOnFireBaseDb = Date()
+            DatabaseUtils.runDbTransection(session){session.update(it)}
+        }
     }
 }

@@ -495,4 +495,56 @@ object DatabaseUtils {
             return emptyList()
         }
     }
+
+    fun checkIfArticleDeleted(session: Session,articleId:String):Boolean{
+        val sqlBuilder = StringBuilder("SELECT Count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                                .append(" WHERE id='${articleId}'")
+                                                .append(" AND processedForSearchResult=1")
+                                                .append(" AND deletedFromFirebaseDb=1")
+                                                .append(" AND deletedFromFireStore=1")
+
+//        LoggerUtils.logOnConsole(sqlBuilder.toString())
+
+        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+        if (result.size == 1) {
+            return result.get(0) == 1
+        }
+        return false
+    }
+
+    fun getNewKeyWordSearchResults(session: Session,limit:Int=100):List<KeyWordSearchResult>{
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME}")
+                                                .append(" WHERE")
+                                                .append(" lastUploadedOnFireBaseDb IS NULL")
+                                                .append(" OR lastUploadedOnFireBaseDb < modified")
+                                                .append(" limit ${limit}")
+
+        val query =session.createNativeQuery(sqlBuilder.toString(), KeyWordSearchResult::class.java)
+        try {
+            return query.resultList as List<KeyWordSearchResult>
+        }catch (ex:Exception){
+            return emptyList()
+        }
+    }
+
+
+    fun getLastArticleSearchResultUploaderLog(session: Session): ArticleSearchResultUploaderLog? {
+
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_SEARCH_RESULT_UPLOADER_LOG_TABLE_NAME}")
+                                            .append(" ORDER BY created DESC")
+                                            .append(" limit 1")
+
+//        LoggerUtils.logOnConsole(sqlBuilder.toString())
+
+        try {
+            val articleSearchResultUploaderLogs =
+                    session.createNativeQuery(sqlBuilder.toString(), ArticleSearchResultUploaderLog::class.java).resultList as List<ArticleSearchResultUploaderLog>
+
+            if (articleSearchResultUploaderLogs.size == 1) {
+                return articleSearchResultUploaderLogs.get(0)
+            }
+        }catch (ex:Throwable){ex.printStackTrace()}
+
+        return null
+    }
 }

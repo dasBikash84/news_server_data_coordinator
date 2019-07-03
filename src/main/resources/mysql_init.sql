@@ -72,21 +72,21 @@ CREATE TABLE `pages`
 # Table, Create Table articles
 CREATE TABLE `articles`
 (
-    `id`                       varchar(255) NOT NULL,
-    `pageId`                   varchar(255) NOT NULL,
-    `title`                    varchar(255) NOT NULL,
-    `articleText`              text         NOT NULL,
-    `previewImageLink`         text,
-    `publicationTime`          datetime     NOT NULL,
-    `processedForSearchResult` bit(1)       NOT NULL DEFAULT b'0',
-    `upOnFirebaseDb`           bit(1)       NOT NULL DEFAULT b'0',
-    `upOnFireStore`            bit(1)       NOT NULL DEFAULT b'0',
-    `upOnMongoRest`            bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFirebaseDb`    bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFireStore`     bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromMongoRest`     bit(1)       NOT NULL DEFAULT b'0',
-    `created`                  datetime              DEFAULT CURRENT_TIMESTAMP,
-    `modified`                 datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                         varchar(255) NOT NULL,
+    `pageId`                     varchar(255) NOT NULL,
+    `title`                      varchar(255) NOT NULL,
+    `articleText`                text         NOT NULL,
+    `previewImageLink`           text,
+    `publicationTime`            datetime     NOT NULL,
+    `processedForSearchResult`   bit(1)       NOT NULL DEFAULT b'0',
+    `upOnFirebaseDb`             bit(1)       NOT NULL DEFAULT b'0',
+    `upOnFireStore`              bit(1)       NOT NULL DEFAULT b'0',
+    `upOnMongoRest`              bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFirebaseDb`      bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFireStore`       bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromMongoRest`       bit(1)       NOT NULL DEFAULT b'0',
+    `created`                    datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified`                   datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     KEY `articles_pubtime_index` (`publicationTime`),
@@ -235,4 +235,12 @@ CREATE TABLE `news_server_data_coordinator`.`key_word_serach_result`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE `news_server_data_coordinator`.`article_search_result_uploader_log`
+(
+    `id`         INT(11)       NOT NULL AUTO_INCREMENT,
+    `logMessage` VARCHAR(1500) NOT NULL,
+    `created`    datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 

@@ -1,5 +1,7 @@
 package com.dasbikash.news_server_data_coordinator.utils
 
+import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchReasultProcessor
+import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchResultUtils
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
@@ -31,7 +33,7 @@ internal class ArticleSearchResultUtilsTest {
 //        println(ArticleSearchResultUtils.checkIfKeyWordRestricted(session,"কিন্তু"))
 //    }
 
-//    @Test
+    //    @Test
 //    fun processArticleForSearchResult(){
 //        var count = 0
 //        for (i in 1..5){
@@ -51,9 +53,17 @@ internal class ArticleSearchResultUtilsTest {
 //    }
 //    @Test
 //    fun KeyWordSearchResultReadTest() {
-//        session.get(KeyWordSearchResult::class.java,"রোনালদো")?.let {
-//            println(it.getSearchResultMap())
-//            RealTimeDbDataUtils.writeKeyWordSearchResultData(it)
+//
+//        DatabaseUtils.getNewKeyWordSearchResults(session,10).let {
+//            ArticleSearchResultUtils.writeKeyWordSearchResults(it,session)
+//        }
+//
+//    }
+//    @Test
+//    fun testRunOfArticleSearchReasultProcessor(){
+//        ArticleSearchReasultProcessor.getInstance()?.let {
+//            it.start()
+//            it.join()
 //        }
 //    }
 }

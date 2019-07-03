@@ -18,6 +18,7 @@ import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.google.api.core.ApiFuture
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ServerValue
+import org.hibernate.Session
 
 
 object RealTimeDbDataUtils {
@@ -92,12 +93,26 @@ object RealTimeDbDataUtils {
         return true
     }
 
-    fun writeKeyWordSearchResultData(keyWordSearchResult: KeyWordSearchResult){
-        val searchResultMap = keyWordSearchResult.getSearchResultMap()
+    fun uploadKeyWordSearchResultData(keyWordSearchResult: KeyWordSearchResult,session: Session){
+        val searchResultMap = keyWordSearchResult.getSearchResultMap(session)
         if (searchResultMap.isNotEmpty()){
             val task = RealTimeDbRefUtils.getKeyWordSearchResultNode()
                                             .child(keyWordSearchResult.keyWord!!).setValueAsync(searchResultMap)
             while (!task.isDone){}
+        }
+    }
+
+    fun uploadKeyWordSearchResultData(keyWordSearchResults: List<KeyWordSearchResult>,session: Session){
+        val futureList = mutableListOf<ApiFuture<Void>>()
+        keyWordSearchResults.asSequence().forEach {
+            val searchResultMap = it.getSearchResultMap(session)
+            if (searchResultMap.isNotEmpty()){
+                futureList.add(RealTimeDbRefUtils.getKeyWordSearchResultNode()
+                                    .child(it.keyWord!!).setValueAsync(searchResultMap))
+            }
+        }
+        futureList.asSequence().forEach {
+            while (!it.isDone){}
         }
     }
 
