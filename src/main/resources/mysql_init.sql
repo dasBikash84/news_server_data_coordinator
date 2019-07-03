@@ -224,7 +224,7 @@ CREATE TABLE `news_server_data_coordinator`.`restricted_search_key_word`
 CREATE TABLE `news_server_data_coordinator`.`key_word_serach_result`
 (
     `keyWord`                        varchar(255) NOT NULL,
-    `serachResult`                   mediumtext   NOT NULL,
+    `searchResult`                   mediumtext   NOT NULL,
     `modified`                       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `lastUploadedOnFireBaseDb`       datetime              DEFAULT NULL,
     `lastUploadedOnFireStore`        datetime              DEFAULT NULL,

@@ -11,7 +11,7 @@ data class KeyWordSearchResult(
         var keyWord:String?=null,
 
         @Column(columnDefinition = "MEDIUMTEXT")
-        var serachResult:String="",
+        var searchResult:String="",
 
         @Temporal(TemporalType.TIMESTAMP)
         @Column(nullable = false, updatable = false, insertable = false)
@@ -20,4 +20,18 @@ data class KeyWordSearchResult(
         var lastUploadedOnFireBaseDb:Date?=null,
         var lastUploadedOnFireStore:Date?=null,
         var lastUploadedOnMongoRestService:Date?=null
-)
+){
+        companion object{
+                const val ENTRY_SEPERATOR = " | "
+                const val PAGE_ID_ARTICLE_ID_SEPERATOR = ","
+        }
+
+        fun addArticleInfo(article: Article) {
+                searchResult = StringBuilder(searchResult)
+                        .append(ENTRY_SEPERATOR)
+                        .append(article.page!!.id)
+                        .append(PAGE_ID_ARTICLE_ID_SEPERATOR)
+                        .append(article.id)
+                        .toString()
+        }
+}
