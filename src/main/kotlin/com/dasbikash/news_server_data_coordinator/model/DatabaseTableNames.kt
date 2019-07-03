@@ -29,4 +29,5 @@ object DatabaseTableNames {
     const val AUTH_TOKEN_TABLE_NAME = "tokens"
     const val DAILY_DELETION_TASK_LOG_TABLE_NAME = "daily_deletion_task_log"
     const val RESTRICTED_SEARCH_KEY_WORD_TABLE_NAME = "restricted_search_key_word"
+    const val KEY_WORD_SERACH_RESULT_TABLE_NAME = "key_word_serach_result"
 }

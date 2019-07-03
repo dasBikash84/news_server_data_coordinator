@@ -47,5 +47,6 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.AuthToken"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.DailyDeletionTaskLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.KeyWordSearchResult"/>
  </session-factory>
 </hibernate-configuration>

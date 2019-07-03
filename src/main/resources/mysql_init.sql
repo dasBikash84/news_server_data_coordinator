@@ -214,8 +214,23 @@ CREATE TABLE `news_server_data_coordinator`.`daily_deletion_task_log`
 
 CREATE TABLE `news_server_data_coordinator`.`restricted_search_key_word`
 (
-    `keyword` varchar(255) NOT NULL,
+    `keyWord` varchar(255) NOT NULL,
     `created` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`keyword`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
+  DEFAULT CHARSET = utf8mb4;
+
+# Table, Create Table key_word_serach_result,
+CREATE TABLE `news_server_data_coordinator`.`key_word_serach_result`
+(
+    `keyWord`                        varchar(255) NOT NULL,
+    `serachResult`                   mediumtext   NOT NULL,
+    `modified`                       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `lastUploadedOnFireBaseDb`       datetime              DEFAULT NULL,
+    `lastUploadedOnFireStore`        datetime              DEFAULT NULL,
+    `lastUploadedOnMongoRestService` datetime              DEFAULT NULL,
+    PRIMARY KEY (`keyWord`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+

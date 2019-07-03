@@ -208,12 +208,12 @@ internal class DatabaseUtilsTest {
 //        }
 //
 //    }
-//    @Test
-//    fun getAllRestrictedSearchKeyWord(){
-//        DatabaseUtils.getAllRestrictedSearchKeyWord(session).asSequence().forEach {
-//            println(it)
-//        }
-//    }
+    @Test
+    fun getAllRestrictedSearchKeyWord(){
+        DatabaseUtils.getAllRestrictedSearchKeyWord(session).asSequence().forEach {
+            println(it)
+        }
+    }
 //    @Test
 //    fun readRestrictedSearchKeyWord(){
 //        session.get(RestrictedSearchKeyWord::class.java,"of")?.let {
