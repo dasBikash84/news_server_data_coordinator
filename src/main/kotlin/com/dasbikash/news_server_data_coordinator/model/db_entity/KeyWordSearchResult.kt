@@ -45,4 +45,17 @@ data class KeyWordSearchResult(
         return "KeyWordSearchResult(keyWord=$keyWord, searchResult='$searchResult', modified=$modified)"
     }
 
+    fun getSearchResultMap():Map<String,String>{
+        val resultMap = mutableMapOf<String,String>()
+        if (searchResult.isNotBlank()){
+            searchResult.split(ENTRY_SEPERATOR).asSequence().forEach {
+                val data = it.split(PAGE_ID_ARTICLE_ID_SEPERATOR).toList()
+                if (data.size == 2){
+                    resultMap.put(data.get(1),data.get(0))
+                }
+            }
+        }
+        return resultMap.toMap()
+    }
+
 }

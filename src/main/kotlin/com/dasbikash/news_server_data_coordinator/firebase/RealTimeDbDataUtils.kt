@@ -92,5 +92,13 @@ object RealTimeDbDataUtils {
         return true
     }
 
+    fun writeKeyWordSearchResultData(keyWordSearchResult: KeyWordSearchResult){
+        val searchResultMap = keyWordSearchResult.getSearchResultMap()
+        if (searchResultMap.isNotEmpty()){
+            val task = RealTimeDbRefUtils.getKeyWordSearchResultNode()
+                                            .child(keyWordSearchResult.keyWord!!).setValueAsync(searchResultMap)
+            while (!task.isDone){}
+        }
+    }
 
 }
