@@ -33,15 +33,17 @@ internal class ArticleSearchResultUtilsTest {
 
 //    @Test
 //    fun processArticleForSearchResult(){
-//
-//        for (i in 1..100){
+//        var count = 0
+//        for (i in 1..5){
 //            DatabaseUtils.getUnProcessedArticlesForSearchResult(session).asSequence().forEach {
 //                ArticleSearchResultUtils.processArticleForSearchResult(session,it)
+//                count++
 //            }
+//            println("${count} articles processed for search result.")
 //        }
-
-
-    //        val hql = "select * from ${DatabaseTableNames.ARTICLE_TABLE_NAME} where processedForSearchResult=false limit 100"
+//
+//
+//            val hql = "select * from ${DatabaseTableNames.ARTICLE_TABLE_NAME} where processedForSearchResult=false limit 100"
 //        val query =session.createNativeQuery(hql, Article::class.java)
 //        (query.resultList as List<Article>).asSequence().forEach {
 //            ArticleSearchResultUtils.processArticleForSearchResult(session,it)

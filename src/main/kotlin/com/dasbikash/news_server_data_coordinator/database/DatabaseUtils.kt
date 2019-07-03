@@ -481,8 +481,14 @@ object DatabaseUtils {
     }
 
     fun getUnProcessedArticlesForSearchResult(session: Session,limit:Int=100):List<Article>{
-        val sql = "select * from ${DatabaseTableNames.ARTICLE_TABLE_NAME} where processedForSearchResult=false limit ${limit}"
-        val query =session.createNativeQuery(sql, Article::class.java)
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                                .append(" WHERE")
+                                                .append(" processedForSearchResult=false")
+                                                .append(" AND")
+                                                .append(" ((upOnFirebaseDb=1 AND deletedFromFirebaseDb=0) OR (upOnFireStore=1 AND deletedFromFireStore=0))")
+                                                .append(" limit ${limit}")
+
+        val query =session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
         try {
             return query.resultList as List<Article>
         }catch (ex:Exception){
