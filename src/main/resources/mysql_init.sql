@@ -72,20 +72,21 @@ CREATE TABLE `pages`
 # Table, Create Table articles
 CREATE TABLE `articles`
 (
-    `id`                    varchar(255) NOT NULL,
-    `pageId`                varchar(255) NOT NULL,
-    `title`                 varchar(255) NOT NULL,
-    `articleText`           text         NOT NULL,
-    `previewImageLink`      text,
-    `publicationTime`       datetime     NOT NULL,
-    `upOnFirebaseDb`        bit(1)       NOT NULL DEFAULT b'0',
-    `upOnFireStore`         bit(1)       NOT NULL DEFAULT b'0',
-    `upOnMongoRest`         bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFirebaseDb` bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFireStore`  bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromMongoRest`  bit(1)       NOT NULL DEFAULT b'0',
-    `created`               datetime              DEFAULT CURRENT_TIMESTAMP,
-    `modified`              datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                       varchar(255) NOT NULL,
+    `pageId`                   varchar(255) NOT NULL,
+    `title`                    varchar(255) NOT NULL,
+    `articleText`              text         NOT NULL,
+    `previewImageLink`         text,
+    `publicationTime`          datetime     NOT NULL,
+    `upOnFirebaseDb`           bit(1)       NOT NULL DEFAULT b'0',
+    `upOnFireStore`            bit(1)       NOT NULL DEFAULT b'0',
+    `upOnMongoRest`            bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFirebaseDb`    bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFireStore`     bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromMongoRest`     bit(1)       NOT NULL DEFAULT b'0',
+    `processedForSearchResult` bit(1)       NOT NULL DEFAULT b'0',
+    `created`                  datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified`                 datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     KEY `articles_pubtime_index` (`publicationTime`),
@@ -98,6 +99,7 @@ CREATE TABLE `articles`
     KEY `articles_deletedFromFirebaseDb_index` (`deletedFromFirebaseDb`),
     KEY `articles_deletedFromFireStore_index` (`deletedFromFireStore`),
     KEY `articles_deletedFromMongoRest_index` (`deletedFromMongoRest`),
+    KEY `articles_processedForSearchResult_index` (`processedForSearchResult`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

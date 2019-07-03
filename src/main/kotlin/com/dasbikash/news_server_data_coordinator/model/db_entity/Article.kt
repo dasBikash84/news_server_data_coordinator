@@ -43,6 +43,7 @@ data class Article(
         var deletedFromFirebaseDb:Boolean = false
         var deletedFromFireStore:Boolean = false
         var deletedFromMongoRest:Boolean = false
+        var processedForSearchResult:Boolean = false
 
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
