@@ -13,10 +13,12 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.google.api.core.ApiFuture
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class RealTimeDbDataUtilsTest {
@@ -29,8 +31,20 @@ internal class RealTimeDbDataUtilsTest {
     fun tearDown() {
     }
 
-    @Test
-    fun clearAllArticleData(){
+    //    @Test
+//    fun clearAllArticleData(){
 //        RealTimeDbDataUtils.clearAllArticleData()
-    }
+//    }
+//    @Test
+//    fun searchKeyWordsUploadTest() {
+//        val session = DbSessionManager.getNewSession()
+//        val futureList = mutableListOf<ApiFuture<Void>>()
+//        DatabaseUtils.getSearchKeyWords(session).asSequence().forEach {
+//            futureList.add(RealTimeDbRefUtils.getSearchKeyWordsNode()
+//                    .child(it).setValueAsync(true))
+//        }
+//        futureList.asSequence().forEach {
+//            while (!it.isDone){}
+//        }
+//    }
 }

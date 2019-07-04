@@ -71,6 +71,7 @@ internal object ArticleSearchResultUtils {
 
     fun writeKeyWordSearchResults(keyWordSearchResults: List<KeyWordSearchResult>,session: Session){
         RealTimeDbDataUtils.uploadKeyWordSearchResultData(keyWordSearchResults,session)
+        Thread.sleep(1000L)
         keyWordSearchResults.asSequence().forEach {
             it.lastUploadedOnFireBaseDb = Date()
             DatabaseUtils.runDbTransection(session){session.update(it)}

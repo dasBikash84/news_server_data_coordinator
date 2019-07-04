@@ -527,6 +527,20 @@ object DatabaseUtils {
         }
     }
 
+    fun getSearchKeyWords(session: Session):List<String>{
+        val sqlBuilder = StringBuilder("SELECT keyWord FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME}")
+                                                .append(" WHERE")
+                                                .append(" lastUploadedOnFireBaseDb IS NOT NULL")
+        println(sqlBuilder.toString())
+        val query =session.createNativeQuery(sqlBuilder.toString())
+        try {
+            return query.list() as List<String>
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            return emptyList()
+        }
+    }
+
 
     fun getLastArticleSearchResultUploaderLog(session: Session): ArticleSearchResultUploaderLog? {
 

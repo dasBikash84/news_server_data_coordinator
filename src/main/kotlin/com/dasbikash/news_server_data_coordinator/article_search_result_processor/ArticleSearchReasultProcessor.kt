@@ -18,9 +18,9 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         private const val ONE_DAY_IN_MS = 24 * 60 * 60 * 1000L
 
         private const val INIT_DELAY_MS = 5 * ONE_MINUTE_IN_MS
-        private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 2 * ONE_HOUR_IN_MS
+        private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 1 * ONE_HOUR_IN_MS
         private const val MAX_UPLOADER_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
-        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 2 * ONE_HOUR_IN_MS
+        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
         private const val SLEEP_PERIOD_BETWEEN_ITERATION_MS = 30 * ONE_MINUTE_IN_MS
 
         private const val ARTICLE_SEARCH_RESULT_UPLOAD_CHUNK_SIZE = 400
@@ -97,6 +97,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         if (lastRunLog == null) {
             return true
         }
+        getDatabaseSession().refresh(lastRunLog)
         return (System.currentTimeMillis() - lastRunLog.created!!.time) > DURATION_BETWEEN_UPLOADER_RUN_MS
     }
 

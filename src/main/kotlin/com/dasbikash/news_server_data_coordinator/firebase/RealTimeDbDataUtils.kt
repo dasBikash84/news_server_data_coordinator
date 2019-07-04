@@ -109,6 +109,21 @@ object RealTimeDbDataUtils {
             if (searchResultMap.isNotEmpty()){
                 futureList.add(RealTimeDbRefUtils.getKeyWordSearchResultNode()
                                     .child(it.keyWord!!).setValueAsync(searchResultMap))
+
+                val valueForSearchKeyNode:Any?
+                if (searchResultMap.values.filter { it!=null }.count() > 0){
+                    valueForSearchKeyNode = true
+                }else{
+                    valueForSearchKeyNode = null
+                }
+                futureList.add(RealTimeDbRefUtils.getSearchKeyWordsNode()
+                                    .child(it.keyWord!!).setValueAsync(valueForSearchKeyNode))
+
+            }else{
+                futureList.add(RealTimeDbRefUtils.getKeyWordSearchResultNode()
+                        .child(it.keyWord!!).setValueAsync(null))
+                futureList.add(RealTimeDbRefUtils.getSearchKeyWordsNode()
+                        .child(it.keyWord!!).setValueAsync(null))
             }
         }
         futureList.asSequence().forEach {

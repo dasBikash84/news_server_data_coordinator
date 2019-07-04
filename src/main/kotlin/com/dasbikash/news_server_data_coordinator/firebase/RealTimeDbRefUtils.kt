@@ -31,6 +31,7 @@ object RealTimeDbRefUtils {
 
     private const val ADMIN_TASK_DATA_NODE = "admin_task_data"
     private const val KEY_WORD_SERACH_RESULT_NODE = "key_word_serach_result"
+    private const val SERACH_KEY_WORDS_NODE = "serach_key_words"
 
     private lateinit var mRootReference:DatabaseReference
     private lateinit var  mAppSettingsRootReference: DatabaseReference
@@ -74,5 +75,6 @@ object RealTimeDbRefUtils {
     internal fun getSettingsUpdateTimeRef():DatabaseReference = getAppSettingsRootRef().child(APP_SETTINGS_UPDATE_TIME_NODE)
     internal fun getAdminTaskDataNode():DatabaseReference = getRootRef().child(ADMIN_TASK_DATA_NODE)
     internal fun getKeyWordSearchResultNode():DatabaseReference = getRootRef().child(KEY_WORD_SERACH_RESULT_NODE)
+    internal fun getSearchKeyWordsNode():DatabaseReference = getRootRef().child(SERACH_KEY_WORDS_NODE)
 
 }
