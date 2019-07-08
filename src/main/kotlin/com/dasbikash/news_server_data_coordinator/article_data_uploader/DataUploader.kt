@@ -275,32 +275,35 @@ abstract class DataUploader : Thread() {
     private fun runDailyArticleDeletionTask(session: Session) {
         LoggerUtils.logOnDb("Starting daily article deletion task for ${getUploadDestinationInfo().articleUploadTarget.name}", session)
         val deletedArticleIds = mutableListOf<String>()
-        DatabaseUtils.getAllPages(session).shuffled().asSequence()
+        DatabaseUtils.getAllPages(session)./*shuffled().*/asSequence()
                 .filter { (it.hasData ?: false) && deletedArticleIds.size < getDailyArticleDeletionLimit() }.forEach {
                     //                    println(it)
-                    val currrentArticleCountInTargetForPage =
-                            DatabaseUtils.getArticleCountInTargetForPage(session, it, getUploadDestinationInfo())
+                    do {
+                        val currrentArticleCountInTargetForPage =
+                                DatabaseUtils.getArticleCountInTargetForPage(session, it, getUploadDestinationInfo())
 //                        println("currrentArticleCountInTargetForPage: ${currrentArticleCountInTargetForPage}")
-                    if (currrentArticleCountInTargetForPage <= getMaxArticleCountForPage()) {
-                        return@forEach
-                    }
-
-                    val articleDeletionChunkSize = when {
-                        (currrentArticleCountInTargetForPage - getMaxArticleCountForPage()) > getMaxArticleDeletionChunkSize()
-                        -> getMaxArticleDeletionChunkSize()
-                        else -> currrentArticleCountInTargetForPage - getMaxArticleCountForPage()
-                    }
-//                        println("articleDeletionChunkSize: ${articleDeletionChunkSize}")
-                    var articleDeletionCountForPage = 0
-                    getArticlesForDeletion(session, it, articleDeletionChunkSize).asSequence().forEach {
-                        //                            println(it)
-                        if (deleteArticleFromServer(it)) {
-                            DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
-                            deletedArticleIds.add(it.id)
-                            articleDeletionCountForPage++
+                        if (currrentArticleCountInTargetForPage <= getMaxArticleCountForPage()) {
+                            break//return@forEach
                         }
-                    }
-                    LoggerUtils.logOnDb("${articleDeletionCountForPage} articles deleted of page ${it.name} | ${it.id} from ${getUploadDestinationInfo().articleUploadTarget.name}", session)
+
+                        val articleDeletionChunkSize = when {
+                            (currrentArticleCountInTargetForPage - getMaxArticleCountForPage()) > getMaxArticleDeletionChunkSize()
+                            -> getMaxArticleDeletionChunkSize()
+                            else -> currrentArticleCountInTargetForPage - getMaxArticleCountForPage()
+                        }
+//                        println("articleDeletionChunkSize: ${articleDeletionChunkSize}")
+                        var articleDeletionCountForPage = 0
+                        getArticlesForDeletion(session, it, articleDeletionChunkSize).asSequence().forEach {
+                            //                            println(it)
+                            if (deleteArticleFromServer(it)) {
+                                DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
+                                deletedArticleIds.add(it.id)
+                                articleDeletionCountForPage++
+                            }
+                        }
+                        LoggerUtils.logOnDb("${articleDeletionCountForPage} articles deleted of page ${it.name} | ${it.id} from ${getUploadDestinationInfo().articleUploadTarget.name}", session)
+
+                    } while (deletedArticleIds.size < getDailyArticleDeletionLimit())
 //                        println("deletedArticleIds.size: ${deletedArticleIds.size}")
                 }
         DatabaseUtils.runDbTransection(session) {
