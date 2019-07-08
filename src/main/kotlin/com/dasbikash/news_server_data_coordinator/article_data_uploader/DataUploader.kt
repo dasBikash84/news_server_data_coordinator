@@ -19,6 +19,7 @@ import com.dasbikash.news_server_data_coordinator.exceptions.ArticleDeleteExcept
 import com.dasbikash.news_server_data_coordinator.exceptions.ArticleUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.SettingsUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
+import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataCoordinatorSettingsUtils
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
@@ -65,10 +66,22 @@ abstract class DataUploader : Thread() {
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article): Boolean
-    abstract protected fun getMaxArticleCountForPage(): Int          //-1 for no delete action
-    abstract protected fun getDailyArticleDeletionLimit(): Int
-    abstract protected fun getMaxArticleDeletionChunkSize(): Int
-    abstract protected fun getArticleDeletionRoutineRunningHour(): Int //between 0-23
+
+    private fun getMaxArticleCountForPage(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleDeletionSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).MAX_ARTICLE_COUNT_FOR_PAGE
+
+    private fun getDailyArticleDeletionLimit(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleDeletionSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).DAILY_ARTICLE_DELETION_LIMIT
+
+    private fun getMaxArticleDeletionChunkSize(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleDeletionSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).MAX_ARTICLE_DELETION_CHUNK_SIZE
+
+    private fun getArticleDeletionRoutineRunningHour(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleDeletionSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).ARTICLE_DELETION_ROUTINE_RUNNING_HOUR
 
     private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
         getArticlesForDeletion(session, articleDeleteRequest.page!!, articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
@@ -77,6 +90,7 @@ abstract class DataUploader : Thread() {
             }
         }
     }
+
 
     private fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int): List<Article> {
         return DatabaseUtils.getArticlesForDeletion(
@@ -202,6 +216,7 @@ abstract class DataUploader : Thread() {
     }
 
     override fun run() {
+        RealTimeDbDataCoordinatorSettingsUtils.init()
         sleep(Random(System.currentTimeMillis()).nextLong(5000L) + 5000L)
         do {
             val session = DbSessionManager.getNewSession()

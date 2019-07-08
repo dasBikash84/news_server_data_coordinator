@@ -61,20 +61,8 @@ class DataUploaderForRealTimeDb : DataUploader() {
         return RealTimeDbDataUtils.deleteArticleFromServer(article)
     }
 
-    override fun getMaxArticleCountForPage() = MAX_ARTICLE_COUNT_FOR_PAGE
-
-    override fun getDailyArticleDeletionLimit() = DAILY_ARTICLE_DELETION_LIMIT
-
-    override fun getMaxArticleDeletionChunkSize() = MAX_ARTICLE_DELETION_CHUNK_SIZE
-
-    override fun getArticleDeletionRoutineRunningHour() = ARTICLE_DELETION_ROUTINE_RUNNING_HOUR
-
     companion object {
         private const val MAX_ARTICLE_AGE_DAYS = 30
         private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
-        private const val MAX_ARTICLE_COUNT_FOR_PAGE = 150
-        private const val DAILY_ARTICLE_DELETION_LIMIT = 3000//8000
-        private const val MAX_ARTICLE_DELETION_CHUNK_SIZE = 400
-        private const val ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 6
     }
 }
