@@ -19,15 +19,31 @@ import org.junit.jupiter.api.Assertions.*
 internal class ArticleSearchResultUtilsTest {
     lateinit var session: Session
 
+    private val restrictedChars = listOf("\\p{Punct}","’","‘","—","“","”","…","–","\\d")
+    private val charFileterRegex = Regex(restrictedChars.joinToString(separator = "|"))
+
     @BeforeEach
     fun setUp() {
-        session = DbSessionManager.getNewSession()
+//        session = DbSessionManager.getNewSession()
     }
 
     @AfterEach
     fun tearDown() {
     }
 
+//    @Test
+//    fun sampleTest(){
+//        var title = session.get(Article::class.java,"-1006044244161821949")!!.title!!
+//
+//        println(title)
+//        title = title.replace(charFileterRegex," ")
+//        println(title)
+//
+//        title.split(Regex("\\s+")).asSequence()
+//                .map { it.trim() }
+//                .forEach { println(it) }
+//    }
+//
 //    @Test
 //    fun checkIfKeyWordRestricted() {
 //        println(ArticleSearchResultUtils.checkIfKeyWordRestricted(session,"কিন্তু"))
@@ -66,4 +82,6 @@ internal class ArticleSearchResultUtilsTest {
 //            it.join()
 //        }
 //    }
+
+
 }

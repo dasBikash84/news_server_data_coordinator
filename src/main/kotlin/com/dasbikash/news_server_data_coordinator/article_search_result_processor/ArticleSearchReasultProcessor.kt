@@ -72,7 +72,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
                     logMessage = "${uploadedSearchResultCount} new entries uploaded."
             ))
         }
-        LoggerUtils.logOnDb("Exiting of New Article Search Results upload routine",getDatabaseSession())
+        LoggerUtils.logOnDb("Exit of New Article Search Results upload routine",getDatabaseSession())
     }
 
     private fun processUnProcessedArticlesForSearchResults() {

@@ -12,6 +12,9 @@ internal object ArticleSearchResultUtils {
 
     private val restrictedSearchKeyWordList = mutableListOf<RestrictedSearchKeyWord>()
 
+    private val restrictedChars = listOf("\\p{Punct}","’","‘","—","“","”","…","–","\\d")
+    private val charFileterRegex = Regex(restrictedChars.joinToString(separator = "|"))
+
     private const val BANGLA_UNICODE_ZERO: Char = 0x09E6.toChar()
     private const val BANGLA_UNICODE_NINE: Char = 0x09EF.toChar()
     private const val ENGLISH_UNICODE_ZERO: Char = 0x0030.toChar()
@@ -52,7 +55,7 @@ internal object ArticleSearchResultUtils {
         var title = article.title!!
 //        LoggerUtils.logOnConsole(title)
         title = replaceBanglaDigits(title)
-        title = title.replace(Regex("\\p{Punct}|’|‘|\\d")," ")
+        title = title.replace(charFileterRegex," ")
 
         title.split(Regex("\\s+")).asSequence()
                 .map { it.trim() }
