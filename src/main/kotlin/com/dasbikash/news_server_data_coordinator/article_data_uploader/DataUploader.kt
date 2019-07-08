@@ -224,7 +224,7 @@ abstract class DataUploader : Thread() {
 
     override fun run() {
         RealTimeDbDataCoordinatorSettingsUtils.init()
-        sleep(Random(System.currentTimeMillis()).nextLong(5000L) + 5000L)
+        sleep(Random(System.currentTimeMillis()).nextLong(5000L) + 60000L)
         do {
             val session = DbSessionManager.getNewSession()
 
