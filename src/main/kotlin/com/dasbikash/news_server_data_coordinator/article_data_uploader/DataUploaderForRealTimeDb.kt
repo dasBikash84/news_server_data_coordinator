@@ -23,10 +23,6 @@ class DataUploaderForRealTimeDb : DataUploader() {
         return UploadDestinationInfo.REAL_TIME_DB
     }
 
-    override fun getMaxArticleAgeInDays(): Int {
-        return MAX_ARTICLE_AGE_DAYS
-    }
-
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
             RealTimeDbDataUtils.writeArticleData(articlesForUpload)
@@ -37,10 +33,6 @@ class DataUploaderForRealTimeDb : DataUploader() {
             ex.printStackTrace()
             return false
         }
-    }
-
-    override fun maxArticleCountForUpload(): Int {
-        return MAX_ARTICLE_COUNT_FOR_UPLOAD
     }
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
@@ -59,10 +51,5 @@ class DataUploaderForRealTimeDb : DataUploader() {
 
     override fun deleteArticleFromServer(article: Article): Boolean {
         return RealTimeDbDataUtils.deleteArticleFromServer(article)
-    }
-
-    companion object {
-        private const val MAX_ARTICLE_AGE_DAYS = 30
-        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 400
     }
 }

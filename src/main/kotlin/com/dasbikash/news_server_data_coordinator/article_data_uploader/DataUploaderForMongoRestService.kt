@@ -22,10 +22,6 @@ class DataUploaderForMongoRestService:DataUploader() {
         return UploadDestinationInfo.MONGO_REST_SERVICE
     }
 
-    override fun getMaxArticleAgeInDays(): Int {
-        return MAX_ARTICLE_AGE_DAYS
-    }
-
     override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
         try {
             LoggerUtils.logOnConsole("Going to upload data")
@@ -37,10 +33,6 @@ class DataUploaderForMongoRestService:DataUploader() {
             ex.printStackTrace()
             return false
         }
-    }
-
-    override fun maxArticleCountForUpload(): Int {
-        return MAX_ARTICLE_COUNT_FOR_UPLOAD
     }
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
@@ -59,10 +51,5 @@ class DataUploaderForMongoRestService:DataUploader() {
 
     override fun deleteArticleFromServer(article: Article): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    companion object{
-        private const val MAX_ARTICLE_AGE_DAYS = 90
-        private const val MAX_ARTICLE_COUNT_FOR_UPLOAD = 100
     }
 }

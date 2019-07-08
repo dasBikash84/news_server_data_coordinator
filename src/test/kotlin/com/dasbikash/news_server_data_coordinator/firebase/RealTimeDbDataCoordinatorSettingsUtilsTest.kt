@@ -14,8 +14,14 @@ internal class RealTimeDbDataCoordinatorSettingsUtilsTest {
 //    @Test
 //    fun init() {
 //        RealTimeDbDataCoordinatorSettingsUtils.init()
-//        Thread.sleep(5000L)
+//        Thread.sleep(10000L)
+//
 //        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleDeletionSettingsForTarget(ArticleUploadTarget.REAL_TIME_DB))
-//        Thread.currentThread().join()
+//        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleDeletionSettingsForTarget(ArticleUploadTarget.FIRE_STORE_DB))
+//        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleDeletionSettingsForTarget(ArticleUploadTarget.MONGO_REST_SERVICE))
+//
+//        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleUploadSettingsForTarget(ArticleUploadTarget.REAL_TIME_DB))
+//        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleUploadSettingsForTarget(ArticleUploadTarget.FIRE_STORE_DB))
+//        println(RealTimeDbDataCoordinatorSettingsUtils.getArticleUploadSettingsForTarget(ArticleUploadTarget.MONGO_REST_SERVICE))
 //    }
 }

@@ -22,12 +22,19 @@ import com.google.firebase.database.ValueEventListener
 object RealTimeDbDataCoordinatorSettingsUtils {
 
     private const val ARTICLE_DELETION_SETTINGS_NODE = "article_deletion_settings"
+    private const val ARTICLE_UPLOAD_SETTINGS_NODE = "article_upload_settings"
 
     private val articleDeletionSettingsMap =
             mutableMapOf<ArticleUploadTarget,ArticleDeletionSettings>()
 
+    private val articleUploadSettingsMap =
+            mutableMapOf<ArticleUploadTarget,ArticleUploadSettings>()
+
     fun getArticleDeletionSettingsForTarget(articleUploadTarget: ArticleUploadTarget) =
             articleDeletionSettingsMap.get(articleUploadTarget) ?: ArticleDeletionSettings()
+
+    fun getArticleUploadSettingsForTarget(articleUploadTarget: ArticleUploadTarget) =
+            articleUploadSettingsMap.get(articleUploadTarget) ?: ArticleUploadSettings()
 
     fun init() {}
 
@@ -43,6 +50,23 @@ object RealTimeDbDataCoordinatorSettingsUtils {
                                 val dataSnapshot = it
                                 ArticleUploadTarget.values().find { it.name == dataSnapshot.key}?.let {
                                     articleDeletionSettingsMap.put(it,dataSnapshot.getValue(ArticleDeletionSettings::class.java))
+                                }
+                            }
+                        }
+                    }
+                })
+
+        RealTimeDbRefUtils.getDataCoordinatorSettingsNode()
+                .child(ARTICLE_UPLOAD_SETTINGS_NODE)
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError?) {}
+
+                    override fun onDataChange(snapshot: DataSnapshot?) {
+                        snapshot?.let {
+                            it.children.asSequence().forEach {
+                                val dataSnapshot = it
+                                ArticleUploadTarget.values().find { it.name == dataSnapshot.key}?.let {
+                                    articleUploadSettingsMap.put(it,dataSnapshot.getValue(ArticleUploadSettings::class.java))
                                 }
                             }
                         }
@@ -64,5 +88,16 @@ data class ArticleDeletionSettings(
         private const val DEFAULT_DAILY_ARTICLE_DELETION_LIMIT = 3000
         private const val DEFAULT_MAX_ARTICLE_COUNT_FOR_PAGE = 150
         private const val DEFAULT_MAX_ARTICLE_DELETION_CHUNK_SIZE = 400
+    }
+}
+
+
+data class ArticleUploadSettings(
+        var MAX_ARTICLE_AGE_DAYS:Int = DEFAULT_MAX_ARTICLE_AGE_DAYS,
+        var MAX_ARTICLE_COUNT_FOR_UPLOAD:Int = DEFAULT_MAX_ARTICLE_COUNT_FOR_UPLOAD
+){
+    companion object{
+        private const val DEFAULT_MAX_ARTICLE_AGE_DAYS = 0
+        private const val DEFAULT_MAX_ARTICLE_COUNT_FOR_UPLOAD = 0
     }
 }

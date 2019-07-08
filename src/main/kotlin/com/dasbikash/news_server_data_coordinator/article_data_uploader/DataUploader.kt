@@ -56,9 +56,7 @@ abstract class DataUploader : Thread() {
     private var errorIteration = 0L
 
     abstract protected fun getUploadDestinationInfo(): UploadDestinationInfo
-    abstract protected fun getMaxArticleAgeInDays(): Int //Must be >=0
     abstract protected fun uploadArticles(articlesForUpload: List<Article>): Boolean
-    abstract protected fun maxArticleCountForUpload(): Int // Must be >=0
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>,
@@ -66,6 +64,15 @@ abstract class DataUploader : Thread() {
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article): Boolean
+
+
+    private fun getMaxArticleAgeInDays(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleUploadSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).MAX_ARTICLE_AGE_DAYS //Must be >=0
+
+    private fun maxArticleCountForUpload(): Int =
+            RealTimeDbDataCoordinatorSettingsUtils
+                    .getArticleUploadSettingsForTarget(getUploadDestinationInfo().articleUploadTarget).MAX_ARTICLE_COUNT_FOR_UPLOAD // Must be >=0
 
     private fun getMaxArticleCountForPage(): Int =
             RealTimeDbDataCoordinatorSettingsUtils
