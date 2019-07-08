@@ -18,10 +18,10 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         private const val ONE_DAY_IN_MS = 24 * 60 * 60 * 1000L
 
         private const val INIT_DELAY_MS = 5 * ONE_MINUTE_IN_MS
-        private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 1 * ONE_HOUR_IN_MS
+        private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 5 * ONE_MINUTE_IN_MS//1 * ONE_HOUR_IN_MS
         private const val MAX_UPLOADER_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
-        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
-        private const val SLEEP_PERIOD_BETWEEN_ITERATION_MS = 30 * ONE_MINUTE_IN_MS
+        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 30 * ONE_MINUTE_IN_MS//1 * ONE_HOUR_IN_MS
+        private const val SLEEP_PERIOD_BETWEEN_ITERATION_MS = 5 * ONE_MINUTE_IN_MS
 
         private const val ARTICLE_SEARCH_RESULT_UPLOAD_CHUNK_SIZE = 400
         private const val ARTICLE_PROCESSING_CHUNK_SIZE = 200
@@ -42,6 +42,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
             while (true) {
 
                 processUnProcessedArticlesForSearchResults()
+                processDeletedArticlesForSearchResults()
 
                 if (checkIfNeedToRunSearchResultUploader()) {
                     uploadNewArticleSearchResults()
@@ -75,6 +76,15 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         LoggerUtils.logOnDb("Exit of New Article Search Results upload routine",getDatabaseSession())
     }
 
+    private fun checkIfNeedToRunSearchResultUploader(): Boolean {
+        val lastRunLog = DatabaseUtils.getLastArticleSearchResultUploaderLog(getDatabaseSession())
+        if (lastRunLog == null) {
+            return true
+        }
+        getDatabaseSession().refresh(lastRunLog)
+        return (System.currentTimeMillis() - lastRunLog.created!!.time) > DURATION_BETWEEN_UPLOADER_RUN_MS
+    }
+
     private fun processUnProcessedArticlesForSearchResults() {
         LoggerUtils.logOnDb("Starting routine for processing Articles for Search Results",getDatabaseSession())
         var processedArticleCount = 0
@@ -92,13 +102,25 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         LoggerUtils.logOnDb("Exiting routine for processing Articles for Search Results",getDatabaseSession())
     }
 
-    private fun checkIfNeedToRunSearchResultUploader(): Boolean {
-        val lastRunLog = DatabaseUtils.getLastArticleSearchResultUploaderLog(getDatabaseSession())
-        if (lastRunLog == null) {
-            return true
+    private fun processDeletedArticlesForSearchResults() {
+        LoggerUtils.logOnDb("Starting routine for processing deleted Articles for Search Results",getDatabaseSession())
+        var processedDeletedArticleCount = 0
+        val startTime = System.currentTimeMillis()
+        var unProcessedDeletedArticles =
+                DatabaseUtils.getUnProcessedDeletedArticlesForSearchResult(getDatabaseSession(),ARTICLE_PROCESSING_CHUNK_SIZE)
+        while (unProcessedDeletedArticles.isNotEmpty() &&
+                ((System.currentTimeMillis() - startTime) < MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS)) {
+            unProcessedDeletedArticles.asSequence().forEach {
+                ArticleSearchResultUtils.processDeletedArticleForSearchResult(getDatabaseSession(), it)
+            }
+            processedDeletedArticleCount += unProcessedDeletedArticles.size
+            LoggerUtils.logOnDb("${unProcessedDeletedArticles.size} deleted articles processed for Search Results in current iteration.",getDatabaseSession())
+            unProcessedDeletedArticles =
+                    DatabaseUtils.getUnProcessedDeletedArticlesForSearchResult(getDatabaseSession(),ARTICLE_PROCESSING_CHUNK_SIZE)
         }
-        getDatabaseSession().refresh(lastRunLog)
-        return (System.currentTimeMillis() - lastRunLog.created!!.time) > DURATION_BETWEEN_UPLOADER_RUN_MS
+
+        LoggerUtils.logOnDb("Total ${processedDeletedArticleCount} deleted articles processed for Search Results",getDatabaseSession())
+        LoggerUtils.logOnDb("Exiting routine for processing deleted Articles for Search Results",getDatabaseSession())
     }
 
     private fun getDatabaseSession(): Session {

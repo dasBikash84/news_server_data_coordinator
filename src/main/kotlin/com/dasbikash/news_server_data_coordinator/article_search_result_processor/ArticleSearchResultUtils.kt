@@ -52,24 +52,18 @@ internal object ArticleSearchResultUtils {
         if (article.processedForSearchResult){
             return
         }
-        var title = article.title!!
-//        LoggerUtils.logOnConsole(title)
-        title = replaceBanglaDigits(title)
-        title = title.replace(charFileterRegex," ")
 
-        title.split(Regex("\\s+")).asSequence()
-                .map { it.trim() }
-                .filter { it.length >= MINIMUM_KEYWORD_LENGTH && !checkIfKeyWordRestricted(session, it) }
+        getSearchKeyWordsFromArticle(session, article)
+                .asSequence()
                 .forEach {
-//                    LoggerUtils.logOnConsole(it)
                     val keyWordSearchResult =
-                            session.get(KeyWordSearchResult::class.java,it) ?: KeyWordSearchResult(keyWord = it.toLowerCase())
+                            session.get(KeyWordSearchResult::class.java,it) ?: KeyWordSearchResult(keyWord = it)
                     keyWordSearchResult.addArticleInfo(article)
-//                    LoggerUtils.logOnConsole(keyWordSearchResult.toString())
                     DatabaseUtils.runDbTransection(session){session.saveOrUpdate(keyWordSearchResult)}
                 }
+
         article.processedForSearchResult = true
-        DatabaseUtils.runDbTransection(session){session.saveOrUpdate(article)}
+        DatabaseUtils.runDbTransection(session){session.update(article)}
     }
 
     fun writeKeyWordSearchResults(keyWordSearchResults: List<KeyWordSearchResult>,session: Session){
@@ -79,5 +73,36 @@ internal object ArticleSearchResultUtils {
             it.lastUploadedOnFireBaseDb = Date()
             DatabaseUtils.runDbTransection(session){session.update(it)}
         }
+    }
+
+    fun processDeletedArticleForSearchResult(session: Session, article: Article) {
+
+        if (article.deletedProcessedForSearchResult){
+            return
+        }
+
+        getSearchKeyWordsFromArticle(session, article)
+                .asSequence()
+                .forEach {
+                    session.get(KeyWordSearchResult::class.java,it)?.let {
+                        it.lastUploadedOnFireBaseDb = null
+                        DatabaseUtils.runDbTransection(session){session.update(it)}
+                    }
+                }
+
+        article.deletedProcessedForSearchResult = true
+        DatabaseUtils.runDbTransection(session){session.update(article)}
+    }
+
+    private fun getSearchKeyWordsFromArticle(session: Session, article: Article):List<String>{
+
+        var title = article.title!!
+        title = replaceBanglaDigits(title)
+        title = title.replace(charFileterRegex," ")
+
+        return title.split(Regex("\\s+")).map { it.trim() }
+                .filter { it.length >= MINIMUM_KEYWORD_LENGTH && !checkIfKeyWordRestricted(session, it) }
+                .map { it.toLowerCase() }
+                .toList()
     }
 }

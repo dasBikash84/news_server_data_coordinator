@@ -44,6 +44,7 @@ data class Article(
         var deletedFromFireStore:Boolean = false
         var deletedFromMongoRest:Boolean = false
         var processedForSearchResult:Boolean = false
+        var deletedProcessedForSearchResult:Boolean = false
 
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
@@ -51,11 +52,14 @@ data class Article(
         var imageLinkList: List<ArticleImage> = ArrayList()
 
 
-        override fun toString(): String {
-                return "Article(id='$id', title=$title,page=${page?.name}, publicationTime=${publicationTime})"
-        }
         companion object{
                 const val PUBLICATION_TIME_COLUMN_NAME = "publicationTime"
                 const val COLUMN_NAME_FOR_ORDER_BY = "created"
+        }
+
+        override fun toString(): String {
+                return "Article(id='$id', publicationTime=$publicationTime, title=$title, page id=${page?.id}, upOnFirebaseDb=$upOnFirebaseDb, " +
+                        "upOnFireStore=$upOnFireStore, deletedFromFirebaseDb=$deletedFromFirebaseDb, deletedFromFireStore=$deletedFromFireStore, " +
+                        "processedForSearchResult=$processedForSearchResult, deletedProcessedForSearchResult=$deletedProcessedForSearchResult)"
         }
 }

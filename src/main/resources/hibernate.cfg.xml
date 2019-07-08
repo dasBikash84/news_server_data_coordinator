@@ -18,7 +18,7 @@
  <session-factory >
   <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
   <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/news_server_data_coordinator?UseUnicode=true</property>
-<!--  <property name="hibernate.connection.url">jdbc:mysql://192.168.0.101:3306/news_server_data_coordinator?UseUnicode=true</property>-->
+<!--  <property name="hibernate.connection.url">jdbc:mysql://192.168.0.100:3306/news_server_data_coordinator?UseUnicode=true</property>-->
 <!--  <property name="hibernate.connection.username">temp_user_on_dtop</property>-->
   <property name="hibernate.connection.username">nsdc_app_user</property>
 <!--  <property name="hibernate.connection.password">temp_user_on_dtop</property>-->

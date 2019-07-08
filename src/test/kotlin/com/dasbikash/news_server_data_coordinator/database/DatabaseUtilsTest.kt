@@ -1,5 +1,7 @@
 package com.dasbikash.news_server_data_coordinator.database
 
+import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchReasultProcessor
+import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchResultUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord
 import org.hibernate.Session
@@ -13,7 +15,7 @@ internal class DatabaseUtilsTest {
 
     @BeforeEach
     fun setUp() {
-        session=DbSessionManager.getNewSession()
+//        session=DbSessionManager.getNewSession()
     }
 
     @AfterEach
@@ -218,6 +220,15 @@ internal class DatabaseUtilsTest {
 //    fun readRestrictedSearchKeyWord(){
 //        session.get(RestrictedSearchKeyWord::class.java,"of")?.let {
 //            println(it)
+//        }
+//    }
+//    @Test
+//    fun getUnProcessedDeletedArticlesForSearchResult() {
+//        DatabaseUtils.getUnProcessedDeletedArticlesForSearchResult(session,10).asSequence().forEach {
+//            println()
+//            println()
+//            println(it)
+//            ArticleSearchResultUtils.processDeletedArticleForSearchResult(session,it)
 //        }
 //    }
 }

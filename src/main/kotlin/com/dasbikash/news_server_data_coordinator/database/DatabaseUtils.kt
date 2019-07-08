@@ -496,6 +496,22 @@ object DatabaseUtils {
         }
     }
 
+    fun getUnProcessedDeletedArticlesForSearchResult(session: Session, limit:Int=100):List<Article>{
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                                .append(" WHERE processedForSearchResult = 1")
+                                                .append(" AND deletedFromFirebaseDb=1")
+                                                .append(" AND deletedFromFireStore=1")
+                                                .append(" AND deletedProcessedForSearchResult = 0")
+                                                .append(" limit ${limit}")
+
+        val query =session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
+        try {
+            return query.resultList as List<Article>
+        }catch (ex:Exception){
+            return emptyList()
+        }
+    }
+
     fun checkIfArticleDeleted(session: Session,articleId:String):Boolean{
         val sqlBuilder = StringBuilder("SELECT Count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
                                                 .append(" WHERE id='${articleId}'")

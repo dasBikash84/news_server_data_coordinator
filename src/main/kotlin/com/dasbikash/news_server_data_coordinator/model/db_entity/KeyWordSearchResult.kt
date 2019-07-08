@@ -46,7 +46,8 @@ data class KeyWordSearchResult(
     }
 
     override fun toString(): String {
-        return "KeyWordSearchResult(keyWord=$keyWord, searchResult='$searchResult', modified=$modified)"
+        return "KeyWordSearchResult(keyWord=$keyWord, " +
+                "modified=$modified, lastUploadedOnFireBaseDb = $lastUploadedOnFireBaseDb)"
     }
 
     fun getSearchResultMap(session: Session):Map<String,String?>{
