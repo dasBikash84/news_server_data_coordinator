@@ -41,7 +41,7 @@ import kotlin.collections.ArrayList
 
 object DataCoordinator {
 
-    private val ARTICLE_FETCHER_MAP: MutableMap<String, ArticleFetcher> = mutableMapOf()
+    private var mArticleFetcher:ArticleFetcher?=null
     private val DATA_COORDINATOR_ITERATION_PERIOD = 15 * 60 * 1000L //15 mins
     private lateinit var realTimeDbDataUploader: DataUploader
     private lateinit var fireStoreDbDataUploader: DataUploader
@@ -61,19 +61,9 @@ object DataCoordinator {
                 val (newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
                         = updateSettingsIfChanged()
 
-                refreshArticleFetchers(newNewspaperIds, deactivatedIds, unChangedNewspaperIds)
+                refreshArticleFetcher()
                 refreshArticleDataUploaders()
-
-                if (articleSearchReasultProcessor !=null){
-                    if (! articleSearchReasultProcessor!!.isAlive){
-                        articleSearchReasultProcessor = null
-                    }
-                }
-
-                if (articleSearchReasultProcessor ==null){
-                    articleSearchReasultProcessor = ArticleSearchReasultProcessor.getInstance()
-                    articleSearchReasultProcessor?.start()
-                }
+                refreshArticleSearchReasultProcessor()
 
                 errorDelayPeriod = 0L
                 errorIteration = 0L
@@ -160,34 +150,23 @@ object DataCoordinator {
         return errorDelayPeriod
     }
 
-    private fun refreshArticleFetchers(newNewspaperIds: List<String>, deactivatedIds: List<String>, unChangedNewspaperIds: List<String>) {
+    private fun refreshArticleFetcher() {
         try {
             val session = DbSessionManager.getNewSession()
-            newNewspaperIds.asSequence().forEach {
-                LoggerUtils.logOnConsole("newNewspaperId: ${it}")
-                val newNewspaper = DatabaseUtils.findNewspaperById(session, it)!!
-                session.detach(newNewspaper)
-                val articleFetcher = ArticleFetcher(newNewspaper)
-                ARTICLE_FETCHER_MAP.put(newNewspaper.id, articleFetcher)
-                articleFetcher.start()
-            }
-            deactivatedIds.asSequence()
-                    .forEach {
-                        LoggerUtils.logOnConsole("deactivatedId: ${it}")
-                        if (ARTICLE_FETCHER_MAP.containsKey(it)) {
-                            ARTICLE_FETCHER_MAP.get(it)!!.interrupt()
-                            ARTICLE_FETCHER_MAP.remove(it)
-                        }
-                    }
-            unChangedNewspaperIds.asSequence().forEach {
-//                println("unChangedNewspaperId: ${it}")
-                if (ARTICLE_FETCHER_MAP.get(it) == null || !ARTICLE_FETCHER_MAP.get(it)!!.isAlive) {
-                    ARTICLE_FETCHER_MAP.remove(it)
-                    val unChangedNewspaperFromDb = DatabaseUtils.findNewspaperById(session, it)!!
-                    session.detach(unChangedNewspaperFromDb)
-                    val articleFetcher = ArticleFetcher(unChangedNewspaperFromDb)
-                    ARTICLE_FETCHER_MAP.put(it, articleFetcher)
-                    articleFetcher.start()
+
+            val activeNewspapers = DatabaseUtils.getNewspaperMap(session).values.filter {it.active}.toList()
+            if (mArticleFetcher == null){
+                if (activeNewspapers.isNotEmpty()){
+                    mArticleFetcher = ArticleFetcher()
+                    mArticleFetcher!!.start()
+                }
+            }else{
+                if (activeNewspapers.isEmpty()){
+                    mArticleFetcher!!.interrupt()
+                    mArticleFetcher = null
+                }else if (!mArticleFetcher!!.isAlive){
+                    mArticleFetcher = ArticleFetcher()
+                    mArticleFetcher!!.start()
                 }
             }
             session.close()
@@ -249,6 +228,19 @@ object DataCoordinator {
             session.close()
         } catch (ex: Exception) {
             throw AppInitException(ex)
+        }
+    }
+
+    private fun refreshArticleSearchReasultProcessor() {
+        if (articleSearchReasultProcessor != null) {
+            if (!articleSearchReasultProcessor!!.isAlive) {
+                articleSearchReasultProcessor = null
+            }
+        }
+
+        if (articleSearchReasultProcessor == null) {
+            articleSearchReasultProcessor = ArticleSearchReasultProcessor.getInstance()
+            articleSearchReasultProcessor?.start()
         }
     }
 
