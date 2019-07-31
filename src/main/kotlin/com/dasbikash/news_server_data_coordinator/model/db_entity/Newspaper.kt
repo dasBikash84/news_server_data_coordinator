@@ -20,54 +20,59 @@ import javax.persistence.*
 @Entity
 @Table(name = DatabaseTableNames.NEWSPAPER_TABLE_NAME)
 data class Newspaper(
-        @Id var id: String="",
-        var name: String?=null
+        @Id var id: String = "",
+        var name: String? = null,
+        var active: Boolean = true
 ) {
-        @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="countryName")
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var country: Country?=null
+    @ManyToOne(targetEntity = Country::class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "countryName")
+    @Exclude
+    @com.google.firebase.database.Exclude
+    var country: Country? = null
 
-        @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="languageId")
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var language: Language?=null
+    @ManyToOne(targetEntity = Language::class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "languageId")
+    @Exclude
+    @com.google.firebase.database.Exclude
+    var language: Language? = null
 
-        var active: Boolean=true
-
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class
-                ,cascade = arrayOf(CascadeType.ALL))
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var pageList: MutableList<Page> = mutableListOf()
-        @Transient
-        var countryName:String?=null
-        @Transient
-        var languageId:String?=null
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "newspaper", targetEntity = Page::class
+            , cascade = arrayOf(CascadeType.ALL))
+    @Exclude
+    @com.google.firebase.database.Exclude
+    var pageList: MutableList<Page> = mutableListOf()
+    @Transient
+    var countryName: String? = null
+    @Transient
+    var languageId: String? = null
 
 
-        fun setCountryData(countries:List<Country>){
-                for (country in countries){
-                        if (country.name.equals(this.countryName)){
-                                this.country = country
-                                break
-                        }
-                }
-                if (this.country == null){
-                        throw IllegalArgumentException()
-                }
+    fun setCountryData(countries: List<Country>) {
+        for (country in countries) {
+            if (country.name.equals(this.countryName)) {
+                this.country = country
+                break
+            }
         }
-        fun setLanguageData(languages:List<Language>){
-                for (language in languages){
-                        if (language.id.equals(this.languageId)){
-                                this.language = language
-                                break
-                        }
-                }
-                if (this.language == null){
-                        throw IllegalArgumentException()
-                }
+        if (this.country == null) {
+            throw IllegalArgumentException()
         }
+    }
+
+    fun setLanguageData(languages: List<Language>) {
+        for (language in languages) {
+            if (language.id.equals(this.languageId)) {
+                this.language = language
+                break
+            }
+        }
+        if (this.language == null) {
+            throw IllegalArgumentException()
+        }
+    }
+
+    fun updateData(newNewspaper: Newspaper) {
+        active = newNewspaper.active
+        name = newNewspaper.name
+    }
 }

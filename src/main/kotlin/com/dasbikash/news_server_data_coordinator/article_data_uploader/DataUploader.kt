@@ -211,7 +211,7 @@ abstract class DataUploader : Thread() {
         val languages = DatabaseUtils.getLanguageMap(session).values
         val countries = DatabaseUtils.getCountriesMap(session).values
         val newspapers = DatabaseUtils.getNewspaperMap(session).values
-        val pages = DatabaseUtils.getPageMap(session).values
+        val pages = DatabaseUtils.getPageMapForAll(session).values
         val pageGroups = DatabaseUtils.getPageGroups(session)
         if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
             throw IllegalStateException("Basic app settings not found.")

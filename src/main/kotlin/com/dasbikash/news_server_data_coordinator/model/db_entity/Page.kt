@@ -21,53 +21,62 @@ import javax.persistence.*
 @Table(name = DatabaseTableNames.PAGE_TABLE_NAME)
 data class Page(
         @Id
-        var id: String=""
-){
-
-        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="newsPaperId")
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var newspaper: Newspaper?=null
-
+        var id: String = "",
+        var parentPageId: String? = null,
+        var hasData: Boolean? = null,
+        var hasChild: Boolean? = null,
+        var topLevelPage: Boolean? = null,
+        var name: String? = null,
         var active: Boolean = true
+) {
 
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
-        @Exclude
-        @com.google.firebase.database.Exclude
-        var articleList: List<Article>?=null
+    @ManyToOne(targetEntity = Newspaper::class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "newsPaperId")
+    @Exclude
+    @com.google.firebase.database.Exclude
+    var newspaper: Newspaper? = null
 
-        var parentPageId: String?=null
-        var hasData: Boolean?=null
-        var hasChild: Boolean?=null
-        var topLevelPage: Boolean?=null
-        var name: String?=null
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "page", targetEntity = Article::class)
+    @Exclude
+    @com.google.firebase.database.Exclude
+    var articleList: List<Article>? = null
 
-        @Transient
-        var newsPaperId:String?=null
 
-        fun setNewsPaperData(newspapers: List<Newspaper>){
-                for (newspaper in newspapers){
-                        if (newspaper.id.equals(newsPaperId)){
-                                this.newspaper = newspaper
-                                break
-                        }
-                }
-                if(newspaper == null){
-                        throw IllegalArgumentException()
-                }
+    @Transient
+    var newsPaperId: String? = null
+
+    fun setNewsPaperData(newspapers: List<Newspaper>) {
+        for (newspaper in newspapers) {
+            if (newspaper.id.equals(newsPaperId)) {
+                this.newspaper = newspaper
+                break
+            }
         }
+        if (newspaper == null) {
+            throw IllegalArgumentException()
+        }
+    }
 
-        override fun toString(): String {
-                return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
-        }
-        @Transient
-        fun getContentFromOther(other: Page){
-                this.name=other.name
-                this.active=other.active
-                this.parentPageId=other.parentPageId
-                this.hasData=other.hasData
-                this.hasChild=other.hasChild
-                this.topLevelPage=other.topLevelPage
-        }
+    override fun toString(): String {
+        return "Page(id='$id', name=$name, newsPaper=${newspaper?.name})"
+    }
+
+    @Transient
+    fun getContentFromOther(other: Page) {
+        this.name = other.name
+        this.active = other.active
+        this.parentPageId = other.parentPageId
+        this.hasData = other.hasData
+        this.hasChild = other.hasChild
+        this.topLevelPage = other.topLevelPage
+    }
+
+    fun updateData(newPage: Page) {
+        name = newPage.name
+        active = newPage.active
+        parentPageId = newPage.parentPageId
+        hasData = newPage.hasData
+        hasChild = newPage.hasChild
+        topLevelPage = newPage.topLevelPage
+    }
 }

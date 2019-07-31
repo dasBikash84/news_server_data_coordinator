@@ -33,8 +33,8 @@ object DataFetcherFromParser {
 //    private val BASE_ADDRESS = "http://192.168.0.101:8098"
     private val LANGUAGE_SETTINGS_NODE = "languages"
     private val COUNTRY_SETTINGS_NODE = "countries"
-    private val NEWS_PAPER_SETTINGS_NODE = "newspapers"
-    private val PAGE_SETTINGS_NODE = "pages"
+    private val NEWS_PAPER_SETTINGS_NODE = "newspapers/all"
+    private val PAGE_SETTINGS_NODE = "pages/all"
     private val LATEST_ARTICLES_FOR_PAGE_ID_NODE = "articles/page_id/{${PAGE_ID_PATH_PARAM}}/latest"
     private val ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE =
             "articles/page_id/{${PAGE_ID_PATH_PARAM}}/before/article_id/{${LAST_ARTICLE_ID_PATH_PARAM}}"
@@ -64,7 +64,7 @@ object DataFetcherFromParser {
         languagesFromParser.languages!!.asSequence().forEach {
             languageMap.put(it.id, it)
         }
-        return languageMap
+        return languageMap.toMap()
     }
 
     fun getCountryMap(): Map<String, Country> {
@@ -78,30 +78,42 @@ object DataFetcherFromParser {
                 .forEach {
                     countryMap.put(it.name, it)
                 }
-        return countryMap
+        return countryMap.toMap()
     }
 
-    fun getNewspaperMap(): Map<String, Newspaper> {
+    fun getNewspaperMap(session: Session): Map<String, Newspaper> {
         val response = newsPapersTarget.request(MediaType.APPLICATION_JSON).get()
         val data = response.readEntity(String::class.java)!!
 
         val newspapersFromParser = gson.fromJson(data, Newspapers::class.java)
 
         val newspaperMap = mutableMapOf<String, Newspaper>()
+        val languages = DatabaseUtils.getLanguageMap(session).values.toList()
+        val countries = DatabaseUtils.getCountriesMap(session).values.toList()
         newspapersFromParser.newspapers!!.asSequence()
                 .forEach {
+                    it.setCountryData(countries)
+                    it.setLanguageData(languages)
                     newspaperMap.put(it.id, it)
                 }
-        return newspaperMap
+        return newspaperMap.toMap()
     }
 
-    fun getPages(): List<Page> {
+    fun getPageMap(session: Session): Map<String,Page> {
         val response = pagesTarget.request(MediaType.APPLICATION_JSON).get()
         val data = response.readEntity(String::class.java)!!
 
-        val pages = gson.fromJson(data, Pages::class.java)
+        val pagesFromParser = gson.fromJson(data, Pages::class.java)
 
-        return pages.pages!!
+        val pageMap = mutableMapOf<String, Page>()
+        val newspapers = DatabaseUtils.getNewspaperMap(session).values.toList()
+        pagesFromParser.pages!!.asSequence()
+                .forEach {
+                    it.setNewsPaperData(newspapers)
+                    pageMap.put(it.id, it)
+                }
+
+        return pageMap.toMap()
     }
 
     fun getPagesForNewspaper(newspaper: Newspaper): List<Page> {

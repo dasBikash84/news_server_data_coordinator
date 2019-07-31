@@ -119,6 +119,17 @@ object DatabaseUtils {
         return pageMap
     }
 
+    fun getPageMapForAll(session: Session): Map<String, Page> {
+        val hql = "FROM ${EntityClassNames.PAGE}"
+        val query = session.createQuery(hql, Page::class.java)
+        val pageMap = mutableMapOf<String, Page>()
+        (query.list() as List<Page>).asSequence()
+                .forEach {
+                    pageMap.put(it.id, it)
+                }
+        return pageMap
+    }
+
     fun getPageMap(session: Session): Map<String, Page> {
         val hql = "FROM ${EntityClassNames.PAGE}"
         val query = session.createQuery(hql, Page::class.java)
