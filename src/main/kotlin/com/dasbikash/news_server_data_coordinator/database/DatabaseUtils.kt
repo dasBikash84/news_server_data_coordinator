@@ -227,8 +227,8 @@ object DatabaseUtils {
         val settingsUploadLogList = findSettingsUploadLogByTarget(session, articleUploadTarget)
         if (settingsUploadLogList.isNotEmpty()) {
             return settingsUploadLogList.sortedBy {
-                        it.uploadTime
-                    }.last()
+                it.uploadTime
+            }.last()
         }
         return null
     }
@@ -240,18 +240,18 @@ object DatabaseUtils {
         return (query.list() as List<SettingsUpdateLog>).last()
     }
 
-    fun getArticleUploaderStatus(session: Session,articleUploadTarget: ArticleUploadTarget):Boolean{
+    fun getArticleUploaderStatus(session: Session, articleUploadTarget: ArticleUploadTarget): Boolean {
         val hql = "FROM ${EntityClassNames.ARTICLE_UPLOADER_STATUS_CHANGE_LOG} where " +
-                            "articleDataUploaderTarget='${articleUploadTarget}' order by created desc"
+                "articleDataUploaderTarget='${articleUploadTarget}' order by created desc"
         val query = session.createQuery(hql, ArticleUploaderStatusChangeLog::class.java)
         val articleUploaderStatusChangeLogList = query.list() as List<ArticleUploaderStatusChangeLog>
-        if (articleUploaderStatusChangeLogList.size>0){
+        if (articleUploaderStatusChangeLogList.size > 0) {
             return articleUploaderStatusChangeLogList.first().status == TwoStateStatus.ON
         }
         return false
     }
 
-    fun getArticleDeleteRequests(session: Session,articleUploadTarget: ArticleUploadTarget): List<ArticleDeleteRequest> {
+    fun getArticleDeleteRequests(session: Session, articleUploadTarget: ArticleUploadTarget): List<ArticleDeleteRequest> {
         val hql = "FROM ${EntityClassNames.ARTICLE_DELETE_REQUEST} WHERE served=false AND articleUploadTarget='${articleUploadTarget.name}'"
         val query = session.createQuery(hql, ArticleDeleteRequest::class.java)
         return query.list() as List<ArticleDeleteRequest>
@@ -259,30 +259,35 @@ object DatabaseUtils {
 
     fun getArticlesForDeletion(session: Session, page: Page, deleteRequestCount: Int, uploadDestinationInfo: UploadDestinationInfo): List<Article> {
         val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                    .append(" WHERE pageId='${page.id}' ")
-                                                    .append(" AND ${uploadDestinationInfo.uploadFlagName} = 1")
-                                                    .append(" AND ${uploadDestinationInfo.deleteFlagName} = 0")
-                                                    .append(" ORDER BY publicationTime asc")
-                                                    .append(" limit ${deleteRequestCount}")
+                .append(" WHERE pageId='${page.id}' ")
+                .append(" AND ${uploadDestinationInfo.uploadFlagName} = 1")
+                .append(" AND ${uploadDestinationInfo.deleteFlagName} = 0")
+                .append(" ORDER BY publicationTime asc")
+                .append(" limit ${deleteRequestCount}")
 
 //        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
-        val query = session.createNativeQuery(sqlStringBuilder.toString(),Article::class.java)
-        return query.resultList as List<Article>
+        val query = session.createNativeQuery(sqlStringBuilder.toString(), Article::class.java)
+        try {
+            return query.resultList as List<Article>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
     }
 
-    fun markArticleAsDeletedFromDataStore(session: Session, article: Article, uploadDestinationInfo: UploadDestinationInfo){
+    fun markArticleAsDeletedFromDataStore(session: Session, article: Article, uploadDestinationInfo: UploadDestinationInfo) {
         val sqlStringBuilder = StringBuilder("UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                        .append(" SET ${uploadDestinationInfo.deleteFlagName} = 1")
-                                                        .append(" WHERE id='${article.id}'")
+                .append(" SET ${uploadDestinationInfo.deleteFlagName} = 1")
+                .append(" WHERE id='${article.id}'")
         val query = session.createNativeQuery(sqlStringBuilder.toString())
         runDbTransection(session) {
             query.executeUpdate()
         }
     }
 
-    fun getArticleDownloadLogWithNullPageId(session: Session,count:Int):List<ArticleDownloadLog>{
+    fun getArticleDownloadLogWithNullPageId(session: Session, count: Int): List<ArticleDownloadLog> {
         val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME} WHERE " +
-                            "pageId is null order by created desc limit ${count}"
+                "pageId is null order by created desc limit ${count}"
 //        LoggerUtils.logOnConsole(sql)
         try {
             return session.createNativeQuery(sql, ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
@@ -292,7 +297,7 @@ object DatabaseUtils {
         return emptyList()
     }
 
-    fun getArticleDownloadLog(session: Session,count:Int):List<ArticleDownloadLog>{
+    fun getArticleDownloadLog(session: Session, count: Int): List<ArticleDownloadLog> {
         val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME} limit ${count}"
         try {
             return session.createNativeQuery(sql, ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
@@ -321,17 +326,22 @@ object DatabaseUtils {
 
     private fun getArticleDownloadCountForPageBetweenTwoDates(page: Page, startDate: Date, firstDayOfMonth: Date, session: Session): Int {
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_DOWNLOAD_LOG_TABLE_NAME}")
-                                            .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
-                                            .append("AND created<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
+                .append(" WHERE pageId='${page.id}' ")
+                .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
+                .append("AND created<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val articleDownloadLogs =
-                session.createNativeQuery(sqlBuilder.toString(), ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
-        var articleDownloadCount = 0
-        articleDownloadLogs.asSequence().forEach {
-            articleDownloadCount += it.getArticleCount()
+        try {
+            val articleDownloadLogs =
+                    session.createNativeQuery(sqlBuilder.toString(), ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
+            var articleDownloadCount = 0
+            articleDownloadLogs.asSequence().forEach {
+                articleDownloadCount += it.getArticleCount()
+            }
+            return articleDownloadCount
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
-        return articleDownloadCount
+        return 0
     }
 
     fun getArticleUploadCountForTargetOfYesterday(session: Session, articleUploadTarget: ArticleUploadTarget, today: Date): Int {
@@ -347,23 +357,27 @@ object DatabaseUtils {
     fun getArticleUploadCountForTargetOfLastMonth(session: Session, articleUploadTarget: ArticleUploadTarget, anyDayOfMonth: Date): Int {
         val firstDayOfMonth = DateUtils.getFirstDayOfMonth(anyDayOfMonth)
         val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(anyDayOfMonth)
-        return getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget,firstDayOfLastMonth, firstDayOfMonth,  session)
+        return getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget, firstDayOfLastMonth, firstDayOfMonth, session)
     }
 
     fun getArticleUploadCountForTargetFromBeginning(session: Session, articleUploadTarget: ArticleUploadTarget): Int {
 
         val uploadDestinationInfo =
-                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+                UploadDestinationInfo.values().find { it.articleUploadTarget == articleUploadTarget }!!
 
 
         val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE ${uploadDestinationInfo.uploadFlagName}=1")
+                .append(" WHERE ${uploadDestinationInfo.uploadFlagName}=1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
-        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
         return 0
     }
@@ -371,78 +385,95 @@ object DatabaseUtils {
     private fun getArticleUploadCountForTargetBetweenTwoDates(articleUploadTarget: ArticleUploadTarget, startDate: Date, endDate: Date, session: Session): Int {
 
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_UPLOAD_LOG_TABLE_NAME}")
-                                            .append(" WHERE uploadTarget='${articleUploadTarget.name}' ")
-                                            .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
-                                            .append("AND created<'${DateUtils.getDateStringForDb(endDate)}'")
+                .append(" WHERE uploadTarget='${articleUploadTarget.name}' ")
+                .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
+                .append("AND created<'${DateUtils.getDateStringForDb(endDate)}'")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val articleUploadLogs =
-                session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
-        var articleUploadCount = 0
-        articleUploadLogs.asSequence().forEach {
-            articleUploadCount += it.getArticleUpCount()
+        try {
+            val articleUploadLogs =
+                    session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
+            var articleUploadCount = 0
+            articleUploadLogs.asSequence().forEach {
+                articleUploadCount += it.getArticleUpCount()
+            }
+            return articleUploadCount
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
-        return articleUploadCount
+        return 0
     }
 
     fun getArticleCountForPage(session: Session, page: Page): Int {
         val sql = "SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${page.id}'"
-        val result = session.createNativeQuery(sql).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            val result = session.createNativeQuery(sql).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
         return 0
     }
 
-    fun getArticleDeletionCountFromAllUploaderTargetsForPage(session: Session,page: Page):Map<ArticleUploadTarget,Int>{
+    fun getArticleDeletionCountFromAllUploaderTargetsForPage(session: Session, page: Page): Map<ArticleUploadTarget, Int> {
 
-        val targetArticleDeletionCountMap = mutableMapOf<ArticleUploadTarget,Int>()
+        val targetArticleDeletionCountMap = mutableMapOf<ArticleUploadTarget, Int>()
 
-        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.REAL_TIME_DB,page).apply {
-            targetArticleDeletionCountMap.put(ArticleUploadTarget.REAL_TIME_DB,this)
+        getArticleDeletionCountFromUploaderTargetForPage(session, ArticleUploadTarget.REAL_TIME_DB, page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.REAL_TIME_DB, this)
         }
-        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.FIRE_STORE_DB,page).apply {
-            targetArticleDeletionCountMap.put(ArticleUploadTarget.FIRE_STORE_DB,this)
+        getArticleDeletionCountFromUploaderTargetForPage(session, ArticleUploadTarget.FIRE_STORE_DB, page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.FIRE_STORE_DB, this)
         }
-        getArticleDeletionCountFromUploaderTargetForPage(session,ArticleUploadTarget.MONGO_REST_SERVICE,page).apply {
-            targetArticleDeletionCountMap.put(ArticleUploadTarget.MONGO_REST_SERVICE,this)
+        getArticleDeletionCountFromUploaderTargetForPage(session, ArticleUploadTarget.MONGO_REST_SERVICE, page).apply {
+            targetArticleDeletionCountMap.put(ArticleUploadTarget.MONGO_REST_SERVICE, this)
         }
         return targetArticleDeletionCountMap.toMap()
     }
 
-    private fun getArticleDeletionCountFromUploaderTargetForPage(session: Session,articleUploadTarget: ArticleUploadTarget,page: Page):Int{
+    private fun getArticleDeletionCountFromUploaderTargetForPage(session: Session, articleUploadTarget: ArticleUploadTarget, page: Page): Int {
 
         val uploadDestinationInfo =
-                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+                UploadDestinationInfo.values().find { it.articleUploadTarget == articleUploadTarget }!!
 
 
         val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                            .append(" WHERE pageId='${page.id}' ")
-                                                            .append(" AND ${uploadDestinationInfo.deleteFlagName}=1")
+                .append(" WHERE pageId='${page.id}' ")
+                .append(" AND ${uploadDestinationInfo.deleteFlagName}=1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
-        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
         return 0
 
     }
 
-    fun getArticleDeletionCountFromUploaderTarget(session: Session,articleUploadTarget: ArticleUploadTarget):Int{
+    fun getArticleDeletionCountFromUploaderTarget(session: Session, articleUploadTarget: ArticleUploadTarget): Int {
 
         val uploadDestinationInfo =
-                UploadDestinationInfo.values().find { it.articleUploadTarget==articleUploadTarget }!!
+                UploadDestinationInfo.values().find { it.articleUploadTarget == articleUploadTarget }!!
 
 
         val sqlBuilder = StringBuilder("SELECT count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                    .append(" WHERE ${uploadDestinationInfo.deleteFlagName}=1")
+                .append(" WHERE ${uploadDestinationInfo.deleteFlagName}=1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
-        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
         return 0
 
@@ -451,9 +482,9 @@ object DatabaseUtils {
     fun getLastDeletionTaskLogForTarget(session: Session, articleUploadTarget: ArticleUploadTarget): DailyDeletionTaskLog? {
 
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.DAILY_DELETION_TASK_LOG_TABLE_NAME}")
-                                                    .append(" WHERE uploadTarget='${articleUploadTarget.name}'")
-                                                    .append(" ORDER BY created DESC")
-                                                    .append(" limit 1")
+                .append(" WHERE uploadTarget='${articleUploadTarget.name}'")
+                .append(" ORDER BY created DESC")
+                .append(" limit 1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
@@ -464,105 +495,119 @@ object DatabaseUtils {
             if (dailyDeletionTaskLogs.size == 1) {
                 return dailyDeletionTaskLogs.get(0)
             }
-        }catch (ex:Throwable){ex.printStackTrace()}
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
+        }
 
         return null
     }
 
     fun getArticleCountInTargetForPage(session: Session, page: Page, uploadDestinationInfo: UploadDestinationInfo): Int {
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE pageId='${page.id}'")
-                                            .append(" AND ${uploadDestinationInfo.uploadFlagName} = 1")
-                                            .append(" AND ${uploadDestinationInfo.deleteFlagName} = 0")
+                .append(" WHERE pageId='${page.id}'")
+                .append(" AND ${uploadDestinationInfo.uploadFlagName} = 1")
+                .append(" AND ${uploadDestinationInfo.deleteFlagName} = 0")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
-        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
         }
         return 0
     }
 
-    fun getAllRestrictedSearchKeyWord(session: Session):List<RestrictedSearchKeyWord>{
+    fun getAllRestrictedSearchKeyWord(session: Session): List<RestrictedSearchKeyWord> {
         val hql = "FROM ${EntityClassNames.RESTRICTED_SEARCH_KEY_WORD}"
         val query =
                 session.createQuery(hql, RestrictedSearchKeyWord::class.java)
-        return query.list() as List<RestrictedSearchKeyWord>
-    }
-
-    fun getUnProcessedArticlesForSearchResult(session: Session,limit:Int=100):List<Article>{
-        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                .append(" WHERE")
-                                                .append(" processedForSearchResult=false")
-                                                .append(" AND")
-                                                .append(" ((upOnFirebaseDb=1 AND deletedFromFirebaseDb=0) OR (upOnFireStore=1 AND deletedFromFireStore=0))")
-                                                .append(" limit ${limit}")
-
-        val query =session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
         try {
-            return query.resultList as List<Article>
-        }catch (ex:Exception){
+            return query.list() as List<RestrictedSearchKeyWord>
+        } catch (ex: Exception) {
             return emptyList()
         }
     }
 
-    fun getUnProcessedDeletedArticlesForSearchResult(session: Session, limit:Int=100):List<Article>{
+    fun getUnProcessedArticlesForSearchResult(session: Session, limit: Int = 100): List<Article> {
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                .append(" WHERE processedForSearchResult = 1")
-                                                .append(" AND deletedFromFirebaseDb=1")
-                                                .append(" AND deletedFromFireStore=1")
-                                                .append(" AND deletedProcessedForSearchResult = 0")
-                                                .append(" limit ${limit}")
+                .append(" WHERE")
+                .append(" processedForSearchResult=false")
+                .append(" AND")
+                .append(" ((upOnFirebaseDb=1 AND deletedFromFirebaseDb=0) OR (upOnFireStore=1 AND deletedFromFireStore=0))")
+                .append(" limit ${limit}")
 
-        val query =session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
+        val query = session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
         try {
             return query.resultList as List<Article>
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             return emptyList()
         }
     }
 
-    fun checkIfArticleDeleted(session: Session,articleId:String):Boolean{
+    fun getUnProcessedDeletedArticlesForSearchResult(session: Session, limit: Int = 100): List<Article> {
+        val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                .append(" WHERE processedForSearchResult = 1")
+                .append(" AND deletedFromFirebaseDb=1")
+                .append(" AND deletedFromFireStore=1")
+                .append(" AND deletedProcessedForSearchResult = 0")
+                .append(" limit ${limit}")
+
+        val query = session.createNativeQuery(sqlBuilder.toString(), Article::class.java)
+        try {
+            return query.resultList as List<Article>
+        } catch (ex: Exception) {
+            return emptyList()
+        }
+    }
+
+    fun checkIfArticleDeleted(session: Session, articleId: String): Boolean {
         val sqlBuilder = StringBuilder("SELECT Count(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                                .append(" WHERE id='${articleId}'")
-                                                .append(" AND processedForSearchResult=1")
-                                                .append(" AND deletedFromFirebaseDb=1")
-                                                .append(" AND deletedFromFireStore=1")
+                .append(" WHERE id='${articleId}'")
+                .append(" AND processedForSearchResult=1")
+                .append(" AND deletedFromFirebaseDb=1")
+                .append(" AND deletedFromFireStore=1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
-        val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
-        if (result.size == 1) {
-            return result.get(0) == 1
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0) == 1
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
         return false
     }
 
-    fun getNewKeyWordSearchResults(session: Session,limit:Int=100):List<KeyWordSearchResult>{
+    fun getNewKeyWordSearchResults(session: Session, limit: Int = 100): List<KeyWordSearchResult> {
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME}")
-                                                .append(" WHERE")
-                                                .append(" lastUploadedOnFireBaseDb IS NULL")
-                                                .append(" OR lastUploadedOnFireBaseDb < modified")
-                                                .append(" limit ${limit}")
+                .append(" WHERE")
+                .append(" lastUploadedOnFireBaseDb IS NULL")
+                .append(" OR lastUploadedOnFireBaseDb < modified")
+                .append(" limit ${limit}")
 
-        val query =session.createNativeQuery(sqlBuilder.toString(), KeyWordSearchResult::class.java)
+        val query = session.createNativeQuery(sqlBuilder.toString(), KeyWordSearchResult::class.java)
         try {
             return query.resultList as List<KeyWordSearchResult>
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             return emptyList()
         }
     }
 
-    fun getSearchKeyWords(session: Session):List<String>{
+    fun getSearchKeyWords(session: Session): List<String> {
         val sqlBuilder = StringBuilder("SELECT keyWord FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME}")
-                                                .append(" WHERE")
-                                                .append(" lastUploadedOnFireBaseDb IS NOT NULL")
+                .append(" WHERE")
+                .append(" lastUploadedOnFireBaseDb IS NOT NULL")
         println(sqlBuilder.toString())
-        val query =session.createNativeQuery(sqlBuilder.toString())
+        val query = session.createNativeQuery(sqlBuilder.toString())
         try {
             return query.list() as List<String>
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             ex.printStackTrace()
             return emptyList()
         }
@@ -572,8 +617,8 @@ object DatabaseUtils {
     fun getLastArticleSearchResultUploaderLog(session: Session): ArticleSearchResultUploaderLog? {
 
         val sqlBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_SEARCH_RESULT_UPLOADER_LOG_TABLE_NAME}")
-                                            .append(" ORDER BY created DESC")
-                                            .append(" limit 1")
+                .append(" ORDER BY created DESC")
+                .append(" limit 1")
 
 //        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
@@ -584,7 +629,9 @@ object DatabaseUtils {
             if (articleSearchResultUploaderLogs.size == 1) {
                 return articleSearchResultUploaderLogs.get(0)
             }
-        }catch (ex:Throwable){ex.printStackTrace()}
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
+        }
 
         return null
     }
