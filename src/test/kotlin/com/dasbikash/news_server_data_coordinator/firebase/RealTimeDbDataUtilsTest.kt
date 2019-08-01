@@ -54,21 +54,21 @@ internal class RealTimeDbDataUtilsTest {
 //        }
 //    }
 
-    @Test
-    fun restructureArticleDataForNewsCat() {
-        val session = DbSessionManager.getNewSession()
-
-        DatabaseUtils.getAllPages(session).filter { !it.topLevelPage!! && it.id != "PAGE_ID_100" }.asSequence().forEach {
-            println()
-            println(it)
-            RealTimeDbDataUtils.clearArticleDataForPage(it)
-            println("Article data deleted.")
-            findRTDBArticleForPage(session, it).apply {
-                println("Article Count: " + this.size)
-                RealTimeDbDataUtils.writeArticleData(this)
-                println("Articledata uploaded on parents name:")
-            }
-        }
+//    @Test
+//    fun restructureArticleDataForNewsCat() {
+//        val session = DbSessionManager.getNewSession()
+//
+//        DatabaseUtils.getAllPages(session).filter { !it.topLevelPage!! && it.id != "PAGE_ID_100" }.asSequence().forEach {
+//            println()
+//            println(it)
+//            RealTimeDbDataUtils.clearArticleDataForPage(it)
+//            println("Article data deleted.")
+//            findRTDBArticleForPage(session, it).apply {
+//                println("Article Count: " + this.size)
+//                RealTimeDbDataUtils.writeArticleData(this)
+//                println("Articledata uploaded on parents name:")
+//            }
+//        }
 
         /*println("Going to upload articledata on parents name:")
         DatabaseUtils.getAllPages(session).filter { !it.topLevelPage!! }.take(1).asSequence().forEach {
@@ -77,17 +77,17 @@ internal class RealTimeDbDataUtilsTest {
         }*/
 
 
-    }
+//    }
 
 
-    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
-        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
-                " where pageId='${page.id}'" +
-                " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
-        println(sql)
-        val query = session.createNativeQuery(sql, Article::class.java)
-        return query.resultList as List<Article>
-    }
+//    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
+//        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
+//                " where pageId='${page.id}'" +
+//                " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
+//        println(sql)
+//        val query = session.createNativeQuery(sql, Article::class.java)
+//        return query.resultList as List<Article>
+//    }
 
     //    @Test
 //    fun getSearchResultMapTest(){
@@ -97,29 +97,29 @@ internal class RealTimeDbDataUtilsTest {
 //        }
 //
 //    }
-    @Test
-    fun restructureKeyWordSearchResultForNewsCat() {
-        val session = DbSessionManager.getNewSession()
-        var curOffSet = 0
-        val limit = 200
-
-        do {
-            val foundKeyWordSearchResult = readKeyWordSearchResult(session, curOffSet,limit)
-            foundKeyWordSearchResult.filter { it.searchResult.isNotBlank() }.apply {
-                LoggerUtils.logOnConsole("List<KeyWordSearchResult> size: ${this.size}")
-                ArticleSearchResultUtils.writeKeyWordSearchResults(this,session)
-                LoggerUtils.logOnConsole("List<KeyWordSearchResult> uploaded")
-            }
-            curOffSet += limit
-            LoggerUtils.logOnConsole("curOffSet: $curOffSet")
-        }while (foundKeyWordSearchResult.isNotEmpty())
-    }
-
-    fun readKeyWordSearchResult(session: Session, offset:Int,limit:Int=100): List<KeyWordSearchResult> {
-        val sql = "SELECT * FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME} limit ${offset},${limit}"
-
-        println(sql)
-        val query = session.createNativeQuery(sql, KeyWordSearchResult::class.java)
-        return query.resultList as List<KeyWordSearchResult>
-    }
+//    @Test
+//    fun restructureKeyWordSearchResultForNewsCat() {
+//        val session = DbSessionManager.getNewSession()
+//        var curOffSet = 0
+//        val limit = 200
+//
+//        do {
+//            val foundKeyWordSearchResult = readKeyWordSearchResult(session, curOffSet,limit)
+//            foundKeyWordSearchResult.filter { it.searchResult.isNotBlank() }.apply {
+//                LoggerUtils.logOnConsole("List<KeyWordSearchResult> size: ${this.size}")
+//                ArticleSearchResultUtils.writeKeyWordSearchResults(this,session)
+//                LoggerUtils.logOnConsole("List<KeyWordSearchResult> uploaded")
+//            }
+//            curOffSet += limit
+//            LoggerUtils.logOnConsole("curOffSet: $curOffSet")
+//        }while (foundKeyWordSearchResult.isNotEmpty())
+//    }
+//
+//    fun readKeyWordSearchResult(session: Session, offset:Int,limit:Int=100): List<KeyWordSearchResult> {
+//        val sql = "SELECT * FROM ${DatabaseTableNames.KEY_WORD_SERACH_RESULT_TABLE_NAME} limit ${offset},${limit}"
+//
+//        println(sql)
+//        val query = session.createNativeQuery(sql, KeyWordSearchResult::class.java)
+//        return query.resultList as List<KeyWordSearchResult>
+//    }
 }

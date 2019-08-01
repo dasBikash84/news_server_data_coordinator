@@ -31,8 +31,8 @@ internal class SettingsUpdateLogTest {
     fun tearDown() {
     }
 
-    @Test
-    fun getLastLog(){
+//    @Test
+//    fun getLastLog(){
 
 //        val session = DbSessionManager.getNewSession()
 //
@@ -41,5 +41,5 @@ internal class SettingsUpdateLogTest {
 //                    println(it)
 //                }
 //        session.close()
-    }
+//    }
 }

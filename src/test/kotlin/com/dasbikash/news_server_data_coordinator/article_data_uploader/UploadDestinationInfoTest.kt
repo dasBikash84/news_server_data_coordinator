@@ -19,7 +19,7 @@ internal class UploadDestinationInfoTest {
 
     @BeforeEach
     fun setUp() {
-        session = DbSessionManager.getNewSession()
+//        session = DbSessionManager.getNewSession()
     }
 
     @AfterEach

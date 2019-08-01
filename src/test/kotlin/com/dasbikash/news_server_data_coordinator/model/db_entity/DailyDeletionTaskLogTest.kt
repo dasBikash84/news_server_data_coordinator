@@ -14,7 +14,7 @@ internal class DailyDeletionTaskLogTest {
 
     @BeforeEach
     fun setUp() {
-        session = DbSessionManager.getNewSession()
+//        session = DbSessionManager.getNewSession()
     }
 
     @AfterEach

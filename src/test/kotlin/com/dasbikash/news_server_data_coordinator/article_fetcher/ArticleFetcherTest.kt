@@ -14,7 +14,7 @@ internal class ArticleFetcherTest {
 
     @BeforeEach
     fun setUp() {
-        session = DbSessionManager.getNewSession()
+//        session = DbSessionManager.getNewSession()
     }
 
     @AfterEach

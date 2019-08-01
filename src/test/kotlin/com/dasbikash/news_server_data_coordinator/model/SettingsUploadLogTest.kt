@@ -32,8 +32,8 @@ internal class SettingsUploadLogTest {
     }
 
 
-    @Test
-    fun testDataIO(){
+//    @Test
+//    fun testDataIO(){
 //        val session = DbSessionManager.getNewSession()
 
         /*for (i in 1..5){
@@ -53,5 +53,5 @@ internal class SettingsUploadLogTest {
 //            println("Have to update settings")
 //        }
 //        session.close()
-    }
+//    }
 }
