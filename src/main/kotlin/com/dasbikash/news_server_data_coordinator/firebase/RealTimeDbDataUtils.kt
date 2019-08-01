@@ -29,10 +29,24 @@ object RealTimeDbDataUtils {
         val futureList = mutableListOf<ApiFuture<Void>>()
 
         articleList.asSequence().forEach {
-            futureList.add(mArticleDataRootReference.child(it.page!!.id).child(it.id).setValueAsync(ArticleForFB.fromArticle(it)))
+            val node:DatabaseReference
+            if (it.page!!.topLevelPage!!) {
+                node=mArticleDataRootReference.child(it.page!!.id).child(it.id)
+            }else{
+                node=mArticleDataRootReference.child(it.page!!.parentPageId!!).child(it.id)
+            }
+            futureList.add(node.setValueAsync(ArticleForRTDB.fromArticle(it)))
         }
         futureList.asSequence().forEach {
             while (!it.isDone){}
+        }
+    }
+
+    fun clearArticleDataForPage(page: Page){
+        println(mArticleDataRootReference.child(page.id).path.toString())
+        val task = mArticleDataRootReference.child(page.id).setValueAsync(null)
+        while (!task.isDone){
+            Thread.sleep(10)
         }
     }
 

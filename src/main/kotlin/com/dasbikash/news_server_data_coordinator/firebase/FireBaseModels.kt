@@ -105,4 +105,36 @@ class ArticleForFB(
     }
 
 }
+class ArticleForRTDB(
+        val id: String,
+        val pageId: String,
+        val title: String,
+        val publicationTime: Date,
+        private var publicationTimeRTDB: Long? = null,
+        val articleText: String,
+        val imageLinkList: List<ArticleImage>,
+        val previewImageLink: String?
+){
+    companion object{
+        fun fromArticle(article: Article):ArticleForRTDB{
+            if (article.page!!.topLevelPage!!) {
+                return ArticleForRTDB(article.id, article.page!!.id, article.title!!, article.publicationTime!!, null,
+                        article.articleText!!, article.imageLinkList, article.previewImageLink)
+            }else{
+                return ArticleForRTDB(article.id, article.page!!.parentPageId!!, article.title!!, article.publicationTime!!, null,
+                        article.articleText!!, article.imageLinkList, article.previewImageLink)
+            }
+        }
+    }
+
+    fun getPublicationTimeRTDB():Long{
+        return publicationTime.time
+    }
+
+    override fun toString(): String {
+        return "ArticleForRTDB(id='$id', pageId='$pageId', title='$title', publicationTime=$publicationTime, publicationTimeRTDB=$publicationTimeRTDB, previewImageLink=$previewImageLink)"
+    }
+
+
+}
 
