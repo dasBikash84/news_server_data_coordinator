@@ -60,7 +60,7 @@ abstract class DataUploader : Thread() {
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>,
-                                             pageGroups: Collection<PageGroup>)
+                                             pageGroups: Collection<PageGroup>,newsCategories: Collection<NewsCategory>)
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article): Boolean
@@ -211,13 +211,17 @@ abstract class DataUploader : Thread() {
         val languages = DatabaseUtils.getLanguageMap(session).values
         val countries = DatabaseUtils.getCountriesMap(session).values
         val newspapers = DatabaseUtils.getNewspaperMap(session).values
-        val pages = DatabaseUtils.getPageMapForAll(session).values
+        val pages = DatabaseUtils.getPageMapForAll(session).values.map {
+            it.active = it.topLevelPage ?: false
+            it
+        }
         val pageGroups = DatabaseUtils.getPageGroups(session)
         if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
             throw IllegalStateException("Basic app settings not found.")
         }
+        val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values
 //        nukeOldSettings()
-        uploadNewSettings(languages, countries, newspapers, pages, pageGroups)
+        uploadNewSettings(languages, countries, newspapers, pages, pageGroups,newsCategories)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)
     }

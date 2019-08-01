@@ -27,6 +27,7 @@ object RealTimeDbRefUtils {
     private const val NEWSPAPERS_NODE = "newspapers"
     private const val PAGES_NODE = "pages"
     private const val PAGE_GROUPS_NODE = "page_groups"
+    private const val NEWS_CATEGORIES_NODE = "news_categories"
     private const val APP_SETTINGS_UPDATE_TIME_NODE = "update_time"
 
     private const val ADMIN_TASK_DATA_NODE = "admin_task_data"
@@ -73,6 +74,7 @@ object RealTimeDbRefUtils {
     internal fun getLanguagesRef():DatabaseReference = getAppSettingsRootRef().child(LANGUAGES_NODE)
     internal fun getNewspapersRef():DatabaseReference = getAppSettingsRootRef().child(NEWSPAPERS_NODE)
     internal fun getPagesRef():DatabaseReference = getAppSettingsRootRef().child(PAGES_NODE)
+    internal fun getNewsCategoriesRef():DatabaseReference = getAppSettingsRootRef().child(NEWS_CATEGORIES_NODE)
     internal fun getPageGroupsRef():DatabaseReference = getAppSettingsRootRef().child(PAGE_GROUPS_NODE)
     internal fun getSettingsUpdateTimeRef():DatabaseReference = getAppSettingsRootRef().child(APP_SETTINGS_UPDATE_TIME_NODE)
     internal fun getAdminTaskDataNode():DatabaseReference = getRootRef().child(ADMIN_TASK_DATA_NODE)

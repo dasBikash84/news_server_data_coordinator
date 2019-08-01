@@ -8,6 +8,7 @@ object FireStoreRefUtils {
     private const val PAGES_COLLECTION_LABEL = "pages"
     private const val PAGE_GROUPS_COLLECTION_LABEL = "page_groups"
     private const val APP_SETTINGS_UPDATE_TIME__COLLECTION_LABEL = "update_time"
+    private const val NEWS_CATEGORIES_COLLECTION_LABEL = "news_categories"
 
     private const val ARTICLE_COLLECTION_LABEL = "articles"
 
@@ -22,6 +23,9 @@ object FireStoreRefUtils {
 
     internal fun getPageSettingsCollectionRef() =
             FireBaseConUtils.mFireStoreCon.collection(PAGES_COLLECTION_LABEL)
+
+    internal fun getNewsCategorySettingsCollectionRef() =
+            FireBaseConUtils.mFireStoreCon.collection(NEWS_CATEGORIES_COLLECTION_LABEL)
 
     internal fun getPageGroupSettingsCollectionRef() =
             FireBaseConUtils.mFireStoreCon.collection(PAGE_GROUPS_COLLECTION_LABEL)

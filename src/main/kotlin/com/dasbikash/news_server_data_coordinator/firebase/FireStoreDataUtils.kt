@@ -49,7 +49,8 @@ object FireStoreDataUtils {
 
     fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                           newspapers: Collection<Newspaper>, pages: Collection<Page>,
-                          pageGroups:Collection<PageGroup>): Boolean {
+                          pageGroups:Collection<PageGroup>,newsCategories: Collection<NewsCategory>)
+            : Boolean {
         val languageMap = mutableMapOf<LanguageForFB, String>()
         languages.asSequence().forEach {
             languageMap.put(LanguageForFB.getFromLanguage(it), it.id)
@@ -83,6 +84,15 @@ object FireStoreDataUtils {
             return false
         }
 
+        val newsCategoryMap = mutableMapOf<NewsCategory, String>()
+        newsCategories.asSequence().forEach {
+            newsCategoryMap.put(it, it.id)
+        }
+
+        if (!writeToCollection(newsCategoryMap, FireStoreRefUtils.getNewsCategorySettingsCollectionRef())) {
+            return false
+        }
+
         val pageGroupsMap = mutableMapOf<PageGroupForFB, String>()
         pageGroups.asSequence().forEach {
             val pageGroupForFB = PageGroupForFB.getFromPageGroup(it)
@@ -93,6 +103,7 @@ object FireStoreDataUtils {
             return false
         }
 
+        TODO()
         return true
     }
 
