@@ -57,12 +57,17 @@ class PageForFB(
         var hasData: Boolean?=null,
         var hasChild: Boolean?=null,
         var topLevelPage: Boolean?=null,
-        val active:Boolean
+        var active:Boolean
 ){
     companion object{
-        fun getFromPage(page: Page) =
-                PageForFB(page.id,page.newspaper!!.id,page.parentPageId!!,page.name!!,
-                            page.hasData,page.hasChild,page.topLevelPage,page.active)
+        fun getFromPage(page: Page):PageForFB {
+            val pageForFB = PageForFB(page.id, page.newspaper!!.id, page.parentPageId!!, page.name!!,
+                                    page.hasData, page.hasChild, page.topLevelPage, page.active)
+            if (!pageForFB.topLevelPage!!) {
+                pageForFB.active = false
+            }
+            return pageForFB
+        }
     }
 
 }
