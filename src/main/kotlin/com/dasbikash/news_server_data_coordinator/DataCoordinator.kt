@@ -352,6 +352,43 @@ object DataCoordinator {
                         }
                     }
 
+            Pair(DataFetcherFromParser.getNewsCategoryMap(), DatabaseUtils.getNewsCategoryMap(session))
+                    .apply {
+                        first.keys.asSequence().forEach {
+                            if (second.contains(it)) {
+                                if (!first.get(it)!!.equals(second.get(it))) {
+                                    setSettingsUpdated()
+                                    settingsUpdateLogMessageBuilder.append("NewsCategory modified id: ${it} | ")
+                                    val oldNewsCategory = second.get(it)
+                                    val newNewsCategory = first.get(it)
+                                    oldNewsCategory!!.updateData(newNewsCategory!!)
+                                    DatabaseUtils.runDbTransection(session) {
+                                        session.update(oldNewsCategory)
+                                    }
+                                }
+                            } else {
+                                setSettingsUpdated()
+                                settingsUpdateLogMessageBuilder.append("NewsCategory added id: ${it} | ")
+                                DatabaseUtils.runDbTransection(session) {
+                                    session.save(first.get(it))
+                                }
+                            }
+                        }
+                    }
+
+            Pair(DataFetcherFromParser.getNewsCategoryEntryMap(session), DatabaseUtils.getNewsCategoryEntryMap(session))
+                    .apply {
+                        first.keys.asSequence().forEach {
+                            if (!second.contains(it)) {
+                                setSettingsUpdated()
+                                settingsUpdateLogMessageBuilder.append("NewsCategory Entry added id: ${it} | ")
+                                DatabaseUtils.runDbTransection(session) {
+                                    session.save(first.get(it))
+                                }
+                            }
+                        }
+                    }
+
             if (DatabaseUtils.getPageGroups(session).isEmpty()) {
                 DataFetcherFromParser.getPageGroups(session).asSequence().forEach {
                     setSettingsUpdated()

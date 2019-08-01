@@ -46,7 +46,7 @@ data class KeyWordSearchResult(
     }
 
     override fun toString(): String {
-        return "KeyWordSearchResult(keyWord=$keyWord, " +
+        return "KeyWordSearchResult(keyWord=$keyWord, searchResult=${searchResult}, " +
                 "modified=$modified, lastUploadedOnFireBaseDb = $lastUploadedOnFireBaseDb)"
     }
 
@@ -59,7 +59,14 @@ data class KeyWordSearchResult(
                     if (DatabaseUtils.checkIfArticleDeleted(session,data.get(ARTICLE_ID_INDEX))){
                         resultMap.put(data.get(ARTICLE_ID_INDEX), null)
                     }else {
-                        resultMap.put(data.get(ARTICLE_ID_INDEX), data.get(PAGE_ID_INDEX))
+                        val page = DatabaseUtils.findPageById(session,data.get(PAGE_ID_INDEX))
+                        page?.let {
+                            if (page.topLevelPage ?: false){
+                                resultMap.put(data.get(ARTICLE_ID_INDEX), it.id)
+                            }else{
+                                resultMap.put(data.get(ARTICLE_ID_INDEX), it.parentPageId)
+                            }
+                        }
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.dasbikash.news_server_data_coordinator.settings_loader
 
 import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -16,7 +17,8 @@ internal class DataFetcherFromParserTest {
     @AfterEach
     fun tearDown() {
     }
-//    @Test
+
+    //    @Test
 //    fun testReadOfPageGroups(){
 //        val session = DbSessionManager.getNewSession()
 //
@@ -25,5 +27,11 @@ internal class DataFetcherFromParserTest {
 //        }
 //
 //        session.close()
+//    }
+//    @Test
+//    fun newsCategoryDataRead() {
+//        val session = DbSessionManager.getNewSession()
+//        DataFetcherFromParser.getNewsCategoryMap().asSequence().forEach { LoggerUtils.logOnConsole(it.toString()) }
+//        DataFetcherFromParser.getNewsCategoryEntryMap(session).asSequence().forEach { LoggerUtils.logOnConsole(it.toString()) }
 //    }
 }

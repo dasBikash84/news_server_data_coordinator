@@ -17,6 +17,7 @@ import com.dasbikash.news_server_data_coordinator.article_data_uploader.UploadDe
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.EntityClassNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.settings_loader.NewsCategories
 import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
@@ -147,15 +148,23 @@ object DatabaseUtils {
     fun getAllPages(session: Session): List<Page> {
         val hql = "FROM ${EntityClassNames.PAGE}"
         val query = session.createQuery(hql, Page::class.java)
-//        val pageMap = mutableMapOf<String, Page>()
-//        (query.list() as List<Page>).asSequence()
-//                .filter {
-//                    it.newspaper!!.active
-//                }
-//                .forEach {
-//                    pageMap.put(it.id, it)
-//                }
         return query.list()
+    }
+
+    fun getNewsCategoryMap(session: Session): Map<String,NewsCategory> {
+        val hql = "FROM ${EntityClassNames.NEWS_CATERORIES}"
+        val query = session.createQuery(hql, NewsCategory::class.java)
+        val newsCategoryMap = mutableMapOf<String,NewsCategory>()
+        query.list().asSequence().forEach { newsCategoryMap.put(it.id,it) }
+        return newsCategoryMap.toMap()
+    }
+
+    fun getNewsCategoryEntryMap(session: Session): Map<Int,NewsCategoryEntry> {
+        val hql = "FROM ${EntityClassNames.NEWS_CATERORY_ENTRIES}"
+        val query = session.createQuery(hql, NewsCategoryEntry::class.java)
+        val newsCategoryEntryMap = mutableMapOf<Int,NewsCategoryEntry>()
+        query.list().asSequence().forEach { newsCategoryEntryMap.put(it.id!!,it) }
+        return newsCategoryEntryMap.toMap()
     }
 
     fun getPageGroups(session: Session): List<PageGroup> {

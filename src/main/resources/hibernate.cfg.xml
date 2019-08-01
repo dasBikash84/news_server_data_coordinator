@@ -17,12 +17,12 @@
 <hibernate-configuration>
  <session-factory >
   <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-<!--  <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/news_server_data_coordinator?UseUnicode=true</property>-->
-  <property name="hibernate.connection.url">jdbc:mysql://192.168.0.102:3306/news_server_data_coordinator?UseUnicode=true</property>
-  <property name="hibernate.connection.username">temp_user_on_dtop</property>
-<!--  <property name="hibernate.connection.username">nsdc_app_user</property>-->
-  <property name="hibernate.connection.password">temp_user_on_dtop</property>
-<!--  <property name="hibernate.connection.password">nsdc_app_user</property>-->
+  <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/news_server_data_coordinator?UseUnicode=true</property>
+<!--  <property name="hibernate.connection.url">jdbc:mysql://192.168.0.102:3306/news_server_data_coordinator?UseUnicode=true</property>-->
+<!--  <property name="hibernate.connection.username">temp_user_on_dtop</property>-->
+  <property name="hibernate.connection.username">nsdc_app_user</property>
+<!--  <property name="hibernate.connection.password">temp_user_on_dtop</property>-->
+  <property name="hibernate.connection.password">nsdc_app_user</property>
   <property name="hibernate.dialect">org.hibernate.dialect.MySQL55Dialect</property>
   <property name="hbm2ddl.auto">validate</property>
   <property name="hibernate.show_sql">false</property>
@@ -49,5 +49,7 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.KeyWordSearchResult"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleSearchResultUploaderLog"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.NewsCategory"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.NewsCategoryEntry"/>
  </session-factory>
 </hibernate-configuration>

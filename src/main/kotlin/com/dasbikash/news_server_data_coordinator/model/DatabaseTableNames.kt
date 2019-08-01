@@ -32,4 +32,6 @@ object DatabaseTableNames {
     const val KEY_WORD_SERACH_RESULT_TABLE_NAME = "key_word_serach_result"
     const val ARTICLE_SEARCH_RESULT_UPLOADER_LOG_TABLE_NAME = "article_search_result_uploader_log"
     const val ARTICLE_SEARCH_RESULT_DELETION_LOG_TABLE_NAME = "article_search_result_deletion_log"
+    const val NEWS_CATERORIES_ENTRY_NAME = "news_categories"
+    const val NEWS_CATEGORY_ENTRY_ENTRY_NAME = "news_category_entry"
 }

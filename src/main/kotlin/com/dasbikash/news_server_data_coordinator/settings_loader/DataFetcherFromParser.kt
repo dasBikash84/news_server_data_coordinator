@@ -30,7 +30,7 @@ object DataFetcherFromParser {
     private val LAST_ARTICLE_ID_PATH_PARAM = "lastArticleId"
 
     private val BASE_ADDRESS = "http://localhost:8098"
-//    private val BASE_ADDRESS = "http://192.168.0.101:8098"
+    //    private val BASE_ADDRESS = "http://192.168.0.101:8098"
     private val LANGUAGE_SETTINGS_NODE = "languages"
     private val COUNTRY_SETTINGS_NODE = "countries"
     private val NEWS_PAPER_SETTINGS_NODE = "newspapers/all"
@@ -39,6 +39,8 @@ object DataFetcherFromParser {
     private val ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE =
             "articles/page_id/{${PAGE_ID_PATH_PARAM}}/before/article_id/{${LAST_ARTICLE_ID_PATH_PARAM}}"
     private val PAGE_GROUPS_NODE = "page-groups"
+    private val NEWS_CATERORIES_NODE = "news_categories"
+    private val NEWS_CATEGORY_ENTRIES_NODE = "news_category_entries"
 
     private val jerseyClient = ClientBuilder.newClient()
     private val baseTarget = jerseyClient.target(BASE_ADDRESS)
@@ -48,9 +50,12 @@ object DataFetcherFromParser {
     private val pagesTarget = baseTarget.path(PAGE_SETTINGS_NODE)
     private val latestArticlesForPageTarget = baseTarget.path(LATEST_ARTICLES_FOR_PAGE_ID_NODE)
     private val articlesBeforeGivenArticleForPageTarget = baseTarget.path(ARTICLES_Before_GIVEN_ARTICLE_ID_FOR_PAGE_ID_NODE)
-
     private val pagesForNpTarget = pagesTarget.path("newspaper_id/{${NEWSPAPER_ID_PATH_PARAM}}")
+
     private val pageGroupsTarget = baseTarget.path(PAGE_GROUPS_NODE)
+
+    private val newsCategoriesTarget = baseTarget.path(NEWS_CATERORIES_NODE)
+    private val newsCategoryEntriesTarget = baseTarget.path(NEWS_CATEGORY_ENTRIES_NODE)
 
     private val gson = GsonBuilder().setLenient().disableHtmlEscaping().create()
 
@@ -99,7 +104,7 @@ object DataFetcherFromParser {
         return newspaperMap.toMap()
     }
 
-    fun getPageMap(session: Session): Map<String,Page> {
+    fun getPageMap(session: Session): Map<String, Page> {
         val response = pagesTarget.request(MediaType.APPLICATION_JSON).get()
         val data = response.readEntity(String::class.java)!!
 
@@ -131,8 +136,8 @@ object DataFetcherFromParser {
 
     fun getLatestArticlesForPage(page: Page, articleCount: Int = 5): List<Article> {
         val target = latestArticlesForPageTarget
-                                    .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
-                                    .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
+                .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
+                .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
 
 //        LoggerUtils.logOnConsole("getLatestArticlesForPage ${target.uri.toURL().toString()}")
 
@@ -143,9 +148,9 @@ object DataFetcherFromParser {
                 val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
                 articles.forEach { it.page = page }
                 return articles
-            }catch (ex:ProcessingException){
+            } catch (ex: ProcessingException) {
                 val pathBuilder = StringBuilder("Path: ").append(target.uri.toURL())
-                val exp = ProcessingException(ex.message+pathBuilder.toString(),ex)
+                val exp = ProcessingException(ex.message + pathBuilder.toString(), ex)
                 throw exp
             }
         } else {
@@ -156,9 +161,9 @@ object DataFetcherFromParser {
     fun getArticlesBeforeGivenArticleForPage(page: Page, article: Article, articleCount: Int = 5): List<Article> {
 
         val target = articlesBeforeGivenArticleForPageTarget
-                                    .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
-                                    .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)
-                                    .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
+                .resolveTemplate(PAGE_ID_PATH_PARAM, page.id)
+                .resolveTemplate(LAST_ARTICLE_ID_PATH_PARAM, article.id)
+                .queryParam(DEFAULT_ARTICLE_REQUEST_COUNT, articleCount)
 
 //        LoggerUtils.logOnConsole("getArticlesBeforeGivenArticleForPage ${target.uri.toURL().toString()}")
 
@@ -170,11 +175,11 @@ object DataFetcherFromParser {
                 val articles = gson.fromJson(data, Articles::class.java).articles!!//response.readEntity(Articles::class.java).articles!!
                 articles.forEach { it.page = page }
                 return articles
-            }catch (ex:ProcessingException){
+            } catch (ex: ProcessingException) {
                 val pathBuilder = StringBuilder("Path: ")
                 target.uri.rawPath?.let { pathBuilder.append(it) }
                 target.uri.rawQuery?.let { pathBuilder.append("?").append(it) }
-                val exp = ProcessingException(ex.message+pathBuilder.toString(),ex)
+                val exp = ProcessingException(ex.message + pathBuilder.toString(), ex)
                 throw exp
             }
         } else {
@@ -196,5 +201,40 @@ object DataFetcherFromParser {
         }
     }
 
+    fun getNewsCategoryMap(): Map<String,NewsCategory> {
+        val response = newsCategoriesTarget.request(MediaType.APPLICATION_JSON).get()
+
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
+            val data = response.readEntity(String::class.java)!!
+            val newsCategoryMap = mutableMapOf<String,NewsCategory>()
+            gson.fromJson(data, NewsCategories::class.java).newsCategories?.apply {
+                this.asSequence().forEach { newsCategoryMap.put(it.id,it) }
+            }
+            return newsCategoryMap.toMap()
+        } else {
+            return emptyMap()
+        }
+    }
+
+    fun getNewsCategoryEntryMap(session: Session): Map<Int,NewsCategoryEntry> {
+        val response = newsCategoryEntriesTarget.request(MediaType.APPLICATION_JSON).get()
+
+        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
+            val data = response.readEntity(String::class.java)!!
+            val newsCategoryEntryMap = mutableMapOf<Int,NewsCategoryEntry>()
+            val pages = DatabaseUtils.getAllPages(session)
+            val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values
+            gson.fromJson(data, NewsCategoryEntries::class.java).newsCategoryEntries?.apply {
+                this.asSequence().forEach {
+                    it.setPageData(pages)
+                    it.setNewsCategoryData(newsCategories)
+                    newsCategoryEntryMap.put(it.id!!,it)
+                }
+            }
+            return newsCategoryEntryMap.toMap()
+        } else {
+            return emptyMap()
+        }
+    }
 
 }

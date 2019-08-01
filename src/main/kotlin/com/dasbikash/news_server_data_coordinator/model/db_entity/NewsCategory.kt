@@ -11,15 +11,20 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_data_coordinator.settings_loader
+package com.dasbikash.news_server_data_coordinator.model.db_entity
 
-import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.Table
 
-class Languages(){var languages:List<Language>?=null}
-class Countries(){var countries:List<Country>?=null}
-class Newspapers(){var newspapers:List<Newspaper>?=null}
-class Pages(){var pages:List<Page>?=null}
-class Articles(){var articles:List<Article>?=null}
-class PageGroups(){var pageGroups:List<PageGroup>?=null}
-class NewsCategories{var newsCategories: List<NewsCategory>?=null}
-class NewsCategoryEntries{var newsCategoryEntries: List<NewsCategoryEntry>?=null}
+@Entity
+@Table(name = DatabaseTableNames.NEWS_CATERORIES_ENTRY_NAME)
+data class NewsCategory(
+        @Id var id: String="",
+        var name: String?=null
+) {
+    fun updateData(newNewsCategory: NewsCategory) {
+        name = newNewsCategory.name
+    }
+}

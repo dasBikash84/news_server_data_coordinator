@@ -28,4 +28,6 @@ object EntityClassNames {
     const val DAILY_DELETION_TASK_LOG = "DailyDeletionTaskLog"
     const val RESTRICTED_SEARCH_KEY_WORD = "RestrictedSearchKeyWord"
     const val KEY_WORD_SERACH_RESULT = "KeyWordSearchResult"
+    const val NEWS_CATERORIES = "NewsCategory"
+    const val NEWS_CATERORY_ENTRIES = "NewsCategoryEntry"
 }
