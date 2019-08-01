@@ -28,13 +28,42 @@ internal class DataUploaderForRealTimeDbTest {
 
     @BeforeEach
     fun setUp() {
-        session=DbSessionManager.getNewSession()
-        dataUploader = DataUploaderForRealTimeDb()
+//        session=DbSessionManager.getNewSession()
+//        dataUploader = DataUploaderForRealTimeDb()
     }
 
     @AfterEach
     fun tearDown() {
+//        session.close()
     }
+
+    /*@Test
+    fun uploadSettingsToServer() {
+
+        val languages = DatabaseUtils.getLanguageMap(session).values
+        val countries = DatabaseUtils.getCountriesMap(session).values
+        val newspapers = DatabaseUtils.getNewspaperMap(session).values
+        val pages = DatabaseUtils.getPageMapForAll(session).values.map {
+            it.active = it.topLevelPage ?: false
+            it
+        }
+        val pageGroups = DatabaseUtils.getPageGroups(session)
+        if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
+            throw IllegalStateException("Basic app settings not found.")
+        }
+        val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values
+        println(languages)
+        println(countries)
+        println(newspapers)
+        println(pages)
+        println(pageGroups)
+        println(newsCategories)
+//        return
+//        nukeOldSettings()
+        dataUploader.uploadNewSettings(languages, countries, newspapers, pages, pageGroups,newsCategories)
+        dataUploader.addToServerUploadTimeLog()
+        dataUploader.addSettingsUpdateLog(session)
+    }*/
 
 //    @Test
 //    fun testWrite(){

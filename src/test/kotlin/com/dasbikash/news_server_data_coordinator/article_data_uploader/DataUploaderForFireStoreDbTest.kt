@@ -13,6 +13,9 @@
 
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
+import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -20,19 +23,52 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class DataUploaderForFireStoreDbTest {
+    lateinit var session: Session
+    lateinit var dataUploader: DataUploader
 
     @BeforeEach
     fun setUp() {
+//        session= DbSessionManager.getNewSession()
+//        dataUploader = DataUploaderForFireStoreDb()
     }
 
     @AfterEach
     fun tearDown() {
+//        session.close()
     }
 
-    @Test
-    fun testwrite(){
+//    @Test
+//    fun testwrite(){
 //        val fireStoreWriter = DataUploaderForFireStoreDb()
 //        fireStoreWriter.start()
 //        fireStoreWriter.join()
-    }
+//    }
+
+    /*@Test
+    fun uploadSettingsToServer() {
+
+        val languages = DatabaseUtils.getLanguageMap(session).values
+        val countries = DatabaseUtils.getCountriesMap(session).values
+        val newspapers = DatabaseUtils.getNewspaperMap(session).values
+        val pages = DatabaseUtils.getPageMapForAll(session).values.map {
+            it.active = it.topLevelPage ?: false
+            it
+        }
+        val pageGroups = DatabaseUtils.getPageGroups(session)
+        if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
+            throw IllegalStateException("Basic app settings not found.")
+        }
+        val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values
+        println(languages)
+        println(countries)
+        println(newspapers)
+        println(pages)
+        println(pageGroups)
+        println(newsCategories)
+//        return
+//        nukeOldSettings()
+        dataUploader.uploadNewSettings(languages, countries, newspapers, pages, pageGroups,newsCategories)
+        dataUploader.addToServerUploadTimeLog()
+        dataUploader.addSettingsUpdateLog(session)
+    }*/
 }

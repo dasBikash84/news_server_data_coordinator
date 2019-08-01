@@ -103,7 +103,6 @@ object FireStoreDataUtils {
             return false
         }
 
-        TODO()
         return true
     }
 
