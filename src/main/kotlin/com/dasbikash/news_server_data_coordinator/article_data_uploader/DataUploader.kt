@@ -212,8 +212,9 @@ abstract class DataUploader : Thread() {
         val countries = DatabaseUtils.getCountriesMap(session).values
         val newspapers = DatabaseUtils.getNewspaperMap(session).values
         val pages = DatabaseUtils.getPageMapForAll(session).values.map {
-            it.active = it.topLevelPage ?: false
-            it
+            val pageForUpload = it.copy()
+            pageForUpload.active = pageForUpload.topLevelPage ?: false
+            pageForUpload
         }
         val pageGroups = DatabaseUtils.getPageGroups(session)
         if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
