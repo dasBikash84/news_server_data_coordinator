@@ -37,6 +37,19 @@ internal class RealTimeDbDataUtilsTest {
     fun tearDown() {
     }
 
+    /*@Test
+    fun getNewsCategoriesForPageTest(){
+        val session = DbSessionManager.getNewSession()
+        val newsCategoryMap = DatabaseUtils.getNewsCategoryMap(session)
+        val newsCategoryEntryMap = DatabaseUtils.getNewsCategoryEntryMap(session)
+
+        DatabaseUtils.getAllPages(session).asSequence().forEach {
+            println()
+            println(it)
+            println(RealTimeDbDataUtils.getNewsCategoriesForPage(it,newsCategoryMap,newsCategoryEntryMap))
+        }
+    }*/
+
     //    @Test
 //    fun clearAllArticleData(){
 //        RealTimeDbDataUtils.clearAllArticleData()
@@ -70,24 +83,45 @@ internal class RealTimeDbDataUtilsTest {
 //            }
 //        }
 
-        /*println("Going to upload articledata on parents name:")
-        DatabaseUtils.getAllPages(session).filter { !it.topLevelPage!! }.take(1).asSequence().forEach {
+    /*println("Going to upload articledata on parents name:")
+    DatabaseUtils.getAllPages(session).filter { !it.topLevelPage!! }.take(1).asSequence().forEach {
+        println(it)
+        return
+    }*/
+
+
+//    }
+
+    /*@Test
+    fun restructureNewsCategoriesArticleInfoEntry() {
+        val session = DbSessionManager.getNewSession()
+        var totalArticleCount = 0
+        DatabaseUtils.getAllPages(session).asSequence().forEach {
+            println()
             println(it)
-            return
-        }*/
+//            RealTimeDbDataUtils.clearArticleDataForPage(it)
+//            println("Article data deleted.")
+            findRTDBArticleForPage(session, it).apply {
+                totalArticleCount += this.size
+                println("Article Count: " + this.size)
+                if (this.isNotEmpty()) {
+                    RealTimeDbDataUtils.writeArticleData(this, session)
+                    println("NewsCategoriesArticleInfoEntry uploaded ")
+                }
+            }
+        }
+        println("totalArticleCount Count: " + totalArticleCount)
+    }*/
 
 
-//    }
-
-
-//    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
-//        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
-//                " where pageId='${page.id}'" +
-//                " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
-//        println(sql)
-//        val query = session.createNativeQuery(sql, Article::class.java)
-//        return query.resultList as List<Article>
-//    }
+    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
+                " where pageId='${page.id}'" +
+                " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
+        println(sql)
+        val query = session.createNativeQuery(sql, Article::class.java)
+        return query.resultList as List<Article>
+    }
 
     //    @Test
 //    fun getSearchResultMapTest(){

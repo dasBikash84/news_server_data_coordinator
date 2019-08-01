@@ -16,6 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import org.hibernate.Session
 
 class DataUploaderForFireStoreDb : DataUploader() {
 
@@ -23,7 +24,7 @@ class DataUploaderForFireStoreDb : DataUploader() {
         return UploadDestinationInfo.FIRE_STORE_DB
     }
 
-    override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
+    override fun uploadArticles(articlesForUpload: List<Article>,session: Session): Boolean {
         FireStoreDataUtils.writeArticleData(articlesForUpload)
         LoggerUtils.logOnConsole("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
         return true
@@ -43,7 +44,7 @@ class DataUploaderForFireStoreDb : DataUploader() {
         FireStoreDataUtils.nukeAppSettings()
     }
 
-    override fun deleteArticleFromServer(article: Article): Boolean {
+    override fun deleteArticleFromServer(article: Article,session: Session): Boolean {
         return FireStoreDataUtils.deleteArticleFromServer(article)
     }
 }

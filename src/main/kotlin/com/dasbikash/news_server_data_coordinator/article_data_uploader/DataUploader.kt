@@ -56,14 +56,14 @@ abstract class DataUploader : Thread() {
     private var errorIteration = 0L
 
     abstract protected fun getUploadDestinationInfo(): UploadDestinationInfo
-    abstract protected fun uploadArticles(articlesForUpload: List<Article>): Boolean
+    abstract protected fun uploadArticles(articlesForUpload: List<Article>,session: Session): Boolean
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>,
                                              pageGroups: Collection<PageGroup>,newsCategories: Collection<NewsCategory>)
 
     abstract protected fun addToServerUploadTimeLog()
-    abstract protected fun deleteArticleFromServer(article: Article): Boolean
+    abstract protected fun deleteArticleFromServer(article: Article,session: Session): Boolean
 
 
     private fun getMaxArticleAgeInDays(): Int =
@@ -92,7 +92,7 @@ abstract class DataUploader : Thread() {
 
     private fun serveArticleDeleteRequest(session: Session, articleDeleteRequest: ArticleDeleteRequest) {
         getArticlesForDeletion(session, articleDeleteRequest.page!!, articleDeleteRequest.deleteRequestCount!!).asSequence().forEach {
-            if (deleteArticleFromServer(it)) {
+            if (deleteArticleFromServer(it,session)) {
                 DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
             }
         }
@@ -273,7 +273,7 @@ abstract class DataUploader : Thread() {
             LoggerUtils.logOnConsole("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
             if (articlesForUpload.size > 0) {
                 try {
-                    if (uploadArticles(articlesForUpload)) {
+                    if (uploadArticles(articlesForUpload,session)) {
                         markArticlesAsUploaded(articlesForUpload, session)
                         LoggerUtils.logArticleUploadHistory(session, articlesForUpload, getUploadDestinationInfo())
                         resetErrorDelay()
@@ -321,7 +321,7 @@ abstract class DataUploader : Thread() {
                         var articleDeletionCountForPage = 0
                         getArticlesForDeletion(session, it, articleDeletionChunkSize).asSequence().forEach {
                             //                            println(it)
-                            if (deleteArticleFromServer(it)) {
+                            if (deleteArticleFromServer(it,session)) {
                                 DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
                                 deletedArticleIds.add(it.id)
                                 articleDeletionCountForPage++

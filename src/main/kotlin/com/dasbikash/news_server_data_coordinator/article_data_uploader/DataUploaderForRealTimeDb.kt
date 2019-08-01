@@ -16,6 +16,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import org.hibernate.Session
 
 class DataUploaderForRealTimeDb : DataUploader() {
 
@@ -23,9 +24,9 @@ class DataUploaderForRealTimeDb : DataUploader() {
         return UploadDestinationInfo.REAL_TIME_DB
     }
 
-    override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
+    override fun uploadArticles(articlesForUpload: List<Article>,session: Session): Boolean {
         try {
-            RealTimeDbDataUtils.writeArticleData(articlesForUpload)
+            RealTimeDbDataUtils.writeArticleData(articlesForUpload,session)
             LoggerUtils.logOnConsole("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
             return true
         } catch (ex: Exception) {
@@ -49,7 +50,7 @@ class DataUploaderForRealTimeDb : DataUploader() {
         RealTimeDbDataUtils.nukeAppSettings()
     }
 
-    override fun deleteArticleFromServer(article: Article): Boolean {
-        return RealTimeDbDataUtils.deleteArticleFromServer(article)
+    override fun deleteArticleFromServer(article: Article,session: Session): Boolean {
+        return RealTimeDbDataUtils.deleteArticleFromServer(article,session)
     }
 }

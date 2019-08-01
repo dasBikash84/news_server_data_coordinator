@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import org.hibernate.Session
 
 class DataUploaderForMongoRestService:DataUploader() {
 
@@ -22,7 +23,7 @@ class DataUploaderForMongoRestService:DataUploader() {
         return UploadDestinationInfo.MONGO_REST_SERVICE
     }
 
-    override fun uploadArticles(articlesForUpload: List<Article>): Boolean {
+    override fun uploadArticles(articlesForUpload: List<Article>,session: Session): Boolean {
         try {
             LoggerUtils.logOnConsole("Going to upload data")
             TODO("Data uploader not implemented")
@@ -49,7 +50,7 @@ class DataUploaderForMongoRestService:DataUploader() {
         TODO()
     }
 
-    override fun deleteArticleFromServer(article: Article): Boolean {
+    override fun deleteArticleFromServer(article: Article,session: Session): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

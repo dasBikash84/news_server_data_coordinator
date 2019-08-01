@@ -28,6 +28,7 @@ object RealTimeDbRefUtils {
     private const val PAGES_NODE = "pages"
     private const val PAGE_GROUPS_NODE = "page_groups"
     private const val NEWS_CATEGORIES_NODE = "news_categories"
+    private const val NEWS_CATEGORIES_ARTICLE_INFO_NODE = "article_info_for_news_categories"
     private const val APP_SETTINGS_UPDATE_TIME_NODE = "update_time"
 
     private const val ADMIN_TASK_DATA_NODE = "admin_task_data"
@@ -81,5 +82,7 @@ object RealTimeDbRefUtils {
     internal fun getKeyWordSearchResultNode():DatabaseReference = getRootRef().child(KEY_WORD_SERACH_RESULT_NODE)
     internal fun getSearchKeyWordsNode():DatabaseReference = getRootRef().child(SERACH_KEY_WORDS_NODE)
     internal fun getDataCoordinatorSettingsNode():DatabaseReference = getRootRef().child(DATA_COORDINATOR_SETTINGS_NODE)
+
+    internal fun getNewsCategoriesArticleInfoRef():DatabaseReference = getRootRef().child(NEWS_CATEGORIES_ARTICLE_INFO_NODE)
 
 }
