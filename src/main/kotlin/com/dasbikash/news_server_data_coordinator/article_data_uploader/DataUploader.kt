@@ -36,7 +36,7 @@ abstract class DataUploader : Thread() {
         private const val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
         private const val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-        private const val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 5 * 60 * 1000L // 10 mins
+        private const val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10 * 60 * 1000L // 10 mins
         private const val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
 
         private const val SQL_DATE_FORMAT = "yyyy-MM-dd"
@@ -166,22 +166,34 @@ abstract class DataUploader : Thread() {
 
     @Suppress("UNCHECKED_CAST")
     private fun getArticlesForUpload(session: Session): List<Article> {
-        val nativeSql = getSqlForArticleFetch()
-        return session.createNativeQuery(nativeSql, Article::class.java).resultList as List<Article>
+        if (getUploadDestinationInfo().articleUploadTarget == ArticleUploadTarget.FIRE_STORE_DB){
+            val unProcessedArticlesInNewFormatForFirestore =
+                    DatabaseUtils.getUnProcessedArticlesInNewFormatForFirestore(session,getUploadDestinationInfo())
+            if (unProcessedArticlesInNewFormatForFirestore.isNotEmpty()){
+                return unProcessedArticlesInNewFormatForFirestore
+            }
+        }
+        val sql = getSqlForArticleFetch()
+        return session.createNativeQuery(sql, Article::class.java).resultList as List<Article>
     }
 
-    private fun getSqlToMarkUploadedArticle(article: Article): String {
-        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().uploadFlagName}=1 WHERE id='${article.id}'"
+    fun getSqlToMarkUploadedArticle(article: Article): String {
+        val sqlBuilder = StringBuilder("UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                        .append(" SET ${getUploadDestinationInfo().uploadFlagName}=1")
+
+        if (getUploadDestinationInfo().articleUploadTarget == ArticleUploadTarget.FIRE_STORE_DB){
+            sqlBuilder.append(",processedInNewFormatForFirestore=1")
+        }
+
+        sqlBuilder.append(" WHERE id='${article.id}'")
+//        return "UPDATE ${DatabaseTableNames.ARTICLE_TABLE_NAME} SET ${getUploadDestinationInfo().uploadFlagName}=1 WHERE id='${article.id}'"
+        return sqlBuilder.toString()
     }
 
     private fun markArticlesAsUploaded(articlesForUpload: List<Article>, session: Session) {
-        var flag = false
         articlesForUpload.asSequence()
                 .forEach {
                     val sql = getSqlToMarkUploadedArticle(it)
-                    if (!flag) {
-                        flag = true
-                    }
                     DatabaseUtils.runDbTransection(session) {
                         session.createNativeQuery(sql).executeUpdate()
                     }

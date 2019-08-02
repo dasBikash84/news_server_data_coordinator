@@ -1,5 +1,7 @@
 package com.dasbikash.news_server_data_coordinator.database
 
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForFireStoreDb
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.UploadDestinationInfo
 import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchReasultProcessor
 import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchResultUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
@@ -229,6 +231,13 @@ internal class DatabaseUtilsTest {
 //            println()
 //            println(it)
 //            ArticleSearchResultUtils.processDeletedArticleForSearchResult(session,it)
+//        }
+//    }
+//    @Test
+//    fun getUnProcessedArticlesInNewFormatForFirestoreTest(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getUnProcessedArticlesInNewFormatForFirestore(session,UploadDestinationInfo.FIRE_STORE_DB,1).apply {
+//             this.asSequence().forEach { println(DataUploaderForFireStoreDb().getSqlToMarkUploadedArticle(it)) }
 //        }
 //    }
 }

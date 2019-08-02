@@ -62,4 +62,16 @@ internal class FireStoreDataUtilsTest {
 //        }
 //        Thread.sleep(5000)
 //    }
+//    @Test
+//    fun newFormatTestWrite(){
+//        val reqId = "-1000095956903709058"
+//        val reqId = "-1000326970240855935"
+//        val reqId = "-1000594939265989143"
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.findArticleById(session,reqId)?.let {
+//            println(it)
+//            FireStoreDataUtils.writeArticleData(listOf(it),session)
+//            Thread.sleep(1000)
+//        }
+//    }
 }

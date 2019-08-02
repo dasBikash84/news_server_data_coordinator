@@ -642,4 +642,23 @@ object DatabaseUtils {
         }
         return null
     }
+
+    fun getUnProcessedArticlesInNewFormatForFirestore(session: Session, uploadDestinationInfo: UploadDestinationInfo, limit:Int = 400): List<Article> {
+        val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                                .append(" WHERE ")
+                                                .append(" ${uploadDestinationInfo.uploadFlagName} = 1")
+                                                .append(" AND ${uploadDestinationInfo.deleteFlagName} = 0")
+                                                .append(" AND processedInNewFormatForFirestore = 0")
+                                                .append(" ORDER BY publicationTime asc")
+                                                .append(" limit ${limit}")
+
+        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
+        val query = session.createNativeQuery(sqlStringBuilder.toString(), Article::class.java)
+        try {
+            return query.resultList as List<Article>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
+    }
 }

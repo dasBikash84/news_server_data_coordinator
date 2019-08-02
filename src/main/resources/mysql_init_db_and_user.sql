@@ -96,11 +96,13 @@ CREATE TABLE `news_server_data_coordinator`.`articles`
     `deletedFromFirebaseDb` bit(1)       NOT NULL DEFAULT b'0',
     `deletedFromFireStore`  bit(1)       NOT NULL DEFAULT b'0',
     `deletedFromMongoRest`  bit(1)       NOT NULL DEFAULT b'0',
+    `processedInNewFormatForFirestore` BIT(1) NOT NULL DEFAULT b'1',
     `created`               datetime              DEFAULT CURRENT_TIMESTAMP,
     `modified`              datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
-    CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
+    CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
+    INDEX `articles_processedInNewFormatForFirestore_index` (`processedInNewFormatForFirestore` ASC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `news_server_data_coordinator`.`image_links`

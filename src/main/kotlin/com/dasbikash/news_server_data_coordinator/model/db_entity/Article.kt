@@ -46,6 +46,8 @@ data class Article(
         var processedForSearchResult:Boolean = false
         var deletedProcessedForSearchResult:Boolean = false
 
+        var processedInNewFormatForFirestore:Boolean = false
+
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
         @Column(name = "imageLink", columnDefinition = "text")
@@ -60,6 +62,7 @@ data class Article(
         override fun toString(): String {
                 return "Article(id='$id', publicationTime=$publicationTime, title=$title, page id=${page?.id}, upOnFirebaseDb=$upOnFirebaseDb, " +
                         "upOnFireStore=$upOnFireStore, deletedFromFirebaseDb=$deletedFromFirebaseDb, deletedFromFireStore=$deletedFromFireStore, " +
-                        "processedForSearchResult=$processedForSearchResult, deletedProcessedForSearchResult=$deletedProcessedForSearchResult)"
+                        "processedForSearchResult=$processedForSearchResult, deletedProcessedForSearchResult=$deletedProcessedForSearchResult), "+
+                        "imageLinkList: ${imageLinkList}"
         }
 }

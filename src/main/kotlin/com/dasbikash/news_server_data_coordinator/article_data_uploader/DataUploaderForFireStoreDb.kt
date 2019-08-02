@@ -25,7 +25,7 @@ class DataUploaderForFireStoreDb : DataUploader() {
     }
 
     override fun uploadArticles(articlesForUpload: List<Article>,session: Session): Boolean {
-        FireStoreDataUtils.writeArticleData(articlesForUpload)
+        FireStoreDataUtils.writeArticleData(articlesForUpload,session)
         LoggerUtils.logOnConsole("${articlesForUpload.size} articles uploaded to ${getUploadDestinationInfo().articleUploadTarget.name}")
         return true
     }

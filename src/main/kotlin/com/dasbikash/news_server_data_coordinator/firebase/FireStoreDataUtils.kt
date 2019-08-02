@@ -13,11 +13,13 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.google.cloud.firestore.CollectionReference
 import com.google.cloud.firestore.FieldValue
 import com.google.cloud.firestore.WriteBatch
+import org.hibernate.Session
 
 
 object FireStoreDataUtils {
@@ -25,7 +27,47 @@ object FireStoreDataUtils {
     private const val MAX_BATCH_SIZE_FOR_WRITE = 400
     private const val MAX_BATCH_SIZE_FOR_DELETE = 100
 
-    fun writeArticleData(articles: List<Article>) {
+    private val newsCategoryMap = mutableMapOf<String,NewsCategory>()
+    private val newsCategoryEntryMap = mutableMapOf<Int,NewsCategoryEntry>()
+
+    private var lastNewsCategoryMapUpdateTime = 0L
+    private var lastNewsCategoryEntryMapUpdateTime = 0L
+    private const val MAP_UPDATE_INTERVAL = 10*60*1000L // 10 mins
+
+    private fun getNewsCategoryMap(session: Session):Map<String,NewsCategory>{
+        if (newsCategoryMap.isEmpty() ||
+                (System.currentTimeMillis() - lastNewsCategoryMapUpdateTime)> MAP_UPDATE_INTERVAL){
+            newsCategoryMap.clear()
+            val newMap = DatabaseUtils.getNewsCategoryMap(session)
+            newMap.keys.asSequence().forEach { newsCategoryMap.put(it,newMap.get(it)!!) }
+            lastNewsCategoryMapUpdateTime = System.currentTimeMillis()
+        }
+        return newsCategoryMap.toMap()
+    }
+
+    private fun getNewsCategoryEntryMap(session: Session):Map<Int,NewsCategoryEntry>{
+        if (newsCategoryEntryMap.isEmpty() ||
+                (System.currentTimeMillis() - lastNewsCategoryEntryMapUpdateTime)> MAP_UPDATE_INTERVAL){
+            newsCategoryEntryMap.clear()
+            val newMap = DatabaseUtils.getNewsCategoryEntryMap(session)
+            newMap.keys.asSequence().forEach { newsCategoryEntryMap.put(it,newMap.get(it)!!) }
+            lastNewsCategoryEntryMapUpdateTime = System.currentTimeMillis()
+        }
+        return newsCategoryEntryMap.toMap()
+    }
+
+    private fun getNewsCategoriesForPage(page: Page, session: Session): List<NewsCategory> {
+        val parentPageId = when (page.topLevelPage ?: false) {
+            true -> page.id
+            false -> page.parentPageId!!
+        }
+        return getNewsCategoryEntryMap(session).values
+                .filter { it.getPage()!!.id == parentPageId }
+                .map { getNewsCategoryMap(session).get(it.getNewsCategory()!!.id)!! }
+                .toList()
+    }
+
+    fun writeArticleData(articles: List<Article>,session: Session) {
         if (articles.size > MAX_BATCH_SIZE_FOR_WRITE) {
             throw IllegalArgumentException()
         }
@@ -33,7 +75,8 @@ object FireStoreDataUtils {
         val batch = FireBaseConUtils.mFireStoreCon.batch()
 
         articles.asSequence().forEach {
-            batch.set(FireStoreRefUtils.getArticleCollectionRef().document(it.id), ArticleForFB.fromArticle(it))
+            val newsCategories = getNewsCategoriesForPage(it.page!!, session)
+            batch.set(FireStoreRefUtils.getArticleCollectionRef().document(it.id), ArticleForFB.fromArticle2(it,newsCategories))
         }
         val future = batch.commit()
         for (result in future.get()) {

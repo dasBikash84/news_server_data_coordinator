@@ -19,7 +19,14 @@ import javax.persistence.Embeddable
 @Embeddable
 data class ArticleImage(
         @Column(columnDefinition = "text")
-        var link:String? = null,
+        var link: String? = null,
         @Column(columnDefinition = "text")
-        var caption:String? = null
-)
+        var caption: String? = null
+) {
+    fun getDataAsMap(): Map<String, String?> {
+        val dataMap = mutableMapOf<String, String?>()
+        dataMap.put("link", link)
+        dataMap.put("caption", caption)
+        return dataMap.toMap()
+    }
+}

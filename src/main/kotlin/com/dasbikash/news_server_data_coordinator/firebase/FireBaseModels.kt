@@ -95,9 +95,30 @@ class ArticleForFB(
         val previewImageLink: String?
 ){
     companion object{
-        fun fromArticle(article: Article):ArticleForFB{
+        fun fromArticle(article: Article,newsCategories:List<NewsCategory>):ArticleForFB{
             return ArticleForFB(article.id,article.page!!.id,article.title!!,article.publicationTime!!,null,
                                 article.articleText!!,article.imageLinkList,article.previewImageLink)
+        }
+        fun fromArticle2(article: Article,newsCategories:List<NewsCategory>):Map<String,Any?>{
+            val returnMap = mutableMapOf<String,Any?>()
+            returnMap.put("id",article.id)
+            returnMap.put("pageId",when(article.page!!.topLevelPage!!){
+                true -> article.page!!.id
+                false -> article.page!!.parentPageId!!
+            })
+            returnMap.put("title",article.title!!)
+            returnMap.put("publicationTime",article.publicationTime!!)
+            returnMap.put("articleText",article.articleText!!)
+            if (article.imageLinkList.isNotEmpty()){
+                val articleImageMap = mutableMapOf<String,Map<String,String?>>()
+                for ((index, articleImage) in article.imageLinkList.withIndex()) {
+                    articleImageMap.put("$index",articleImage.getDataAsMap())
+                }
+                returnMap.put("imageLinkList",articleImageMap)
+            }
+            returnMap.put("previewImageLink",article.previewImageLink)
+            newsCategories.asSequence().forEach { returnMap.put(it.id,true) }
+            return returnMap.toMap()
         }
     }
     @Exclude
