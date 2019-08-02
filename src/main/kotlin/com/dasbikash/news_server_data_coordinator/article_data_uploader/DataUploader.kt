@@ -159,7 +159,7 @@ abstract class DataUploader : Thread() {
                 .append(" AND ${getUploadDestinationInfo().uploadFlagName}=1")
                 .append(" AND ${getUploadDestinationInfo().deleteFlagName}=0")
 
-        LoggerUtils.logOnConsole(sqlBuilder.toString())
+//        LoggerUtils.logOnConsole(sqlBuilder.toString())
 
         return (session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>).get(0)
     }

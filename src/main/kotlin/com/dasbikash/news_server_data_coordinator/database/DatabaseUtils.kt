@@ -652,7 +652,7 @@ object DatabaseUtils {
                                                 .append(" ORDER BY publicationTime asc")
                                                 .append(" limit ${limit}")
 
-        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
+//        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
         val query = session.createNativeQuery(sqlStringBuilder.toString(), Article::class.java)
         try {
             return query.resultList as List<Article>
