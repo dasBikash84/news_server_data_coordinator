@@ -110,11 +110,12 @@ class ArticleForFB(
             returnMap.put("publicationTime",article.publicationTime!!)
             returnMap.put("articleText",article.articleText!!)
             if (article.imageLinkList.isNotEmpty()){
-                val articleImageMap = mutableMapOf<String,Map<String,String?>>()
-                for ((index, articleImage) in article.imageLinkList.withIndex()) {
-                    articleImageMap.put("$index",articleImage.getDataAsMap())
-                }
-                returnMap.put("imageLinkList",articleImageMap)
+//                val articleImageList = mutableListOf<Map<String, String?>>()
+//                article.imageLinkList.forEach { articleImageList.add(it.getDataAsMap()) }
+//                for ((index, articleImage) in article.imageLinkList.withIndex()) {
+//                    articleImageMap.put("$index",articleImage.getDataAsMap())
+//                }
+                returnMap.put("imageLinkList",article.imageLinkList.map { it.getDataAsMap() })
             }
             returnMap.put("previewImageLink",article.previewImageLink)
             newsCategories.asSequence().forEach { returnMap.put(it.id,true) }

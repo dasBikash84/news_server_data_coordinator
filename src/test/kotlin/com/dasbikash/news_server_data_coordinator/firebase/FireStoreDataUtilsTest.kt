@@ -69,9 +69,21 @@ internal class FireStoreDataUtilsTest {
 //        val reqId = "-1000594939265989143"
 //        val session = DbSessionManager.getNewSession()
 //        DatabaseUtils.findArticleById(session,reqId)?.let {
+//            println()
 //            println(it)
+//            println(ArticleForFB.fromArticle2(it, emptyList()))
 //            FireStoreDataUtils.writeArticleData(listOf(it),session)
 //            Thread.sleep(1000)
+//        }
+//    }
+//    @Test
+//    fun newFormatTestRead(){
+//        listOf<String>(/*"-9127328423538078659",*/"5628806997658721501_PAGE_ID_984").asSequence().forEach {
+//            println("For id: $it")
+//            val future = FireStoreRefUtils.getArticleCollectionRef().document(it).get()
+//            future.get().toObject(Article::class.java)?.apply {
+//                println(this.toString())
+//            }
 //        }
 //    }
 }
