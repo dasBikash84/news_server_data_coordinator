@@ -46,7 +46,7 @@ data class Article(
         var processedForSearchResult:Boolean = false
         var deletedProcessedForSearchResult:Boolean = false
 
-        var processedInNewFormatForFirestore:Boolean = false
+        var processedInNewFormatForFirestore:Boolean = true
 
         @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
