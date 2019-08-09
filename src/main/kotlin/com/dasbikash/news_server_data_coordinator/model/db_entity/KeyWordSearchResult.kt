@@ -50,22 +50,22 @@ data class KeyWordSearchResult(
                 "modified=$modified, lastUploadedOnFireBaseDb = $lastUploadedOnFireBaseDb)"
     }
 
-    fun getSearchResultMap(session: Session):Map<String,String?>{
-        val resultMap = mutableMapOf<String,String?>()
-        if (searchResult.isNotBlank()){
+    fun getSearchResultMap(session: Session): Map<String, ArticleSearchResultDbEntry?> {
+        val resultMap = mutableMapOf<String, ArticleSearchResultDbEntry?>()
+        if (searchResult.isNotBlank()) {
             searchResult.split(ENTRY_SEPERATOR).asSequence().forEach {
                 val data = it.split(PAGE_ID_ARTICLE_ID_SEPERATOR).toList()
-                if (data.size == 2){
-                    if (DatabaseUtils.checkIfArticleDeleted(session,data.get(ARTICLE_ID_INDEX))){
+                if (data.size == 2) {
+                    val article = DatabaseUtils.findArticleById(session, data.get(ARTICLE_ID_INDEX))!!
+                    if (article.deletedFromFireStore && article.deletedFromFirebaseDb) {
+//                    if (DatabaseUtils.checkIfArticleDeleted(session,data.get(ARTICLE_ID_INDEX))){
                         resultMap.put(data.get(ARTICLE_ID_INDEX), null)
-                    }else {
-                        val page = DatabaseUtils.findPageById(session,data.get(PAGE_ID_INDEX))
-                        page?.let {
-                            if (page.topLevelPage ?: false){
-                                resultMap.put(data.get(ARTICLE_ID_INDEX), it.id)
-                            }else{
-                                resultMap.put(data.get(ARTICLE_ID_INDEX), it.parentPageId)
-                            }
+                    } else {
+                        val page = DatabaseUtils.findPageById(session, data.get(PAGE_ID_INDEX))!!
+                        if (page.topLevelPage!!) {
+                            resultMap.put(data.get(ARTICLE_ID_INDEX), ArticleSearchResultDbEntry(page.id, article.publicationTime!!.time))
+                        } else {
+                            resultMap.put(data.get(ARTICLE_ID_INDEX), ArticleSearchResultDbEntry(page.parentPageId!!, article.publicationTime!!.time))
                         }
                     }
                 }
@@ -73,19 +73,24 @@ data class KeyWordSearchResult(
         }
         val searchResultBuilder = StringBuilder("")
         resultMap.keys.asSequence().forEach {
-            if (resultMap.get(it) !=null){
+            if (resultMap.get(it) != null) {
                 if (searchResultBuilder.isNotBlank()) {
                     searchResultBuilder.append(ENTRY_SEPERATOR)
                 }
                 searchResultBuilder
-                        .append(resultMap.get(it))
+                        .append(resultMap.get(it)!!.pageId)
                         .append(PAGE_ID_ARTICLE_ID_SEPERATOR)
                         .append(it)
             }
         }
         searchResult = searchResultBuilder.toString()
-        DatabaseUtils.runDbTransection(session){session.update(this)}
+        DatabaseUtils.runDbTransection(session) { session.update(this) }
         return resultMap.toMap()
     }
 
 }
+
+data class ArticleSearchResultDbEntry(
+        val pageId: String,
+        val publicationTs: Long
+)

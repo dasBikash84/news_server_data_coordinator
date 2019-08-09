@@ -20,7 +20,7 @@ class ArticleSearchReasultProcessor private constructor() : Thread() {
         private const val INIT_DELAY_MS = 5 * ONE_MINUTE_IN_MS
         private const val DURATION_BETWEEN_UPLOADER_RUN_MS = 5 * ONE_MINUTE_IN_MS//1 * ONE_HOUR_IN_MS
         private const val MAX_UPLOADER_RUN_PERIOD_MS = 1 * ONE_HOUR_IN_MS
-        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 30 * ONE_MINUTE_IN_MS//1 * ONE_HOUR_IN_MS
+        private const val MAX_ARTICLE_PROCESSING_ROUTINE_RUN_PERIOD_MS = 10 * ONE_MINUTE_IN_MS//1 * ONE_HOUR_IN_MS
         private const val SLEEP_PERIOD_BETWEEN_ITERATION_MS = 5 * ONE_MINUTE_IN_MS
 
         private const val ARTICLE_SEARCH_RESULT_UPLOAD_CHUNK_SIZE = 400
