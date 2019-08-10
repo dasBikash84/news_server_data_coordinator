@@ -86,7 +86,7 @@ object RealTimeDbDataUtils {
             false -> page.parentPageId!!
         }
         return getNewsCategoryEntryMap(session).values
-                .filter { it.getPage()!!.id == parentPageId }
+                .filter { (it.getPage()!!.id == parentPageId) ||(it.getPage()!!.id == page.id) }
                 .map { getNewsCategoryMap(session).get(it.getNewsCategory()!!.id)!! }
                 .toList()
     }
