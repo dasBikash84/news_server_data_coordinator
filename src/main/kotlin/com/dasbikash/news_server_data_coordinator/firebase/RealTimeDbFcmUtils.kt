@@ -5,6 +5,7 @@ import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.NotificationGenerationException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
+import com.dasbikash.news_server_data_coordinator.model.db_entity.AuthToken
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.dasbikash.news_server_data_coordinator.utils.RxJavaUtils
 import com.google.firebase.database.DataSnapshot
@@ -46,15 +47,23 @@ object RealTimeDbFcmUtils {
                                                 it.getValue(FcmNotificationGenerationRequest::class.java)
                                         LoggerUtils.logOnConsole(fcmNotificationGenerationRequest.toString())
                                         if (fcmNotificationGenerationRequest.articleId != null &&
-                                                fcmNotificationGenerationRequest.timeStamp != null &&
-                                                (System.currentTimeMillis() - fcmNotificationGenerationRequest.timeStamp!!)
-                                                < MAX_DELAY_FOR_FCM_NOTIFICATION_REQ) {
-                                            DatabaseUtils.findArticleById(session, fcmNotificationGenerationRequest.articleId!!)?.let {
-                                                try {
-                                                    generateNotificationForArticle(it)
-                                                } catch (ex: Throwable) {
-                                                    DataCoordinatorExceptionHandler.handleException(NotificationGenerationException(ex.message, ex))
+                                                fcmNotificationGenerationRequest.authToken != null) {
+
+                                            val token =
+                                                    session.get(AuthToken::class.java, fcmNotificationGenerationRequest.authToken)
+
+                                            if (token != null && !token.hasExpired()) {
+                                                DatabaseUtils.findArticleById(session, fcmNotificationGenerationRequest.articleId!!)?.let {
+                                                    try {
+                                                        generateNotificationForArticle(it)
+                                                        LoggerUtils.logOnDb("Notification generated for articleId: ${it.id}",session)
+                                                    } catch (ex: Throwable) {
+                                                        DataCoordinatorExceptionHandler.handleException(NotificationGenerationException(ex.message, ex))
+                                                    }
                                                 }
+                                            }else{
+                                                LoggerUtils.logOnDb(
+                                                        "Notification generation failure for articleId: ${fcmNotificationGenerationRequest.articleId}",session)
                                             }
                                         }
                                     }
@@ -102,5 +111,5 @@ object RealTimeDbFcmUtils {
 
 data class FcmNotificationGenerationRequest(
         var articleId: String? = null,
-        var timeStamp: Long? = null
+        var authToken: String? = null
 )
