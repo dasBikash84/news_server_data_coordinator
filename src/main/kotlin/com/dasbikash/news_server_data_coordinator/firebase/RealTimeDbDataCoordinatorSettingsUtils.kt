@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.firebase
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
+import com.dasbikash.news_server_data_coordinator.utils.RxJavaUtils
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -40,33 +41,25 @@ object RealTimeDbDataCoordinatorSettingsUtils {
 
     init {
         RealTimeDbRefUtils.getDataCoordinatorSettingsNode()
-                .child(ARTICLE_DELETION_SETTINGS_NODE)
                 .addValueEventListener(object : ValueEventListener {
                     override fun onCancelled(error: DatabaseError?) {}
 
                     override fun onDataChange(snapshot: DataSnapshot?) {
-                        snapshot?.let {
-                            it.children.asSequence().forEach {
-                                val dataSnapshot = it
-                                ArticleUploadTarget.values().find { it.name == dataSnapshot.key}?.let {
-                                    articleDeletionSettingsMap.put(it,dataSnapshot.getValue(ArticleDeletionSettings::class.java))
+                        RxJavaUtils.doTaskInBackGround {
+                            snapshot?.child(ARTICLE_DELETION_SETTINGS_NODE)?.let {
+                                it.children.asSequence().forEach {
+                                    val dataSnapshot = it
+                                    ArticleUploadTarget.values().find { it.name == dataSnapshot.key }?.let {
+                                        articleDeletionSettingsMap.put(it, dataSnapshot.getValue(ArticleDeletionSettings::class.java))
+                                    }
                                 }
                             }
-                        }
-                    }
-                })
-
-        RealTimeDbRefUtils.getDataCoordinatorSettingsNode()
-                .child(ARTICLE_UPLOAD_SETTINGS_NODE)
-                .addValueEventListener(object : ValueEventListener {
-                    override fun onCancelled(error: DatabaseError?) {}
-
-                    override fun onDataChange(snapshot: DataSnapshot?) {
-                        snapshot?.let {
-                            it.children.asSequence().forEach {
-                                val dataSnapshot = it
-                                ArticleUploadTarget.values().find { it.name == dataSnapshot.key}?.let {
-                                    articleUploadSettingsMap.put(it,dataSnapshot.getValue(ArticleUploadSettings::class.java))
+                            snapshot?.child(ARTICLE_UPLOAD_SETTINGS_NODE)?.let {
+                                it.children.asSequence().forEach {
+                                    val dataSnapshot = it
+                                    ArticleUploadTarget.values().find { it.name == dataSnapshot.key }?.let {
+                                        articleUploadSettingsMap.put(it, dataSnapshot.getValue(ArticleUploadSettings::class.java))
+                                    }
                                 }
                             }
                         }
