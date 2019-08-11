@@ -37,6 +37,8 @@ object RealTimeDbRefUtils {
 
     private const val DATA_COORDINATOR_SETTINGS_NODE = "data_coordinator_settings"
 
+    private const val FCM_NOTIFICATION_GEN_REQ_NODE = "fcm_notification_gen_request"
+
     private lateinit var mRootReference:DatabaseReference
     private lateinit var  mAppSettingsRootReference: DatabaseReference
 //    private lateinit var  mUserSettingsRootReference: DatabaseReference
@@ -84,5 +86,6 @@ object RealTimeDbRefUtils {
     internal fun getDataCoordinatorSettingsNode():DatabaseReference = getRootRef().child(DATA_COORDINATOR_SETTINGS_NODE)
 
     internal fun getNewsCategoriesArticleInfoRef():DatabaseReference = getRootRef().child(NEWS_CATEGORIES_ARTICLE_INFO_NODE)
+    internal fun getFcmNotificationGenReqRef():DatabaseReference = getRootRef().child(FCM_NOTIFICATION_GEN_REQ_NODE)
 
 }

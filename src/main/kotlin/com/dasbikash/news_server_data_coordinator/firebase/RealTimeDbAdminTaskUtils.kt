@@ -28,6 +28,7 @@ object RealTimeDbAdminTaskUtils {
     private const val TOKEN_GENERATION_REQUEST_NODE = "data_coordinator_token_generation_request"
     private const val ARTICLE_UPLOADER_STATUS_CHANGE_REQUEST_NODE = "article_uploader_status_change_request"
 
+
     init {
         RealTimeDbRefUtils.getAdminTaskDataNode()
                 .child(TOKEN_GENERATION_REQUEST_NODE)
