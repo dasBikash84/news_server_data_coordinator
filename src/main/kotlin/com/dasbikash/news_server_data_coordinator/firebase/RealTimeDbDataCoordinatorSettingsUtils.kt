@@ -47,6 +47,7 @@ object RealTimeDbDataCoordinatorSettingsUtils {
                     override fun onDataChange(snapshot: DataSnapshot?) {
                         RxJavaUtils.doTaskInBackGround {
                             snapshot?.child(ARTICLE_DELETION_SETTINGS_NODE)?.let {
+                                println(it)
                                 it.children.asSequence().forEach {
                                     val dataSnapshot = it
                                     ArticleUploadTarget.values().find { it.name == dataSnapshot.key }?.let {
@@ -55,6 +56,7 @@ object RealTimeDbDataCoordinatorSettingsUtils {
                                 }
                             }
                             snapshot?.child(ARTICLE_UPLOAD_SETTINGS_NODE)?.let {
+                                println(it)
                                 it.children.asSequence().forEach {
                                     val dataSnapshot = it
                                     ArticleUploadTarget.values().find { it.name == dataSnapshot.key }?.let {

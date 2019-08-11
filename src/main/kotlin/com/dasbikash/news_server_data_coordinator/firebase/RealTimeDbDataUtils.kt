@@ -99,12 +99,15 @@ object RealTimeDbDataUtils {
         }
     }
 
-    fun clearAllArticleData() {
-//        val task = mArticleDataRootReference.setValueAsync(null)
-//        while (!task.isDone){
-//            println("Waiting for data deletion.")
-//            Thread.sleep(1000L)
-//        }
+    private val MAX_WAITING_TIME_FOR_DATA_DELETION = 2*60*1000L //2 mins
+
+    fun clearData(databaseReference: DatabaseReference):Boolean {
+        val task = databaseReference.setValueAsync(null)
+        val startTime = System.currentTimeMillis()
+        while (!task.isDone || (System.currentTimeMillis()-startTime < MAX_WAITING_TIME_FOR_DATA_DELETION)){
+            Thread.sleep(10L)
+        }
+        return (System.currentTimeMillis()-startTime) < MAX_WAITING_TIME_FOR_DATA_DELETION
     }
 
     fun nukeAppSettings() {

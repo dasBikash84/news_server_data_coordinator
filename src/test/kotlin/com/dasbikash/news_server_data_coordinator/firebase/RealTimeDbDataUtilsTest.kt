@@ -156,4 +156,11 @@ internal class RealTimeDbDataUtilsTest {
 //        val query = session.createNativeQuery(sql, KeyWordSearchResult::class.java)
 //        return query.resultList as List<KeyWordSearchResult>
 //    }
+//    @Test
+//    fun RealTimeDbListnerTest(){
+//        RealTimeDbDataCoordinatorSettingsUtils.init()
+//        RealTimeDbAdminTaskUtils.init()
+//        RealTimeDbFcmUtils.init()
+//        while (true){}
+//    }
 }

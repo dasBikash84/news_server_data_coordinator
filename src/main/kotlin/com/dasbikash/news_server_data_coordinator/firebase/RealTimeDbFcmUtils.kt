@@ -6,6 +6,7 @@ import com.dasbikash.news_server_data_coordinator.exceptions.NotificationGenerat
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import com.dasbikash.news_server_data_coordinator.utils.RxJavaUtils
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -35,29 +36,29 @@ object RealTimeDbFcmUtils {
                     override fun onCancelled(error: DatabaseError?) {}
 
                     override fun onDataChange(snapshot: DataSnapshot?) {
-                        snapshot?.let {
-                            if (it.hasChildren()) {
-                                val session = DbSessionManager.getNewSession()
-                                it.children.asSequence().forEach {
-                                    val dataSnapshot = it
-                                    val fcmNotificationGenerationRequest =
-                                            it.getValue(FcmNotificationGenerationRequest::class.java)
-                                    LoggerUtils.logOnConsole(fcmNotificationGenerationRequest.toString())
-                                    if (fcmNotificationGenerationRequest.articleId != null &&
-                                            fcmNotificationGenerationRequest.timeStamp != null &&
-                                            (System.currentTimeMillis() - fcmNotificationGenerationRequest.timeStamp!!)
-                                            < MAX_DELAY_FOR_FCM_NOTIFICATION_REQ) {
-                                        DatabaseUtils.findArticleById(session, fcmNotificationGenerationRequest.articleId!!)?.let {
-                                            try {
-                                                generateNotificationForArticle(it)
-                                            } catch (ex: Throwable) {
-                                                DataCoordinatorExceptionHandler.handleException(NotificationGenerationException(ex.message, ex))
-                                            }
-                                            val futureTask = dataSnapshot.getRef().setValueAsync(null)
-                                            while (!futureTask.isDone) {
+                        RxJavaUtils.doTaskInBackGround {
+                            snapshot?.let {
+                                println(it)
+                                if (it.hasChildren()) {
+                                    val session = DbSessionManager.getNewSession()
+                                    it.children.asSequence().forEach {
+                                        val fcmNotificationGenerationRequest =
+                                                it.getValue(FcmNotificationGenerationRequest::class.java)
+                                        LoggerUtils.logOnConsole(fcmNotificationGenerationRequest.toString())
+                                        if (fcmNotificationGenerationRequest.articleId != null &&
+                                                fcmNotificationGenerationRequest.timeStamp != null &&
+                                                (System.currentTimeMillis() - fcmNotificationGenerationRequest.timeStamp!!)
+                                                < MAX_DELAY_FOR_FCM_NOTIFICATION_REQ) {
+                                            DatabaseUtils.findArticleById(session, fcmNotificationGenerationRequest.articleId!!)?.let {
+                                                try {
+                                                    generateNotificationForArticle(it)
+                                                } catch (ex: Throwable) {
+                                                    DataCoordinatorExceptionHandler.handleException(NotificationGenerationException(ex.message, ex))
+                                                }
                                             }
                                         }
                                     }
+                                    RealTimeDbDataUtils.clearData(it.ref)
                                 }
                             }
                         }
