@@ -53,14 +53,14 @@ class AuthToken(){
 
 }
 
-data class TokenGenerationRequest(var timeStamp: TimeStamp? = null){
+data class TokenGenerationRequest(var timeStampMs:Long? = null){
 
     @Exclude
     fun isValid():Boolean{
-        if (timeStamp == null) return false
-        val calendar = Calendar.getInstance()
-        calendar.time = Timestamp.ofTimeSecondsAndNanos(timeStamp!!.seconds,timeStamp!!.nanoseconds).toDate()
-        return (System.currentTimeMillis() - calendar.timeInMillis) < MAX_ALLOWED_AGE_MS
+        timeStampMs?.let {
+            return (System.currentTimeMillis() - it) < MAX_ALLOWED_AGE_MS
+        }
+        return false
     }
 
     companion object{
@@ -68,5 +68,3 @@ data class TokenGenerationRequest(var timeStamp: TimeStamp? = null){
         private const val MAX_ALLOWED_AGE_MS = MAX_ALLOWED_AGE_MINUTE*60*1000L
     }
 }
-
-data class TimeStamp(var seconds:Long=0,var nanoseconds:Int=0)
