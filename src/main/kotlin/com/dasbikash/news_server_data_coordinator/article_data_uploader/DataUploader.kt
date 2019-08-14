@@ -201,6 +201,10 @@ abstract class DataUploader : Thread() {
     }
 
     private fun checkIfSettingsModified(session: Session): Boolean {
+
+        if (getUploadDestinationInfo() != UploadDestinationInfo.REAL_TIME_DB){
+            return false
+        }
         val lastSettingsUpdateLog = DatabaseUtils.getLastSettingsUpdateLog(session)
         val lastSettingsUploadLog = DatabaseUtils
                 .getLastSettingsUploadLogByTarget(session, getUploadDestinationInfo().articleUploadTarget)
@@ -220,6 +224,11 @@ abstract class DataUploader : Thread() {
     }
 
     private fun uploadSettingsToServer(session: Session) {
+
+        if (getUploadDestinationInfo() != UploadDestinationInfo.REAL_TIME_DB){
+            return
+        }
+
         val languages = DatabaseUtils.getLanguageMap(session).values.filter { it.updated }
         val countries = DatabaseUtils.getCountriesMap(session).values.filter { it.updated }
         val newspapers = DatabaseUtils.getNewspaperMap(session).values.filter { it.updated }
