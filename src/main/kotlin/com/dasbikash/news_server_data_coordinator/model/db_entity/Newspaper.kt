@@ -45,6 +45,7 @@ data class Newspaper(
     var countryName: String? = null
     @Transient
     var languageId: String? = null
+    var updated:Boolean = true
 
 
     fun setCountryData(countries: List<Country>) {
@@ -74,5 +75,6 @@ data class Newspaper(
     fun updateData(newNewspaper: Newspaper) {
         active = newNewspaper.active
         name = newNewspaper.name
+        updated = true
     }
 }

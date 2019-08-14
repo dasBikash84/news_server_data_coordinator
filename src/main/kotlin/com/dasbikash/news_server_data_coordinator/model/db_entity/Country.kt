@@ -27,12 +27,14 @@ data class Country (
         fun updateData(newCountry: Country) {
                 this.countryCode = newCountry.countryCode
                 this.timeZone = newCountry.timeZone
+                updated = true
         }
 
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
         @Exclude
         @com.google.firebase.database.Exclude
         var newsPapers:List<Newspaper>? = null
+        var updated:Boolean = true
 
 
 }

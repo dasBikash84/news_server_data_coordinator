@@ -44,6 +44,7 @@ data class Page(
 
     @Transient
     var newsPaperId: String? = null
+    var updated:Boolean = true
 
     fun setNewsPaperData(newspapers: List<Newspaper>) {
         for (newspaper in newspapers) {
@@ -74,5 +75,6 @@ data class Page(
         hasData = newPage.hasData
         hasChild = newPage.hasChild
         topLevelPage = newPage.topLevelPage
+        updated = true
     }
 }

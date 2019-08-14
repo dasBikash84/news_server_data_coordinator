@@ -28,9 +28,11 @@ data class Language (
         @Exclude
         @com.google.firebase.database.Exclude
         var newsPapers:List<Newspaper>? = null
+        var updated:Boolean = true
 
         fun updateData(newLanguage: Language) {
                 this.name = newLanguage.name
+                updated = true
         }
 
 }

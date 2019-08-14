@@ -24,7 +24,9 @@ data class NewsCategory(
         @Id var id: String="",
         var name: String?=null
 ) {
+    var updated:Boolean = true
     fun updateData(newNewsCategory: NewsCategory) {
         name = newNewsCategory.name
+        updated = true
     }
 }
