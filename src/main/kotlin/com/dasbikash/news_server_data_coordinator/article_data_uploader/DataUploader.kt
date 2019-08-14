@@ -220,19 +220,49 @@ abstract class DataUploader : Thread() {
     }
 
     private fun uploadSettingsToServer(session: Session) {
-        val languages = DatabaseUtils.getLanguageMap(session).values
-        val countries = DatabaseUtils.getCountriesMap(session).values
-        val newspapers = DatabaseUtils.getNewspaperMap(session).values
-        val pages = DatabaseUtils.getPageMapForAll(session).values
+        val languages = DatabaseUtils.getLanguageMap(session).values.filter { it.updated }
+        val countries = DatabaseUtils.getCountriesMap(session).values.filter { it.updated }
+        val newspapers = DatabaseUtils.getNewspaperMap(session).values.filter { it.updated }
+        val pages = DatabaseUtils.getPageMapForAll(session).values.filter { it.updated }
         val pageGroups = DatabaseUtils.getPageGroups(session)
-        if (languages.isEmpty() || countries.isEmpty() || newspapers.isEmpty() || pages.isEmpty()) {
-            throw IllegalStateException("Basic app settings not found.")
+        val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values.filter { it.updated }
+
+        if (languages.isEmpty() && countries.isEmpty() && newspapers.isEmpty()
+                && pages.isEmpty() && newsCategories.isEmpty()) {
+            addSettingsUpdateLog(session)
+            throw IllegalArgumentException("No settings to update!!!")
         }
-        val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values
 //        nukeOldSettings()
         uploadNewSettings(languages, countries, newspapers, pages, pageGroups,newsCategories)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)
+        resetUpdatedFlags(session,languages, countries, newspapers, pages, newsCategories)
+    }
+
+    private fun resetUpdatedFlags(session: Session, languages: List<Language>, countries: List<Country>,
+                                  newspapers: List<Newspaper>, pages: List<Page>, newsCategories: List<NewsCategory>) {
+        val taskList = mutableListOf<() -> Unit>()
+        languages.asSequence().forEach {
+            it.updated = false
+            taskList.add({session.update(it)})
+        }
+        countries.asSequence().forEach {
+            it.updated = false
+            taskList.add({session.update(it)})
+        }
+        newspapers.asSequence().forEach {
+            it.updated = false
+            taskList.add({session.update(it)})
+        }
+        pages.asSequence().forEach {
+            it.updated = false
+            taskList.add({session.update(it)})
+        }
+        newsCategories.asSequence().forEach {
+            it.updated = false
+            taskList.add({session.update(it)})
+        }
+        DatabaseUtils.runDbTransections(session,taskList)
     }
 
     override fun run() {

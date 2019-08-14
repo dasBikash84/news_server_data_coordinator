@@ -26,7 +26,7 @@ object DatabaseUtils {
 
     private val DB_WRITE_MAX_RETRY = 3
 
-    fun runDbTransection(session: Session, operation: () -> Unit): Boolean {
+    fun runDbTransections(session: Session, operations: List<() -> Unit>): Boolean {
 
         var retryLimit = DB_WRITE_MAX_RETRY;
 
@@ -37,7 +37,7 @@ object DatabaseUtils {
                 if (!session.transaction.isActive) {
                     session.beginTransaction()
                 }
-                operation()
+                operations.asSequence().forEach { it() }
                 session.transaction.commit()
                 return true
             } catch (ex: Exception) {
@@ -60,6 +60,9 @@ object DatabaseUtils {
         }
         return false
     }
+
+    fun runDbTransection(session: Session, operation: () -> Unit) =
+        runDbTransections(session, listOf(operation))
 
     fun getLanguageMap(session: Session): Map<String, Language> {
         val hql = "FROM ${EntityClassNames.LANGUAGE}"

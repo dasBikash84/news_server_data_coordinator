@@ -94,46 +94,56 @@ object FireStoreDataUtils {
                           newspapers: Collection<Newspaper>, pages: Collection<Page>,
                           pageGroups:Collection<PageGroup>,newsCategories: Collection<NewsCategory>)
             : Boolean {
-        val languageMap = mutableMapOf<LanguageForFB, String>()
-        languages.asSequence().forEach {
-            languageMap.put(LanguageForFB.getFromLanguage(it), it.id)
-        }
-        if (!writeToCollection(languageMap, FireStoreRefUtils.getLanguageSettingsCollectionRef())) {
-            return false
-        }
-
-        val countryMap = mutableMapOf<CountryForFB, String>()
-        countries.asSequence().forEach {
-            countryMap.put(CountryForFB.getFromCountry(it), it.name)
-        }
-        if (!writeToCollection(countryMap, FireStoreRefUtils.getCountrySettingsCollectionRef())) {
-            return false
+        if (languages.isNotEmpty()) {
+            val languageMap = mutableMapOf<LanguageForFB, String>()
+            languages.asSequence().forEach {
+                languageMap.put(LanguageForFB.getFromLanguage(it), it.id)
+            }
+            if (!writeToCollection(languageMap, FireStoreRefUtils.getLanguageSettingsCollectionRef())) {
+                return false
+            }
         }
 
-        val newspaperMap = mutableMapOf<NewspaperForFB, String>()
-        newspapers.asSequence().forEach {
-            newspaperMap.put(NewspaperForFB.getFromNewspaper(it), it.id)
-        }
-        if (!writeToCollection(newspaperMap, FireStoreRefUtils.getNewspaperSettingsCollectionRef())) {
-            return false
-        }
-
-        val pagesMap = mutableMapOf<PageForFB, String>()
-        pages.asSequence().forEach {
-            pagesMap.put(PageForFB.getFromPage(it), it.id)
+        if (countries.isNotEmpty()) {
+            val countryMap = mutableMapOf<CountryForFB, String>()
+            countries.asSequence().forEach {
+                countryMap.put(CountryForFB.getFromCountry(it), it.name)
+            }
+            if (!writeToCollection(countryMap, FireStoreRefUtils.getCountrySettingsCollectionRef())) {
+                return false
+            }
         }
 
-        if (!writeToCollection(pagesMap, FireStoreRefUtils.getPageSettingsCollectionRef())) {
-            return false
+        if (newspapers.isNotEmpty()) {
+            val newspaperMap = mutableMapOf<NewspaperForFB, String>()
+            newspapers.asSequence().forEach {
+                newspaperMap.put(NewspaperForFB.getFromNewspaper(it), it.id)
+            }
+            if (!writeToCollection(newspaperMap, FireStoreRefUtils.getNewspaperSettingsCollectionRef())) {
+                return false
+            }
         }
 
-        val newsCategoryMap = mutableMapOf<NewsCategory, String>()
-        newsCategories.asSequence().forEach {
-            newsCategoryMap.put(it, it.id)
+        if (pages.isNotEmpty()) {
+            val pagesMap = mutableMapOf<PageForFB, String>()
+            pages.asSequence().forEach {
+                pagesMap.put(PageForFB.getFromPage(it), it.id)
+            }
+
+            if (!writeToCollection(pagesMap, FireStoreRefUtils.getPageSettingsCollectionRef())) {
+                return false
+            }
         }
 
-        if (!writeToCollection(newsCategoryMap, FireStoreRefUtils.getNewsCategorySettingsCollectionRef())) {
-            return false
+        if (newsCategories.isNotEmpty()) {
+            val newsCategoryMap = mutableMapOf<NewsCategory, String>()
+            newsCategories.asSequence().forEach {
+                newsCategoryMap.put(it, it.id)
+            }
+
+            if (!writeToCollection(newsCategoryMap, FireStoreRefUtils.getNewsCategorySettingsCollectionRef())) {
+                return false
+            }
         }
 
         val pageGroupsMap = mutableMapOf<PageGroupForFB, String>()
