@@ -187,20 +187,6 @@ object DataFetcherFromParser {
         }
     }
 
-    fun getPageGroups(session: Session): List<PageGroup> {
-        val response = pageGroupsTarget.request(MediaType.APPLICATION_JSON).get()
-
-        if (response.status == Response.Status.OK.statusCode && response.hasEntity()) {
-            val data = response.readEntity(String::class.java)!!
-            val pageGroups = gson.fromJson(data, PageGroups::class.java).pageGroups!!
-            val pages = DatabaseUtils.getPageMap(session).values.toList()
-            pageGroups.asSequence().forEach { it.setPages(pages) }
-            return pageGroups
-        } else {
-            return emptyList()
-        }
-    }
-
     fun getNewsCategoryMap(): Map<String,NewsCategory> {
         val response = newsCategoriesTarget.request(MediaType.APPLICATION_JSON).get()
 

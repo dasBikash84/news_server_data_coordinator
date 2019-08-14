@@ -60,7 +60,7 @@ abstract class DataUploader : Thread() {
     abstract protected fun nukeOldSettings()
     abstract protected fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                              newspapers: Collection<Newspaper>, pages: Collection<Page>,
-                                             pageGroups: Collection<PageGroup>,newsCategories: Collection<NewsCategory>)
+                                             newsCategories: Collection<NewsCategory>)
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article,session: Session): Boolean
@@ -224,7 +224,6 @@ abstract class DataUploader : Thread() {
         val countries = DatabaseUtils.getCountriesMap(session).values.filter { it.updated }
         val newspapers = DatabaseUtils.getNewspaperMap(session).values.filter { it.updated }
         val pages = DatabaseUtils.getPageMapForAll(session).values.filter { it.updated }
-        val pageGroups = DatabaseUtils.getPageGroups(session)
         val newsCategories = DatabaseUtils.getNewsCategoryMap(session).values.filter { it.updated }
 
         if (languages.isEmpty() && countries.isEmpty() && newspapers.isEmpty()
@@ -233,7 +232,7 @@ abstract class DataUploader : Thread() {
             throw IllegalArgumentException("No settings to update!!!")
         }
 //        nukeOldSettings()
-        uploadNewSettings(languages, countries, newspapers, pages, pageGroups,newsCategories)
+        uploadNewSettings(languages, countries, newspapers, pages, newsCategories)
         addToServerUploadTimeLog()
         addSettingsUpdateLog(session)
         resetUpdatedFlags(session,languages, countries, newspapers, pages, newsCategories)

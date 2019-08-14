@@ -123,7 +123,7 @@ object RealTimeDbDataUtils {
     }
 
     fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
-                          newspapers: Collection<Newspaper>, pages: Collection<Page>, pageGroups: Collection<PageGroup>,
+                          newspapers: Collection<Newspaper>, pages: Collection<Page>,
                           newsCategories: Collection<NewsCategory>) {
         val listOfFuture = mutableListOf<ApiFuture<Void>>()
         languages.asSequence().forEach {
@@ -140,9 +140,6 @@ object RealTimeDbDataUtils {
         }
         newsCategories.asSequence().forEach {
             listOfFuture.add(RealTimeDbRefUtils.getNewsCategoriesRef().child(it.id).setValueAsync(it))
-        }
-        pageGroups.asSequence().forEach {
-            listOfFuture.add(RealTimeDbRefUtils.getPageGroupsRef().child(it.name).setValueAsync(PageGroupForFB.getFromPageGroup(it)))
         }
 
         listOfFuture.asSequence().forEach {

@@ -169,12 +169,6 @@ object DatabaseUtils {
         return newsCategoryEntryMap.toMap()
     }
 
-    fun getPageGroups(session: Session): List<PageGroup> {
-        val hql = "FROM ${EntityClassNames.PAGE_GROUP}"
-        val query = session.createQuery(hql, PageGroup::class.java)
-        return query.list() as List<PageGroup>
-    }
-
     fun findArticleById(session: Session, id: String): Article? {
         val hql = "FROM ${EntityClassNames.ARTICLE} where id='${id}'"
         val query = session.createQuery(hql, Article::class.java)

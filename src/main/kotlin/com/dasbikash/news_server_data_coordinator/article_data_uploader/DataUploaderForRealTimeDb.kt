@@ -38,8 +38,8 @@ class DataUploaderForRealTimeDb : DataUploader() {
 
     override fun uploadNewSettings(languages: Collection<Language>, countries: Collection<Country>,
                                    newspapers: Collection<Newspaper>, pages: Collection<Page>,
-                                   pageGroups:Collection<PageGroup>,newsCategories: Collection<NewsCategory>) {
-        RealTimeDbDataUtils.uploadNewSettings(languages, countries, newspapers, pages,pageGroups,newsCategories)
+                                   newsCategories: Collection<NewsCategory>) {
+        RealTimeDbDataUtils.uploadNewSettings(languages, countries, newspapers, pages,newsCategories)
     }
 
     override fun addToServerUploadTimeLog() {
