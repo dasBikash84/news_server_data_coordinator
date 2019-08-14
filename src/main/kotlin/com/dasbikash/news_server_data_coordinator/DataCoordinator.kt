@@ -382,8 +382,6 @@ object DataCoordinator {
                     .apply {
                         first.keys.asSequence().forEach {
                             if (!second.contains(it)) {
-                                setSettingsUpdated()
-                                settingsUpdateLogMessageBuilder.append("NewsCategory Entry added id: ${it} | ")
                                 DatabaseUtils.runDbTransection(session) {
                                     session.save(first.get(it))
                                 }
