@@ -34,4 +34,7 @@ object DatabaseTableNames {
     const val ARTICLE_SEARCH_RESULT_DELETION_LOG_TABLE_NAME = "article_search_result_deletion_log"
     const val NEWS_CATERORIES_ENTRY_NAME = "news_categories"
     const val NEWS_CATEGORY_ENTRY_ENTRY_NAME = "news_category_entry"
+    const val FIREBASE_USER_ENTRY_NAME = "firebase_user"
+    const val FIREBASE_USER_INFO_SYNCHRONIZER_LOG_ENTRY_NAME = "firebase_user_info_synchronizer_log"
+    const val FAV_PAGE_ENTRY_ON_USER_SETTINGS_TABLE_NAME = "fav_page_entry_on_user_settings"
 }

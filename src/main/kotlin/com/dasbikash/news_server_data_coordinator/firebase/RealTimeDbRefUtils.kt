@@ -18,7 +18,7 @@ import com.google.firebase.database.DatabaseReference
 object RealTimeDbRefUtils {
 
     private const val APP_SETTINGS_NODE = "app_settings"
-//    private const val USER_SETTINGS_ROOT_NODE = "user_settings"
+    private const val USER_SETTINGS_ROOT_NODE = "user_settings"
     private const val ARTICLE_DATA_ROOT_NODE = "article_data"
     private const val UPDATE_LOG_NODE = "update_log"
 
@@ -41,7 +41,6 @@ object RealTimeDbRefUtils {
 
     private lateinit var mRootReference:DatabaseReference
     private lateinit var  mAppSettingsRootReference: DatabaseReference
-//    private lateinit var  mUserSettingsRootReference: DatabaseReference
     private lateinit var  mArticleDataRootReference: DatabaseReference
 
     internal fun getRootRef():DatabaseReference{
@@ -56,13 +55,6 @@ object RealTimeDbRefUtils {
         }
         return mAppSettingsRootReference
     }
-
-//    internal fun getUserSettingsRootReference():DatabaseReference{
-//        if (!::mUserSettingsRootReference.isInitialized){
-//            mUserSettingsRootReference = getRootRef().child(USER_SETTINGS_ROOT_NODE)
-//        }
-//        return mUserSettingsRootReference
-//    }
 
     internal fun getArticleDataRootReference():DatabaseReference{
         if (!::mArticleDataRootReference.isInitialized){
@@ -87,5 +79,7 @@ object RealTimeDbRefUtils {
 
     internal fun getNewsCategoriesArticleInfoRef():DatabaseReference = getRootRef().child(NEWS_CATEGORIES_ARTICLE_INFO_NODE)
     internal fun getFcmNotificationGenReqRef():DatabaseReference = getRootRef().child(FCM_NOTIFICATION_GEN_REQ_NODE)
+
+    internal fun getUserSettingsRef():DatabaseReference = getRootRef().child(USER_SETTINGS_ROOT_NODE)
 
 }

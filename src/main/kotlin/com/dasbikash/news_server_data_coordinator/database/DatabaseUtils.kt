@@ -658,4 +658,45 @@ object DatabaseUtils {
         }
         return emptyList()
     }
+
+    fun getLastFirebaseUserInfoSynchronizerLog(session: Session):FirebaseUserInfoSynchronizerLog? {
+        val hql = "FROM ${EntityClassNames.FIREBASE_USER_INFO_SYNCHRONIZER_LOG}"
+
+        val query =session.createQuery(hql, FirebaseUserInfoSynchronizerLog::class.java)
+        query.list().apply {
+            if (isNotEmpty()){
+                return this.sortedBy { it.created }.last()
+            }
+        }
+        return null
+    }
+
+    fun getAllFirebaseUser(session: Session): List<FirebaseUser> {
+        val hql = "FROM ${EntityClassNames.FIREBASE_USER}"
+        return session.createQuery(hql, FirebaseUser::class.java).list()
+    }
+
+    private fun getFavPageEntriesOnUserSettingsForUser(session: Session,firebaseUser: FirebaseUser):List<FavPageEntryOnUserSettings>{
+        val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.FAV_PAGE_ENTRY_ON_USER_SETTINGS_TABLE_NAME}")
+                                                    .append(" WHERE ")
+                                                    .append(" firebaseUserId = '${firebaseUser.uid}'")
+
+        val query = session.createNativeQuery(sqlStringBuilder.toString(), FavPageEntryOnUserSettings::class.java)
+        try {
+            return query.resultList as List<FavPageEntryOnUserSettings>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
+    }
+
+    fun deleteFavPageEntriesOnUserSettingsForUser(session: Session,firebaseUserFromDb: FirebaseUser) {
+        val currentFavPageEntriesOnUserSettings =
+                getFavPageEntriesOnUserSettingsForUser(session = session,firebaseUser = firebaseUserFromDb)
+        if (currentFavPageEntriesOnUserSettings.isNotEmpty()){
+            runDbTransection(session){
+                currentFavPageEntriesOnUserSettings.forEach { session.delete(it) }
+            }
+        }
+    }
 }

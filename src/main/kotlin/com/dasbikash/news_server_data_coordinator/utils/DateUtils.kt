@@ -17,6 +17,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtils {
+
+    const val ONE_MINUTE_IN_MS = 60 * 1000L //1 min
+    const val ONE_HOUR_IN_MS = 60 * ONE_MINUTE_IN_MS //1 hour
+    const val ONE_DAY_IN_MS = 24 * ONE_HOUR_IN_MS //1 day
+
     private const val DB_DATE_STRING_FORMAT = "YYYY-MM-dd"
     private const val MONTH_YEAR_STRING_FORMAT = "MMM-YYYY"
     private val simpleDateFormatForDb = SimpleDateFormat(DB_DATE_STRING_FORMAT)

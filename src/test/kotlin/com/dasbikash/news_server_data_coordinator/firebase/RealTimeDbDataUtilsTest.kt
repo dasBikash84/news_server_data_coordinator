@@ -13,19 +13,13 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
-import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchResultUtils
-import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
-import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
-import com.dasbikash.news_server_data_coordinator.model.db_entity.KeyWordSearchResult
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
-import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Test
 
 internal class RealTimeDbDataUtilsTest {
 

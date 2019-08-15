@@ -7,9 +7,9 @@ CREATE TABLE `news_server_data_coordinator`.`countries`
     `name`        varchar(255) NOT NULL,
     `countryCode` varchar(255) NOT NULL,
     `timeZone`    varchar(255) NOT NULL,
-    `updated`         bit(1)       NOT NULL DEFAULT b'1',
-    `created`     datetime DEFAULT CURRENT_TIMESTAMP,
-    `modified`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated`     bit(1)       NOT NULL DEFAULT b'1',
+    `created`     datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified`    datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -17,9 +17,9 @@ CREATE TABLE `news_server_data_coordinator`.`languages`
 (
     `id`       varchar(255) NOT NULL,
     `name`     varchar(255) NOT NULL,
-    `updated`         bit(1)       NOT NULL DEFAULT b'1',
-    `created`  datetime DEFAULT CURRENT_TIMESTAMP,
-    `modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated`  bit(1)       NOT NULL DEFAULT b'1',
+    `created`  datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified` datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `language_name_unique_key` (`name`)
 ) ENGINE = InnoDB
@@ -31,7 +31,7 @@ CREATE TABLE `news_server_data_coordinator`.`newspapers`
     `countryName` varchar(255) NOT NULL,
     `languageId`  varchar(255) NOT NULL,
     `active`      bit(1)       NOT NULL DEFAULT b'1',
-    `updated`         bit(1)       NOT NULL DEFAULT b'1',
+    `updated`     bit(1)       NOT NULL DEFAULT b'1',
     `created`     datetime              DEFAULT CURRENT_TIMESTAMP,
     `modified`    datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -52,7 +52,7 @@ CREATE TABLE `news_server_data_coordinator`.`pages`
     `hasChild`     bit(1)       NOT NULL,
     `topLevelPage` bit(1)       NOT NULL,
     `active`       bit(1)       NOT NULL DEFAULT b'1',
-    `updated`         bit(1)       NOT NULL DEFAULT b'1',
+    `updated`      bit(1)       NOT NULL DEFAULT b'1',
     `created`      datetime              DEFAULT CURRENT_TIMESTAMP,
     `modified`     datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -88,21 +88,21 @@ CREATE TABLE `news_server_data_coordinator`.`page_group_entries`
 
 CREATE TABLE `news_server_data_coordinator`.`articles`
 (
-    `id`                    varchar(255) NOT NULL,
-    `pageId`                varchar(255) NOT NULL,
-    `title`                 varchar(255) NOT NULL,
-    `articleText`           text         NOT NULL,
-    `previewImageLink`      text,
-    `publicationTime`       datetime     NOT NULL,
-    `upOnFirebaseDb`        bit(1)       NOT NULL DEFAULT b'0',
-    `upOnFireStore`         bit(1)       NOT NULL DEFAULT b'0',
-    `upOnMongoRest`         bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFirebaseDb` bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromFireStore`  bit(1)       NOT NULL DEFAULT b'0',
-    `deletedFromMongoRest`  bit(1)       NOT NULL DEFAULT b'0',
-    `processedInNewFormatForFirestore` BIT(1) NOT NULL DEFAULT b'1',
-    `created`               datetime              DEFAULT CURRENT_TIMESTAMP,
-    `modified`              datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `id`                               varchar(255) NOT NULL,
+    `pageId`                           varchar(255) NOT NULL,
+    `title`                            varchar(255) NOT NULL,
+    `articleText`                      text         NOT NULL,
+    `previewImageLink`                 text,
+    `publicationTime`                  datetime     NOT NULL,
+    `upOnFirebaseDb`                   bit(1)       NOT NULL DEFAULT b'0',
+    `upOnFireStore`                    bit(1)       NOT NULL DEFAULT b'0',
+    `upOnMongoRest`                    bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFirebaseDb`            bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromFireStore`             bit(1)       NOT NULL DEFAULT b'0',
+    `deletedFromMongoRest`             bit(1)       NOT NULL DEFAULT b'0',
+    `processedInNewFormatForFirestore` BIT(1)       NOT NULL DEFAULT b'1',
+    `created`                          datetime              DEFAULT CURRENT_TIMESTAMP,
+    `modified`                         datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
@@ -217,8 +217,8 @@ CREATE TABLE `news_server_data_coordinator`.`article_delete_request`
     `deleteRequestCount`    int(3)                                                     NOT NULL,
     `articleUploaderTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
     `served`                bit(1)                                                     NOT NULL DEFAULT b'0',
-    `created`               datetime                                                   DEFAULT CURRENT_TIMESTAMP,
-    `modified`              datetime                                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created`               datetime                                                            DEFAULT CURRENT_TIMESTAMP,
+    `modified`              datetime                                                            DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT `article_delete_request_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -282,7 +282,7 @@ CREATE TABLE `news_server_data_coordinator`.`news_category_entry`
     `id`             INT          NOT NULL AUTO_INCREMENT,
     `newsCategoryId` VARCHAR(50)  NOT NULL,
     `pageId`         VARCHAR(255) NOT NULL,
-    `updated`         bit(1)       NOT NULL DEFAULT b'1',
+    `updated`        bit(1)       NOT NULL DEFAULT b'1',
     `created`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `modified`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -299,8 +299,58 @@ CREATE TABLE `news_server_data_coordinator`.`news_category_entry`
             REFERENCES `news_server_parser2`.`pages` (`id`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
-)ENGINE = InnoDB
- DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`firebase_user`
+(
+    `uid`                    VARCHAR(50)  NOT NULL,
+    `providerId`             VARCHAR(255) NOT NULL,
+    `disabled`               BIT(1)       NOT NULL DEFAULT b'0',
+    `displayName`            VARCHAR(255) NULL,
+    `emailId`                VARCHAR(255) NULL,
+    `phoneNumber`            VARCHAR(45)  NULL,
+    `emailVerified`          BIT(1)       NOT NULL DEFAULT b'0',
+    `photoUrl`               VARCHAR(512) NULL,
+    `lastSettingsUpdateTime` DATETIME     NULL,
+    `created`                DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`uid`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`firebase_user_info_synchronizer_log`
+(
+    `id`              INT(11)  NOT NULL AUTO_INCREMENT,
+    `syncedUserCount` INT(11)  NOT NULL DEFAULT 0,
+    `newUserCount`    INT(11)  NOT NULL DEFAULT 0,
+    `message`         MEDIUMTEXT     NOT NULL,
+    `created`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`fav_page_entry_on_user_settings`
+(
+    `id`             INT(11)      NOT NULL AUTO_INCREMENT,
+    `pageId`         VARCHAR(255) NOT NULL,
+    `firebaseUserId` VARCHAR(50)  NOT NULL,
+    `subscribed`     BIT(1)       NOT NULL DEFAULT b'0',
+    `created`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `fav_page_entry_on_user_settings_fk_pageId_idx` (`pageId` ASC),
+    INDEX `fk_fav_page_entry_on_user_settings_firebaseUserId_idx` (`firebaseUserId` ASC),
+    CONSTRAINT `fk_fav_page_entry_on_user_settings_pageId`
+        FOREIGN KEY (`pageId`)
+            REFERENCES `news_server_data_coordinator`.`pages` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT `fk_fav_page_entry_on_user_settings_firebaseUserId`
+        FOREIGN KEY (`firebaseUserId`)
+            REFERENCES `news_server_data_coordinator`.`firebase_user` (`uid`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 CREATE INDEX `articles_upOnFirebaseDb_index` ON articles (upOnFirebaseDb);
 CREATE INDEX `articles_upOnFireStore_index` ON articles (upOnFireStore);

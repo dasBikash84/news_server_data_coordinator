@@ -29,4 +29,7 @@ object EntityClassNames {
     const val KEY_WORD_SERACH_RESULT = "KeyWordSearchResult"
     const val NEWS_CATERORIES = "NewsCategory"
     const val NEWS_CATERORY_ENTRIES = "NewsCategoryEntry"
+    const val FIREBASE_USER_INFO_SYNCHRONIZER_LOG = "FirebaseUserInfoSynchronizerLog"
+    const val FIREBASE_USER= "FirebaseUser"
+    const val FAV_PAGE_ENTRY_ON_USER_SETTINGS= "FavPageEntryOnUserSettings"
 }

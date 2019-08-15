@@ -39,4 +39,6 @@ object FireBaseConUtils {
         mFireStoreCon = FirestoreClient.getFirestore()
         mFirebaseDatabaseCon = FirebaseDatabase.getInstance()
     }
+
+    fun init(){}
 }

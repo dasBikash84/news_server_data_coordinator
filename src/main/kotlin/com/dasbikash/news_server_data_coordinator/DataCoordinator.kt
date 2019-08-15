@@ -16,6 +16,7 @@ import com.dasbikash.news_server_data_coordinator.exceptions.ReportGenerationExc
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbAdminTaskUtils
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbFcmUtils
+import com.dasbikash.news_server_data_coordinator.firebase_user_info_synchronizer.FirebaseUserSettingsSynchronizer
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.SettingsUpdateLog
 import com.dasbikash.news_server_data_coordinator.settings_loader.DataFetcherFromParser
@@ -46,6 +47,7 @@ object DataCoordinator {
     private lateinit var realTimeDbDataUploader: DataUploader
     private lateinit var fireStoreDbDataUploader: DataUploader
     private lateinit var mongoRestDataUploader: DataUploader
+    private lateinit var firebaseUserSettingsSynchronizer: FirebaseUserSettingsSynchronizer
     private val INIT_DELAY_FOR_ERROR = 60 * 1000L
     private var errorDelayPeriod = 0L
     private var errorIteration = 0L
@@ -64,6 +66,7 @@ object DataCoordinator {
                 refreshArticleFetcher()
                 refreshArticleDataUploaders()
                 refreshArticleSearchReasultProcessor()
+                refreashUserSettingsSynchronizer()
 
                 errorDelayPeriod = 0L
                 errorIteration = 0L
@@ -242,6 +245,14 @@ object DataCoordinator {
         if (articleSearchReasultProcessor == null) {
             articleSearchReasultProcessor = ArticleSearchReasultProcessor.getInstance()
             articleSearchReasultProcessor?.start()
+        }
+    }
+
+    private fun refreashUserSettingsSynchronizer() {
+        if (!::firebaseUserSettingsSynchronizer.isInitialized ||
+                !firebaseUserSettingsSynchronizer.isAlive) {
+            firebaseUserSettingsSynchronizer = FirebaseUserSettingsSynchronizer()
+            firebaseUserSettingsSynchronizer.start()
         }
     }
 
