@@ -279,6 +279,8 @@ abstract class DataUploader : Thread() {
         DatabaseUtils.runDbTransections(session,taskList)
     }
 
+    val uploadedArticles = mutableListOf<Article>()
+
     override fun run() {
         RealTimeDbDataCoordinatorSettingsUtils.init()
         sleep(getInitialWaitingTime())
@@ -327,7 +329,6 @@ abstract class DataUploader : Thread() {
                         ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
                 )
             }
-            val uploadedArticles = mutableListOf<Article>()
             val articlesForUpload = getArticlesForUpload(session)
             LoggerUtils.logOnConsole("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
             if (articlesForUpload.size > 0) {
@@ -352,6 +353,7 @@ abstract class DataUploader : Thread() {
 
             } else {
                 generateNotificationForUploadedArticles(session,uploadedArticles.toList())
+                uploadedArticles.clear()
                 session.close()
                 waitHere(WAITING_TIME_MS_FOR_NEW_ARTICLE_UPLOAD)
             }
@@ -366,9 +368,10 @@ abstract class DataUploader : Thread() {
 
         uploadedArticles.filter {
             session.refresh(it)
+//            LoggerUtils.logOnDb("From filter: ${it.toString()}",session)
             it.upOnFireStore && it.upOnFirebaseDb && !it.deletedFromFirebaseDb && !it.deletedFromFireStore &&
                     (System.currentTimeMillis() - it.publicationTime!!.time) < DateUtils.ONE_DAY_IN_MS
-        }.forEach {
+        }.asSequence().forEach {
             val parentPageId = when{
                 it.page!!.topLevelPage!! -> it.page!!.id
                 else    -> it.page!!.parentPageId!!
@@ -383,6 +386,7 @@ abstract class DataUploader : Thread() {
             val parentPage = DatabaseUtils.findPageById(session,it)!!
             if (checkIfNeedToGenerateNotificationForPage(session,parentPage)){
                 val articleForNotification = parentPageIdVsArticleMap.get(it)!!.sortedBy { it.publicationTime!! }.last()
+//                LoggerUtils.logOnDb("articleForNotification: ${articleForNotification.toString()}",session)
                 DatabaseUtils.runDbTransection(session) {
                     session.save(ArticleNotificationGenerationLog(page = parentPage, article = articleForNotification))
                 }

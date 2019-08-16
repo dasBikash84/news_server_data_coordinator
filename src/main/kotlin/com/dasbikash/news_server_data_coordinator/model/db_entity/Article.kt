@@ -61,8 +61,8 @@ data class Article(
 
         override fun toString(): String {
                 return "Article(id='$id', publicationTime=$publicationTime, title=$title, page id=${page?.id}, upOnFirebaseDb=$upOnFirebaseDb, " +
-                        "upOnFireStore=$upOnFireStore, deletedFromFirebaseDb=$deletedFromFirebaseDb, deletedFromFireStore=$deletedFromFireStore, " +
-                        "processedForSearchResult=$processedForSearchResult, deletedProcessedForSearchResult=$deletedProcessedForSearchResult), "+
-                        "imageLinkList: ${imageLinkList}"
+                        "upOnFireStore=$upOnFireStore, deletedFromFirebaseDb=$deletedFromFirebaseDb, deletedFromFireStore=$deletedFromFireStore, "// +
+                        //"processedForSearchResult=$processedForSearchResult, deletedProcessedForSearchResult=$deletedProcessedForSearchResult), "+
+                        //"imageLinkList: ${imageLinkList}"
         }
 }
