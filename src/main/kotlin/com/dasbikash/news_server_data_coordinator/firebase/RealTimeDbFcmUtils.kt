@@ -18,6 +18,7 @@ import com.google.firebase.messaging.AndroidConfig
 import com.google.firebase.messaging.AndroidNotification
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
+import java.util.*
 
 
 object RealTimeDbFcmUtils {
@@ -26,6 +27,9 @@ object RealTimeDbFcmUtils {
     private const val ONE_HOUR_MS = 60 * ONE_MINUTE_MS
     private const val ONE_DAY_MS = 24 * ONE_HOUR_MS
     private const val MAX_DELAY_FOR_FCM_NOTIFICATION_REQ = 10 * ONE_MINUTE_MS
+
+    private const val LAST_HOUR_OF_NOTIFICATION = 22
+    private const val FIRST_HOUR_OF_NOTIFICATION = 7
 
     private const val FCM_PAGE_ID_KEY = "FCM_PAGE_ID"
     private const val FCM_ARTICLE_ID_KEY = "FCM_ARTICLE_ID"
@@ -95,18 +99,19 @@ object RealTimeDbFcmUtils {
     }
 
     fun generateNotificationForArticle(article: Article, parentPage: Page,
-                                               notificationTopic:String=NOTIFICATION_TOPIC_NAME, timeToLive:Long=3*DateUtils.ONE_HOUR_IN_MS) {
-        val title = article.page!!.name + " | " + article.page!!.newspaper!!.name!!
+                                       notificationTopic:String=NOTIFICATION_TOPIC_NAME, timeToLive:Long=3*DateUtils.ONE_HOUR_IN_MS) {
+        val title = parentPage.name + " | " + article.page!!.newspaper!!.name!!
         val body = article.title!!
 
-        val androidNotification =
-                AndroidNotification.builder()
-                        .setTitle(title).setBody(body)
-                        .setSound("default")
-                        .build()
+        val androidNotificationBuilder = AndroidNotification.builder().setTitle(title).setBody(body)
+
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        if (currentHour <= LAST_HOUR_OF_NOTIFICATION && currentHour >= FIRST_HOUR_OF_NOTIFICATION ){
+            androidNotificationBuilder.setSound("default")
+        }
 
         val androidConfig =
-                AndroidConfig.builder().setNotification(androidNotification)
+                AndroidConfig.builder().setNotification(androidNotificationBuilder.build())
                         .setPriority(AndroidConfig.Priority.HIGH)
                         .setTtl(timeToLive)
                         .putAllData(getDataPayloadForArticle(article,parentPage))
