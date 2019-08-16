@@ -15,17 +15,13 @@ import org.hibernate.Session
 
 class FirebaseUserSettingsSynchronizer:Thread() {
 
-    companion object{
-        private const val SLEEP_PERIOD_BETWEEN_ITERATION = DateUtils.ONE_HOUR_IN_MS * 3
-    }
-
     private lateinit var dbSession:Session
 
     override fun run() {
         FireBaseConUtils.init()
         while (true) {
             DatabaseUtils.getLastFirebaseUserInfoSynchronizerLog(getDatabaseSession())?.let {
-                val sleepTime = SLEEP_PERIOD_BETWEEN_ITERATION - (System.currentTimeMillis() - it.created.time)
+                val sleepTime = getUserCountDelendentSleepPeriod() - (System.currentTimeMillis() - it.created.time)
                 if (sleepTime > 0) {
                     getDatabaseSession().close()
                     LoggerUtils.logOnDb("FirebaseUserInfoSynchronizer Going to sleep for: ${sleepTime/1000} secs",getDatabaseSession())
@@ -95,6 +91,22 @@ class FirebaseUserSettingsSynchronizer:Thread() {
                     FirebaseUserInfoSynchronizerLog(newUserCount = newUserCount, syncedUserCount = syncedUserCount, message = logMessageBuilder.toString())
             DatabaseUtils.runDbTransection(getDatabaseSession()) {getDatabaseSession().save(firebaseUserInfoSynchronizerLog)}
             getDatabaseSession().close()
+        }
+    }
+
+    private fun getUserCountDelendentSleepPeriod(): Long {
+        val currentUserCount = DatabaseUtils.getFirebaseUserCount(getDatabaseSession())
+
+        if (currentUserCount < 100){
+            return 30*DateUtils.ONE_MINUTE_IN_MS
+        }else if (currentUserCount < 1000){
+            return DateUtils.ONE_HOUR_IN_MS
+        }else if (currentUserCount < 5000){
+            return 3 * DateUtils.ONE_HOUR_IN_MS
+        }else if (currentUserCount < 10000){
+            return DateUtils.ONE_DAY_IN_MS
+        }else{
+            return 7*DateUtils.ONE_DAY_IN_MS
         }
     }
 

@@ -39,10 +39,7 @@ data class FavPageEntryOnUserSettings(
     }
 
     fun loadFirebaseUser(session: Session) {
-        DatabaseUtils.getAllFirebaseUser(session)
-                .find { it.uid == firebaseUserId }?.let {
-                    firebaseUser = it
-                }
+        DatabaseUtils.findFirebaseUserById(session,firebaseUserId)?.let {firebaseUser = it}
     }
 
     override fun toString(): String {

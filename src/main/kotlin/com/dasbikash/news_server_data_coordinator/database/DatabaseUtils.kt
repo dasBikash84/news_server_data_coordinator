@@ -699,4 +699,36 @@ object DatabaseUtils {
             }
         }
     }
+
+    fun findFirebaseUserById(session: Session,userId:String): FirebaseUser? {
+        val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.FIREBASE_USER_ENTRY_NAME}")
+                                            .append(" WHERE uid='${userId}'")
+
+        val query = session.createNativeQuery(sqlStringBuilder.toString(), FirebaseUser::class.java)
+        try {
+            (query.resultList as List<FirebaseUser>).apply {
+                if (isNotEmpty()){
+                    return get(0)
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return null
+    }
+
+    fun getFirebaseUserCount(session: Session): Int {
+
+        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.FIREBASE_USER_ENTRY_NAME}")
+
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
+        }
+        return 0
+    }
 }
