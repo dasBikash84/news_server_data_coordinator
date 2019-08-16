@@ -26,6 +26,7 @@ import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
 
 
@@ -36,7 +37,7 @@ abstract class DataUploader : Thread() {
         private const val MAX_ARTICLE_INVALID_AGE_ERROR_MESSAGE = "Max article age must be positive"
         private const val MAX_ARTICLE_COUNT_INVALID_ERROR_MESSAGE = "Max article count for upload must be positive"
 
-        private const val WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS = 10 * 60 * 1000L // 10 mins
+        private const val WAITING_TIME_MS_FOR_NEW_ARTICLE_UPLOAD = 10 * 60 * 1000L // 10 mins
         private const val WAITING_TIME_BETWEEN_ITERATION = 5 * 1000L //5 secs
 
         private const val SQL_DATE_FORMAT = "yyyy-MM-dd"
@@ -50,6 +51,8 @@ abstract class DataUploader : Thread() {
         const val MIN_ARTICLE_DELETION_ROUTINE_RUNNING_HOUR = 0
 
         private const val MINIMUM_ARTICLE_COUNT_FOR_PAGE = 5
+
+        private val runningFlag:AtomicBoolean = AtomicBoolean(false)
     }
 
     private var errorDelayPeriod = 0L
@@ -275,9 +278,15 @@ abstract class DataUploader : Thread() {
 
     override fun run() {
         RealTimeDbDataCoordinatorSettingsUtils.init()
-        sleep(Random(System.currentTimeMillis()).nextLong(5000L) + 60000L)
+        sleep(getInitialWaitingTime())
         do {
             val session = DbSessionManager.getNewSession()
+
+            do {
+                sleep(WAITING_TIME_BETWEEN_ITERATION)
+            }while (runningFlag.get())
+
+            runningFlag.set(true)
 
             if (!DatabaseUtils.getArticleUploaderStatus(session, getUploadDestinationInfo().articleUploadTarget)) {
                 logExit(session)
@@ -339,11 +348,12 @@ abstract class DataUploader : Thread() {
 
             } else {
                 session.close()
-                waitHere(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS +
-                        Random(System.currentTimeMillis()).nextLong(WAITING_TIME_FOR_NEW_ARTICLES_FOR_UPLOAD_MS))
+                waitHere(WAITING_TIME_MS_FOR_NEW_ARTICLE_UPLOAD)
             }
         } while (true)
     }
+
+    abstract protected fun getInitialWaitingTime(): Long
 
     private fun runDailyArticleDeletionTask(session: Session) {
         LoggerUtils.logOnDb("Starting daily article deletion task for ${getUploadDestinationInfo().articleUploadTarget.name}", session)
@@ -403,6 +413,7 @@ abstract class DataUploader : Thread() {
 
     private fun waitHere(waitTimeMs: Long) {
         try {
+            runningFlag.set(false)
             sleep(waitTimeMs)
         } catch (ex: InterruptedException) {
             ex.printStackTrace()

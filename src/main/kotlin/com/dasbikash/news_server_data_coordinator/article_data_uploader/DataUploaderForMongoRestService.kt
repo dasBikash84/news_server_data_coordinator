@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 
@@ -52,5 +53,13 @@ class DataUploaderForMongoRestService:DataUploader() {
 
     override fun deleteArticleFromServer(article: Article,session: Session): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getInitialWaitingTime(): Long {
+        return INIT_WAIT_TIME_MS
+    }
+
+    companion object{
+        private const val INIT_WAIT_TIME_MS = 10* DateUtils.ONE_MINUTE_IN_MS
     }
 }

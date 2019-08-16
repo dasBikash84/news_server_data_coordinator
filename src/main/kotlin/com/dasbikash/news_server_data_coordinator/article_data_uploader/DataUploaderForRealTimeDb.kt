@@ -15,6 +15,7 @@ package com.dasbikash.news_server_data_coordinator.article_data_uploader
 
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 
@@ -52,5 +53,13 @@ class DataUploaderForRealTimeDb : DataUploader() {
 
     override fun deleteArticleFromServer(article: Article,session: Session): Boolean {
         return RealTimeDbDataUtils.deleteArticleFromServer(article,session)
+    }
+
+    override fun getInitialWaitingTime(): Long {
+        return INIT_WAIT_TIME_MS
+    }
+
+    companion object{
+        private const val INIT_WAIT_TIME_MS = 6 * DateUtils.ONE_MINUTE_IN_MS
     }
 }
