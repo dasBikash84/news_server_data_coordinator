@@ -53,5 +53,6 @@
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.FirebaseUser"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.FirebaseUserInfoSynchronizerLog"/>
   <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.FavPageEntryOnUserSettings"/>
+  <mapping class="com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleNotificationGenerationLog"/>
  </session-factory>
 </hibernate-configuration>

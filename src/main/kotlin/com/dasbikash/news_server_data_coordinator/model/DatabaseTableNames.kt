@@ -37,4 +37,5 @@ object DatabaseTableNames {
     const val FIREBASE_USER_ENTRY_NAME = "firebase_user"
     const val FIREBASE_USER_INFO_SYNCHRONIZER_LOG_ENTRY_NAME = "firebase_user_info_synchronizer_log"
     const val FAV_PAGE_ENTRY_ON_USER_SETTINGS_TABLE_NAME = "fav_page_entry_on_user_settings"
+    const val ARTICLE_NOTIFICATION_GENERATION_LOG_TABLE_NAME = "article_notification_generation_log"
 }

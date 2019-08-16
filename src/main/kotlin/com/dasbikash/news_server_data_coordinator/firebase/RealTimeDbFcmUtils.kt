@@ -5,7 +5,10 @@ import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.exceptions.NotificationGenerationException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
+import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleNotificationGenerationLog
 import com.dasbikash.news_server_data_coordinator.model.db_entity.AuthToken
+import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import com.dasbikash.news_server_data_coordinator.utils.RxJavaUtils
 import com.google.firebase.database.DataSnapshot
@@ -55,7 +58,16 @@ object RealTimeDbFcmUtils {
                                             if (token != null && !token.hasExpired()) {
                                                 DatabaseUtils.findArticleById(session, fcmNotificationGenerationRequest.articleId!!)?.let {
                                                     try {
-                                                        generateNotificationForArticle(it)
+                                                        val parentPage = when{
+                                                            it.page!!.topLevelPage!! -> it.page!!
+                                                            else -> DatabaseUtils.findPageById(session,it.page!!.parentPageId!!)!!
+                                                        }
+                                                        DatabaseUtils.runDbTransection(session) {
+                                                            session.save(ArticleNotificationGenerationLog(page = parentPage, article = it))
+                                                        }
+                                                        session.detach(it)
+                                                        session.detach(parentPage)
+                                                        generateNotificationForArticle(it,parentPage)
                                                         LoggerUtils.logOnDb("Notification generated for articleId: ${it.id}",session)
                                                     } catch (ex: Throwable) {
                                                         DataCoordinatorExceptionHandler.handleException(NotificationGenerationException(ex.message, ex))
@@ -75,18 +87,15 @@ object RealTimeDbFcmUtils {
                 })
     }
 
-    private fun getDataPayloadForArticle(article: Article): Map<String, String> {
+    private fun getDataPayloadForArticle(article: Article, parentPage: Page): Map<String, String> {
         val dataPayLoad = mutableMapOf<String, String>()
         dataPayLoad.put(FCM_ARTICLE_ID_KEY, article.id)
-        val pageId = when {
-            article.page!!.topLevelPage!! -> article.page!!.id
-            else -> article.page!!.parentPageId!!
-        }
-        dataPayLoad.put(FCM_PAGE_ID_KEY, pageId)
+        dataPayLoad.put(FCM_PAGE_ID_KEY, parentPage.id)
         return dataPayLoad.toMap()
     }
 
-    private fun generateNotificationForArticle(article: Article) {
+    fun generateNotificationForArticle(article: Article, parentPage: Page,
+                                               notificationTopic:String=NOTIFICATION_TOPIC_NAME, timeToLive:Long=3*DateUtils.ONE_HOUR_IN_MS) {
         val title = article.page!!.name + " | " + article.page!!.newspaper!!.name!!
         val body = article.title!!
 
@@ -99,11 +108,11 @@ object RealTimeDbFcmUtils {
         val androidConfig =
                 AndroidConfig.builder().setNotification(androidNotification)
                         .setPriority(AndroidConfig.Priority.HIGH)
-                        .setTtl(ONE_DAY_MS)
-                        .putAllData(getDataPayloadForArticle(article))
+                        .setTtl(timeToLive)
+                        .putAllData(getDataPayloadForArticle(article,parentPage))
                         .build()
         val message = Message.builder().setAndroidConfig(androidConfig)
-                .setTopic(NOTIFICATION_TOPIC_NAME)
+                .setTopic(notificationTopic)
                 .build()
         FirebaseMessaging.getInstance().send(message)
     }

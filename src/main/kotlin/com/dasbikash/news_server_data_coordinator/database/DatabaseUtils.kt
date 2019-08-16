@@ -731,4 +731,41 @@ object DatabaseUtils {
         }
         return 0
     }
+
+    fun getLatestArticleNotificationGenerationLogForPage(session: Session, parentPage: Page): ArticleNotificationGenerationLog? {
+
+        val sqlStringBuilder = StringBuilder("SELECT * FROM ${DatabaseTableNames.ARTICLE_NOTIFICATION_GENERATION_LOG_TABLE_NAME}")
+                                                    .append(" ORDER BY created desc limit 1")
+        LoggerUtils.logOnConsole(sqlStringBuilder.toString())
+        val query = session.createNativeQuery(sqlStringBuilder.toString(), ArticleNotificationGenerationLog::class.java)
+        try {
+            (query.resultList as List<ArticleNotificationGenerationLog>).apply {
+                if (isNotEmpty()){
+                    return get(0)
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return null
+    }
+
+    fun checkSubscribTionForPage(session: Session, parentPage: Page): Boolean {
+
+        if (!parentPage.topLevelPage!!){return false}
+
+        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.FAV_PAGE_ENTRY_ON_USER_SETTINGS_TABLE_NAME}")
+                                            .append(" WHERE pageId='${parentPage.id}' AND subscribed=true")
+
+        LoggerUtils.logOnConsole(sqlBuilder.toString())
+        try {
+            val result = session.createNativeQuery(sqlBuilder.toString()).list() as List<Int>
+            if (result.size == 1) {
+                return result.get(0) > 0
+            }
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
+        }
+        return false
+    }
 }

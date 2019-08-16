@@ -20,9 +20,12 @@ import com.dasbikash.news_server_data_coordinator.exceptions.ArticleUploadExcept
 import com.dasbikash.news_server_data_coordinator.exceptions.SettingsUploadException
 import com.dasbikash.news_server_data_coordinator.exceptions.handlers.DataCoordinatorExceptionHandler
 import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbDataCoordinatorSettingsUtils
+import com.dasbikash.news_server_data_coordinator.firebase.RealTimeDbFcmUtils
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
+import com.dasbikash.news_server_data_coordinator.utils.DateUtils
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import com.dasbikash.news_server_data_coordinator.utils.RxJavaUtils
 import org.hibernate.Session
 import java.text.SimpleDateFormat
 import java.util.*
@@ -324,13 +327,14 @@ abstract class DataUploader : Thread() {
                         ArticleDeleteException(getUploadDestinationInfo().articleUploadTarget, ex)
                 )
             }
-
+            val uploadedArticles = mutableListOf<Article>()
             val articlesForUpload = getArticlesForUpload(session)
             LoggerUtils.logOnConsole("articlesForUpload.size: ${articlesForUpload.size} for ${getUploadDestinationInfo().articleUploadTarget.name}")
             if (articlesForUpload.size > 0) {
                 try {
                     if (uploadArticles(articlesForUpload,session)) {
                         markArticlesAsUploaded(articlesForUpload, session)
+                        uploadedArticles.addAll(articlesForUpload)
                         LoggerUtils.logArticleUploadHistory(session, articlesForUpload, getUploadDestinationInfo())
                         resetErrorDelay()
                     }
@@ -347,10 +351,57 @@ abstract class DataUploader : Thread() {
                 waitHere(WAITING_TIME_BETWEEN_ITERATION)
 
             } else {
+                generateNotificationForUploadedArticles(session,uploadedArticles.toList())
                 session.close()
                 waitHere(WAITING_TIME_MS_FOR_NEW_ARTICLE_UPLOAD)
             }
         } while (true)
+    }
+
+    private fun generateNotificationForUploadedArticles(session: Session, uploadedArticles: List<Article>) {
+        if (uploadedArticles.isEmpty()){
+            return
+        }
+        val parentPageIdVsArticleMap = mutableMapOf<String,MutableList<Article>>()
+
+        uploadedArticles.filter {
+            session.refresh(it)
+            it.upOnFireStore && it.upOnFirebaseDb && !it.deletedFromFirebaseDb && !it.deletedFromFireStore &&
+                    (System.currentTimeMillis() - it.publicationTime!!.time) < DateUtils.ONE_DAY_IN_MS
+        }.forEach {
+            val parentPageId = when{
+                it.page!!.topLevelPage!! -> it.page!!.id
+                else    -> it.page!!.parentPageId!!
+            }
+            if (!parentPageIdVsArticleMap.containsKey(parentPageId)){
+                parentPageIdVsArticleMap.put(parentPageId, mutableListOf())
+            }
+            parentPageIdVsArticleMap.get(parentPageId)!!.add(it)
+        }
+
+        parentPageIdVsArticleMap.keys.asSequence().forEach {
+            val parentPage = DatabaseUtils.findPageById(session,it)!!
+            if (checkIfNeedToGenerateNotificationForPage(session,parentPage)){
+                val articleForNotification = parentPageIdVsArticleMap.get(it)!!.sortedBy { it.publicationTime!! }.last()
+                DatabaseUtils.runDbTransection(session) {
+                    session.save(ArticleNotificationGenerationLog(page = parentPage, article = articleForNotification))
+                }
+                session.detach(parentPage)
+                session.detach(articleForNotification)
+                RxJavaUtils.doTaskInBackGround { RealTimeDbFcmUtils.generateNotificationForArticle(
+                        articleForNotification,parentPage,parentPage.id) }
+            }
+        }
+    }
+
+    private fun checkIfNeedToGenerateNotificationForPage(session: Session, parentPage: Page): Boolean {
+        if(!DatabaseUtils.checkSubscribTionForPage(session,parentPage)){
+            return false
+        }
+        DatabaseUtils.getLatestArticleNotificationGenerationLogForPage(session,parentPage)?.let {
+            return (System.currentTimeMillis() - it.created!!.time) > 3 * DateUtils.ONE_HOUR_IN_MS
+        }
+        return true
     }
 
     abstract protected fun getInitialWaitingTime(): Long

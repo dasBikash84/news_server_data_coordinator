@@ -13,12 +13,16 @@
 
 package com.dasbikash.news_server_data_coordinator.firebase
 
+import com.dasbikash.news_server_data_coordinator.article_data_uploader.DataUploaderForFireStoreDb
+import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
+import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 
 internal class RealTimeDbDataUtilsTest {
@@ -155,6 +159,15 @@ internal class RealTimeDbDataUtilsTest {
 //        RealTimeDbDataCoordinatorSettingsUtils.init()
 //        RealTimeDbAdminTaskUtils.init()
 //        RealTimeDbFcmUtils.init()
+//        while (true){}
+//    }
+//    @Test
+//    fun pageNotificationGenerationTest(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getAllPages(session).filter { it.id == "PAGE_ID_1" || it.id == "PAGE_ID_368" }.map{DatabaseUtils.findLatestArticleForPage(session,it)}.filter { it!=null }
+//                .apply {
+//                    DataUploaderForFireStoreDb().generateNotificationForUploadedArticles(session,this as List<Article>)
+//                }
 //        while (true){}
 //    }
 }

@@ -320,11 +320,11 @@ CREATE TABLE `news_server_data_coordinator`.`firebase_user`
 
 CREATE TABLE `news_server_data_coordinator`.`firebase_user_info_synchronizer_log`
 (
-    `id`              INT(11)  NOT NULL AUTO_INCREMENT,
-    `syncedUserCount` INT(11)  NOT NULL DEFAULT 0,
-    `newUserCount`    INT(11)  NOT NULL DEFAULT 0,
-    `message`         MEDIUMTEXT     NOT NULL,
-    `created`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`              INT(11)    NOT NULL AUTO_INCREMENT,
+    `syncedUserCount` INT(11)    NOT NULL DEFAULT 0,
+    `newUserCount`    INT(11)    NOT NULL DEFAULT 0,
+    `message`         MEDIUMTEXT NOT NULL,
+    `created`         DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -351,6 +351,29 @@ CREATE TABLE `news_server_data_coordinator`.`fav_page_entry_on_user_settings`
             ON UPDATE NO ACTION
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `news_server_data_coordinator`.`article_notification_generation_log`
+(
+    `id`           INT(11)      NOT NULL AUTO_INCREMENT,
+    `articleId`    VARCHAR(255) NOT NULL,
+    `parentPageId` VARCHAR(255) NOT NULL,
+    `created`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `fk_article_notification_generation_log_articleId_idx` (`articleId` ASC),
+    INDEX `fk_article_notification_generation_log_pageId_idx` (`parentPageId` ASC),
+    CONSTRAINT `fk_article_notification_generation_log_articleId`
+        FOREIGN KEY (`articleId`)
+            REFERENCES `news_server_data_coordinator`.`articles` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT `fk_article_notification_generation_log_pageId`
+        FOREIGN KEY (`parentPageId`)
+            REFERENCES `news_server_data_coordinator`.`pages` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+)
+ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4;
 
 CREATE INDEX `articles_upOnFirebaseDb_index` ON articles (upOnFirebaseDb);
 CREATE INDEX `articles_upOnFireStore_index` ON articles (upOnFireStore);
