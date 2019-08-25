@@ -55,6 +55,10 @@ class DataUploaderForRealTimeDb : DataUploader() {
         return RealTimeDbDataUtils.deleteArticleFromServer(article,session)
     }
 
+    override fun deleteArticlesFromServer(articles: List<Article>, session: Session) {
+        return RealTimeDbDataUtils.deleteArticlesFromServer(articles, session)
+    }
+
     override fun getInitialWaitingTime(): Long {
         return INIT_WAIT_TIME_MS
     }

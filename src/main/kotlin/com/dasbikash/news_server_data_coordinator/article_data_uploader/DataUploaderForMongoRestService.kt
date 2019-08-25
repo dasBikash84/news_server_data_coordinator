@@ -55,6 +55,10 @@ class DataUploaderForMongoRestService:DataUploader() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun deleteArticlesFromServer(articles: List<Article>, session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getInitialWaitingTime(): Long {
         return INIT_WAIT_TIME_MS
     }

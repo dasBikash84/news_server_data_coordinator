@@ -49,6 +49,10 @@ class DataUploaderForFireStoreDb : DataUploader() {
         return FireStoreDataUtils.deleteArticleFromServer(article)
     }
 
+    override fun deleteArticlesFromServer(articles: List<Article>, session: Session) {
+        return FireStoreDataUtils.deleteArticlesFromServer(articles)
+    }
+
     override fun getInitialWaitingTime(): Long {
         return INIT_WAIT_TIME_MS
     }

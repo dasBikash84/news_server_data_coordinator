@@ -16,9 +16,11 @@ package com.dasbikash.news_server_data_coordinator.firebase
 import com.dasbikash.news_server_data_coordinator.database.DatabaseUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
+import com.google.api.core.ApiFuture
 import com.google.cloud.firestore.CollectionReference
 import com.google.cloud.firestore.FieldValue
 import com.google.cloud.firestore.WriteBatch
+import com.google.cloud.firestore.WriteResult
 import org.hibernate.Session
 
 
@@ -221,6 +223,14 @@ object FireStoreDataUtils {
         val future = FireStoreRefUtils.getArticleCollectionRef().document(article.id).delete()
         while (future.isDone){}
         return true
+    }
+
+    fun deleteArticlesFromServer(articles: List<Article>) {
+        val futureList = mutableListOf<ApiFuture<WriteResult>>()
+        articles.asSequence().forEach {
+            futureList.add(FireStoreRefUtils.getArticleCollectionRef().document(it.id).delete())
+        }
+        futureList.asSequence().forEach {while (!it.isDone) {Thread.sleep(10)}}
     }
 
 }

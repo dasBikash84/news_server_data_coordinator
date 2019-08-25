@@ -70,6 +70,7 @@ abstract class DataUploader : Thread() {
 
     abstract protected fun addToServerUploadTimeLog()
     abstract protected fun deleteArticleFromServer(article: Article,session: Session): Boolean
+    abstract protected fun deleteArticlesFromServer(articles: List<Article>,session: Session)
 
 
     private fun getMaxArticleAgeInDays(): Int =
@@ -431,12 +432,14 @@ abstract class DataUploader : Thread() {
                         }
 //                        println("articleDeletionChunkSize: ${articleDeletionChunkSize}")
                         var articleDeletionCountForPage = 0
-                        getArticlesForDeletion(session, it, articleDeletionChunkSize).asSequence().forEach {
-                            //                            println(it)
-                            if (deleteArticleFromServer(it,session)) {
-                                DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
-                                deletedArticleIds.add(it.id)
-                                articleDeletionCountForPage++
+                        getArticlesForDeletion(session, it, articleDeletionChunkSize).apply {
+                            if(isNotEmpty()){
+                                deleteArticlesFromServer(this,session)
+                                this.asSequence().forEach {
+                                    DatabaseUtils.markArticleAsDeletedFromDataStore(session, it, getUploadDestinationInfo())
+                                    deletedArticleIds.add(it.id)
+                                    articleDeletionCountForPage++
+                                }
                             }
                         }
                         LoggerUtils.logOnDb("${articleDeletionCountForPage} articles deleted of page ${it.name} | ${it.id} from ${getUploadDestinationInfo().articleUploadTarget.name}", session)
