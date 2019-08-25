@@ -111,16 +111,6 @@ internal class RealTimeDbDataUtilsTest {
         println("totalArticleCount Count: " + totalArticleCount)
     }*/
 
-
-    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
-        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
-                " where pageId='${page.id}'" +
-                " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
-        println(sql)
-        val query = session.createNativeQuery(sql, Article::class.java)
-        return query.resultList as List<Article>
-    }
-
     //    @Test
 //    fun getSearchResultMapTest(){
 //        val session = DbSessionManager.getNewSession()
@@ -170,4 +160,49 @@ internal class RealTimeDbDataUtilsTest {
 //                }
 //        while (true){}
 //    }
+
+    fun findRTDBArticleForPage(session: Session, page: Page): List<Article> {
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
+                            " where pageId='${page.id}'" +
+                            " AND upOnFirebaseDb AND !deletedFromFirebaseDb"
+        println(sql)
+        val query = session.createNativeQuery(sql, Article::class.java)
+        return query.resultList as List<Article>
+    }
+
+    fun findDeletedRTDBArticleForChildPage(session: Session, page: Page,limit:Int=400,offset:Int=1): List<Article> {
+        if (page.topLevelPage!!){
+            return emptyList()
+        }
+        val sql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}" +
+                            " where pageId='${page.id}'" +
+                            " AND upOnFirebaseDb AND deletedFromFirebaseDb "+
+                            " order by publicationTime "+
+                            " limit $offset,$limit"
+        println(sql)
+        val query = session.createNativeQuery(sql, Article::class.java)
+        return query.resultList as List<Article>
+    }
+
+    /*@Test
+    fun correctionForArticleDataDeletionBug(){
+        val session = DbSessionManager.getNewSession()
+        val chunkSize = 400
+        var total = 0
+        DatabaseUtils.getAllPages(session).filter { it.hasData!! && !it.topLevelPage!!}
+                .asSequence().forEach {
+                    println(it)
+                    var offSet = 1
+                    do {
+                        val deletedArticles = findDeletedRTDBArticleForChildPage(session,it,chunkSize,offSet)
+//                        RealTimeDbDataUtils.deleteArticlesOnlyFromServer(deletedArticles)
+                        deletedArticles.forEach { println(it) }
+                        offSet+=deletedArticles.size
+//                        Thread.sleep(500)
+                    }while (deletedArticles.size>0)
+            total += (offSet-1)
+                    println("offset: $offSet")
+        }
+        println("Total: $total")
+    }*/
 }

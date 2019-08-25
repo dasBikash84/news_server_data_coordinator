@@ -16,6 +16,8 @@ package com.dasbikash.news_server_data_coordinator.database
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.cfg.Configuration
+import java.util.logging.Level
+import java.util.logging.LogManager
 
 object DbSessionManager {
 
@@ -25,11 +27,17 @@ object DbSessionManager {
     val sessionFactory: SessionFactory
 
     init {
+        disableLogging()
         configuration = Configuration().configure(/*File(CONFIG_FILE_PATH)*/)
         sessionFactory = configuration.buildSessionFactory()
     }
 
     fun getNewSession():Session{
         return sessionFactory.openSession()
+    }
+
+    private fun disableLogging() {
+        val logManager = LogManager.getLogManager()
+        logManager.getLogger("").level = Level.SEVERE
     }
 }

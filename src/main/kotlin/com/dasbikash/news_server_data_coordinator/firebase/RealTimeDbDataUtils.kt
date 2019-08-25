@@ -154,11 +154,44 @@ object RealTimeDbDataUtils {
         }
     }
 
+    fun deleteArticlesOnlyFromServer(articles: List<Article>) {
+        val futureList = mutableListOf<ApiFuture<Void>>()
+        articles.asSequence().forEach {
+            val parentPageId = when{
+                it.page!!.topLevelPage!! -> it.page!!.id
+                else -> it.page!!.parentPageId!!
+            }
+            futureList.add(mArticleDataRootReference.child(parentPageId).child(it.id).setValueAsync(null))
+        }
+        futureList.asSequence().forEach {while (!it.isDone) {Thread.sleep(10)}}
+    }
+
+    fun deleteArticlesFromServer(articles: List<Article>,session: Session) {
+        val futureList = mutableListOf<ApiFuture<Void>>()
+        articles.asSequence().forEach {
+            val parentPageId = when{
+                it.page!!.topLevelPage!! -> it.page!!.id
+                else -> it.page!!.parentPageId!!
+            }
+            futureList.add(mArticleDataRootReference.child(parentPageId).child(it.id).setValueAsync(null))
+            val  article = it
+            getNewsCategoriesForPage(article.page!!, session).asSequence().forEach {
+                futureList.add(mNewsCategoriesArticleInfoReference.child(it.id).child(article.id).setValueAsync(null))
+            }
+        }
+        futureList.asSequence().forEach {while (!it.isDone) {Thread.sleep(10)}}
+    }
+
     fun deleteArticleFromServer(article: Article,session: Session): Boolean {
 
         val futureList = mutableListOf<ApiFuture<Void>>()
 
-        futureList.add(mArticleDataRootReference.child(article.page!!.id).child(article.id).setValueAsync(null))
+        val parentPageId = when{
+            article.page!!.topLevelPage!! -> article.page!!.id
+            else -> article.page!!.parentPageId!!
+        }
+
+        futureList.add(mArticleDataRootReference.child(parentPageId).child(article.id).setValueAsync(null))
 
         getNewsCategoriesForPage(article.page!!, session).asSequence().forEach {
             futureList.add(mNewsCategoriesArticleInfoReference.child(it.id).child(article.id).setValueAsync(null))
