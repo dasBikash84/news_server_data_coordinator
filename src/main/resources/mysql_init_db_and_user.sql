@@ -94,6 +94,8 @@ CREATE TABLE `news_server_data_coordinator`.`articles`
     `articleText`                      text         NOT NULL,
     `previewImageLink`                 text,
     `publicationTime`                  datetime     NOT NULL,
+    `processedForSearchResult` bit(1) NOT NULL DEFAULT b'0',
+    `deletedProcessedForSearchResult` bit(1) NOT NULL DEFAULT b'0',
     `upOnFirebaseDb`                   bit(1)       NOT NULL DEFAULT b'0',
     `upOnFireStore`                    bit(1)       NOT NULL DEFAULT b'0',
     `upOnMongoRest`                    bit(1)       NOT NULL DEFAULT b'0',
@@ -106,7 +108,22 @@ CREATE TABLE `news_server_data_coordinator`.`articles`
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
-    INDEX `articles_processedInNewFormatForFirestore_index` (`processedInNewFormatForFirestore` ASC)
+    KEY `articles_pubtime_index` (`publicationTime`),
+    KEY `articles_created_index` (`created`),
+    KEY `articles_modified_index` (`modified`),
+    KEY `articles_title_index` (`title`),
+    KEY `articles_upOnFirebaseDb_index` (`upOnFirebaseDb`),
+    KEY `articles_upOnFireStore_index` (`upOnFireStore`),
+    KEY `articles_upOnMongoRest_index` (`upOnMongoRest`),
+    KEY `articles_deletedFromFirebaseDb_index` (`deletedFromFirebaseDb`),
+    KEY `articles_deletedFromFireStore_index` (`deletedFromFireStore`),
+    KEY `articles_deletedFromMongoRest_index` (`deletedFromMongoRest`),
+    KEY `articles_processedForSearchResult_index` (`processedForSearchResult`),
+    KEY `articles_deletedProcessedForSearchResult_index` (`deletedProcessedForSearchResult`),
+    KEY `articles_processedInNewFormatForFirestore_index` (`processedInNewFormatForFirestore`),
+    KEY `articles_pageId_deletedFromFirebaseDb_key` (`pageId`,`deletedFromFirebaseDb`),
+    KEY `articles_pageId_deletedFromFireStore_key` (`pageId`,`deletedFromFireStore`),
+    KEY `articles_pageId_deletedFromMongoRest_key` (`pageId`,`deletedFromMongoRest`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `news_server_data_coordinator`.`image_links`
@@ -123,6 +140,7 @@ CREATE TABLE `news_server_data_coordinator`.`article_download_log`
 (
     `id`         int(11) NOT NULL AUTO_INCREMENT,
     `parents`    varchar(255) DEFAULT NULL,
+    `articleCount` int(11) DEFAULT '0',
     `logMessage` text,
     `created`    datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
@@ -141,6 +159,7 @@ CREATE TABLE `news_server_data_coordinator`.`article_upload_log`
 (
     `id`           int(11)                                                    NOT NULL AUTO_INCREMENT,
     `uploadTarget` enum ('REAL_TIME_DB','FIRE_STORE_DB','MONGO_REST_SERVICE') NOT NULL,
+    `articleCount` int(11) DEFAULT '0',
     `logMessage`   text,
     `created`      datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)

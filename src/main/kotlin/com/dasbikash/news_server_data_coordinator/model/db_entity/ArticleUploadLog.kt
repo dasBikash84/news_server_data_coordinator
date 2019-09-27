@@ -23,16 +23,12 @@ class ArticleUploadLog(
         var uploadTarget: ArticleUploadTarget?=null,
         uploadedArticles: List<Article>?=null
 ) {
-    @Transient
-    fun getArticleUpCount(): Int {
-        return logMessage?.split("|")?.size ?: 0
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int? = null
     @Column(columnDefinition = "text")
     var logMessage: String?=null
+    var articleCount: Int = 0
 
     init {
         val logBuilder = StringBuilder()
@@ -42,6 +38,7 @@ class ArticleUploadLog(
             }
             logBuilder.append(uploadedArticles.last().id)
             logMessage = logBuilder.toString()
+            articleCount = uploadedArticles.size
         }
     }
 }

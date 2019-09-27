@@ -18,17 +18,16 @@ internal class ReportGenerationUtilsTest {
     fun tearDown() {
     }
 
-//    @Test
-//    fun prepareDailyReportTest(){
-//        val session = DbSessionManager.getNewSession()
-//
-//        val day = Calendar.getInstance()
-//        day.set(Calendar.MONTH,Calendar.MAY)
-//        day.set(Calendar.DAY_OF_MONTH,15)
-//
-//        ReportGenerationUtils.prepareDailyReport(Date(),session)
-//        ReportGenerationUtils.emailDailyReport(Date())
-//    }
+    /*@Test
+    fun prepareDailyReportTest(){
+        val session = DbSessionManager.getNewSession()
+
+        val day = Calendar.getInstance()
+        day.set(Calendar.DAY_OF_MONTH,24)
+
+        ReportGenerationUtils.prepareDailyReport(day.time,session)
+        ReportGenerationUtils.emailDailyReport(day.time)
+    }*/
 //
 //    @Test
 //    fun prepareWeeklyReportTest(){

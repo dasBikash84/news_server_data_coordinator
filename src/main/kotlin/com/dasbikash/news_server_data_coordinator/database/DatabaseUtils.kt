@@ -18,7 +18,6 @@ import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.EntityClassNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.*
 import com.dasbikash.news_server_data_coordinator.utils.DateUtils
-import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import java.util.*
 
@@ -53,7 +52,7 @@ object DatabaseUtils {
             if (!session.transaction.isActive) {
                 session.beginTransaction()
             }
-            LoggerUtils.logOnDb("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
+//            LoggerUtils.logOnDb("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
             session.transaction.commit()
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -340,7 +339,7 @@ object DatabaseUtils {
                     session.createNativeQuery(sqlBuilder.toString(), ArticleDownloadLog::class.java).resultList as List<ArticleDownloadLog>
             var articleDownloadCount = 0
             articleDownloadLogs.asSequence().forEach {
-                articleDownloadCount += it.getArticleCount()
+                articleDownloadCount += it.articleCount//getArticleCount()
             }
             return articleDownloadCount
         } catch (ex: Throwable) {
@@ -400,7 +399,7 @@ object DatabaseUtils {
                     session.createNativeQuery(sqlBuilder.toString(), ArticleUploadLog::class.java).resultList as List<ArticleUploadLog>
             var articleUploadCount = 0
             articleUploadLogs.asSequence().forEach {
-                articleUploadCount += it.getArticleUpCount()
+                articleUploadCount += it.articleCount//getArticleUpCount()
             }
             return articleUploadCount
         } catch (ex: Throwable) {

@@ -14,8 +14,6 @@
 package com.dasbikash.news_server_data_coordinator.model.db_entity
 
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
-import org.hibernate.annotations.UpdateTimestamp
-import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -32,6 +30,7 @@ class ArticleDownloadLog(
     @Column(columnDefinition = "text")
     var logMessage: String?=null
     var parents: String?=null
+    var articleCount: Int = 0
 
     init {
         if (page!=null) {
@@ -44,16 +43,12 @@ class ArticleDownloadLog(
             }
             logBuilder.append(downloadedArticles.last().id)
             logMessage = logBuilder.toString()
+            articleCount = downloadedArticles.size
         }
     }
 
-    @Transient
-    fun getArticleCount():Int{
-        return logMessage?.split("|")?.size ?: 0
-    }
-
     override fun toString(): String {
-        return "ArticleDownloadLog(page=${page?.id}, id=$id, logMessage=${getArticleCount()}, parents=$parents)"
+        return "ArticleDownloadLog(page=${page?.id}, id=$id, logMessage=${articleCount}, parents=$parents)"
     }
 
 }
