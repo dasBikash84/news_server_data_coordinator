@@ -58,6 +58,6 @@ class DataUploaderForFireStoreDb : DataUploader() {
     }
 
     companion object{
-        private const val INIT_WAIT_TIME_MS = 1 * DateUtils.ONE_MINUTE_IN_MS
+        private const val INIT_WAIT_TIME_MS = 5 * DateUtils.ONE_MINUTE_IN_MS
     }
 }

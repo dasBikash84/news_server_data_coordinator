@@ -64,6 +64,6 @@ class DataUploaderForRealTimeDb : DataUploader() {
     }
 
     companion object{
-        private const val INIT_WAIT_TIME_MS = 6 * DateUtils.ONE_MINUTE_IN_MS
+        private const val INIT_WAIT_TIME_MS = DateUtils.ONE_MINUTE_IN_MS/2
     }
 }
