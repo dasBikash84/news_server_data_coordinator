@@ -19,6 +19,7 @@ import com.dasbikash.news_server_data_coordinator.database.DbSessionManager
 import com.dasbikash.news_server_data_coordinator.model.DatabaseTableNames
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Article
 import com.dasbikash.news_server_data_coordinator.model.db_entity.Page
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -38,13 +39,16 @@ internal class RealTimeDbDataUtilsTest {
     /*@Test
     fun getNewsCategoriesForPageTest(){
         val session = DbSessionManager.getNewSession()
-        val newsCategoryMap = DatabaseUtils.getNewsCategoryMap(session)
-        val newsCategoryEntryMap = DatabaseUtils.getNewsCategoryEntryMap(session)
+//        val newsCategoryMap = DatabaseUtils.getNewsCategoryMap(session)
+//        val newsCategoryEntryMap = DatabaseUtils.getNewsCategoryEntryMap(session)
 
         DatabaseUtils.getAllPages(session).asSequence().forEach {
             println()
-            println(it)
-            println(RealTimeDbDataUtils.getNewsCategoriesForPage(it,newsCategoryMap,newsCategoryEntryMap))
+            println()
+            LoggerUtils.logOnConsole(it.toString())
+            RealTimeDbDataUtils.getNewsCategoriesForPage(it,session).forEach {
+                LoggerUtils.logOnConsole(it.toString())
+            }
         }
     }*/
 

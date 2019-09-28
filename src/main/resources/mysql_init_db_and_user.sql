@@ -123,7 +123,10 @@ CREATE TABLE `news_server_data_coordinator`.`articles`
     KEY `articles_processedInNewFormatForFirestore_index` (`processedInNewFormatForFirestore`),
     KEY `articles_pageId_deletedFromFirebaseDb_key` (`pageId`,`deletedFromFirebaseDb`),
     KEY `articles_pageId_deletedFromFireStore_key` (`pageId`,`deletedFromFireStore`),
-    KEY `articles_pageId_deletedFromMongoRest_key` (`pageId`,`deletedFromMongoRest`)
+    KEY `articles_pageId_deletedFromMongoRest_key` (`pageId`,`deletedFromMongoRest`),
+    KEY `articles_pageId_upOnFirebaseDb_deletedFromFirebaseDb_Index` (`pageId`,`upOnFirebaseDb`,`deletedFromFirebaseDb`,`publicationTime`),
+    KEY `articles_pageId_upOnMongoRest_deletedFromMongoRest_Index` (`pageId`,`upOnMongoRest`,`deletedFromMongoRest`,`publicationTime`),
+    KEY `articles_pageId_upOnFireStore_deletedFromFireStore_Index` (`pageId`,`upOnFireStore`,`deletedFromFireStore`,`publicationTime`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `news_server_data_coordinator`.`image_links`

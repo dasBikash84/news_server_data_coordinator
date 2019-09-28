@@ -6,6 +6,7 @@ import com.dasbikash.news_server_data_coordinator.article_search_result_processo
 import com.dasbikash.news_server_data_coordinator.article_search_result_processor.ArticleSearchResultUtils
 import com.dasbikash.news_server_data_coordinator.model.db_entity.ArticleUploadTarget
 import com.dasbikash.news_server_data_coordinator.model.db_entity.RestrictedSearchKeyWord
+import com.dasbikash.news_server_data_coordinator.utils.LoggerUtils
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +18,7 @@ internal class DatabaseUtilsTest {
 
     @BeforeEach
     fun setUp() {
-//        session=DbSessionManager.getNewSession()
+        session=DbSessionManager.getNewSession()
     }
 
     @AfterEach
@@ -240,4 +241,22 @@ internal class DatabaseUtilsTest {
 //             this.asSequence().forEach { println(DataUploaderForFireStoreDb().getSqlToMarkUploadedArticle(it)) }
 //        }
 //    }
+
+    /*@Test
+    fun getArticleCountInTargetForPage(){
+        val uploadDestinationInfo = UploadDestinationInfo.FIRE_STORE_DB
+        DatabaseUtils.getAllPages(session).asSequence().forEach {
+            println()
+            LoggerUtils.logOnConsole("${it.toString()} : ${DatabaseUtils.getArticleCountInTargetForPage(session,it,uploadDestinationInfo).toString()}")
+        }
+    }
+
+    @Test
+    fun getArticlesForDeletion(){
+        val uploadDestinationInfo = UploadDestinationInfo.REAL_TIME_DB
+        DatabaseUtils.getAllPages(session).asSequence().forEach {
+            println()
+            LoggerUtils.logOnConsole("${it.toString()} : ${DatabaseUtils.getArticlesForDeletion(session,it,400,uploadDestinationInfo).size.toString()}")
+        }
+    }*/
 }
